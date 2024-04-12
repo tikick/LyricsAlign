@@ -1,0 +1,14 @@
+numpy
+librosa
+soundfile
+pickle
+tqdm
+sklearn
+torch==1.8.0
+torchaudio
+tensorboard
+pytube
+g2p_en
+prettytable
+bisect
+DALI
