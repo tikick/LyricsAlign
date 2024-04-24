@@ -1,10 +1,8 @@
 import os
 
 
-## general
-sr = 11025  # sampling rate
-load_model = None  # path to model to load
-val_size = 0.2  # train validation split
+## debug
+time_report = None
 
 
 ## paths
@@ -13,6 +11,7 @@ dali_annot_path = os.path.join(base_path, 'DALI_v2.0/annot')
 dali_audio_path = os.path.join(base_path, 'DALI_v2.0/audio')
 checkpoint_dir = os.path.join(base_path, 'checkpoints')
 log_dir = os.path.join(base_path, 'logs')
+hdf_dir = os.path.join(base_path, 'hdfs')
 pickle_dir = os.path.join(base_path, 'pickles')
 
 
@@ -21,19 +20,25 @@ embedding_dim = 64
 
 ##### audio encoder
 channels = 64
-input_length = 11025 * 5  # length in samples
 
 ##### text encoder
 context = 1
-use_chars = False
+use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
-##### optimizer and data loaders
-lr = 1e-3
+##### optimizer, data loader and others
+num_epochs = 3
+lr = 1e-4
 batch_size = 32
-num_workers = 8
+num_workers = 1
+val_size = 0.2  # train validation split
 
 
-## dataset and samples
-hop_size = input_length // 2  # in samples
+## dataset, samples and spectrograms
+# if you change these parameters remember to delete the sample files, or the new samples will not be computed
+sr = 11025  # waveform sampling rate
+sample_length = 11025 * 5  # length in waveform samples
+hop_size = sample_length // 2  # in waveform samples
 num_negative_samples = 1_000
+n_fft = 512
+fourier_bins = n_fft // 2 + 1

@@ -12,6 +12,11 @@ lang = 'english'
 if not os.path.isdir(config.dali_audio_path):
     os.makedirs(config.dali_audio_path)
 
+num_downloads = 0
+num_fails = 0
+fails_url = []
+fails_dali_id = []
+
 annot_list = os.listdir(config.dali_annot_path)
 for file in annot_list:
     dali_id = file[:-3]
@@ -22,17 +27,12 @@ for file in annot_list:
     url = base_url + dali_data[dali_id].info['audio']['url']
 
     try:
-        yt = YouTube(url)
+        video = YouTube(url)
+        stream = video.streams.filter(only_audio=True).first()
+        stream.download(output_path=config.dali_audio_path, filename=dali_id + '.wav')
+        num_downloads += 1
+    except Exception as e:
+        num_fails += 1
+        print(f'Failed to download dali_id={dali_id}, url={url}: {repr(e)}')
 
-        # extract only audio 
-        audio = yt.streams.filter(only_audio=True).first()
-
-        # download the file 
-        out_file = audio.download(output_path=config.dali_audio_path)
-
-        new_file = os.path.join(config.dali_audio_path, dali_id + '.wav')
-        os.rename(out_file, new_file)
-
-        print(yt.title + ' has been successfully downloaded.')
-    except:
-        print('Failed to download ' + dali_data[dali_id].info['title'])
+print(f'Successfully donwloaded {num_downloads} / {num_downloads + num_fails} songs')

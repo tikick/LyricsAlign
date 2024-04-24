@@ -4,53 +4,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchaudio
 
 import config
-
-n_fft = 512
-bins = n_fft // 2 + 1  # Fourier bins
-
-
-class LogSpectrogram(nn.Module):
-    def __init__(self, n_fft=400, hop_length=None, power=1):
-        super(LogSpectrogram, self).__init__()
-        self.spectrogram = torchaudio.transforms.Spectrogram(
-            n_fft=n_fft,
-            hop_length=hop_length,
-            power=power
-        )
-
-    def forward(self, waveform):
-        spectrogram = self.spectrogram(waveform)
-        return torch.log(1 + spectrogram)
-
-
-wav2spec = LogSpectrogram(n_fft=n_fft)
-
-
-def data_processing(data):
-    spectrograms = []
-    contextual_tokens = []
-    len_tokens = []
-
-    for (waveform, chars, phonemes) in data:
-        tokens = chars if config.use_chars else phonemes
-
-        # convert waveform to spectrogram
-        waveform = torch.Tensor(waveform)
-        spec = wav2spec(waveform).unsqueeze(0)  # (channel, bins x time)
-        spectrograms.append(spec)
-
-        # extract context for each token
-        token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
-        contextual_tokens += token_with_context
-        len_tokens.append(len(token_with_context))
-
-    spectrograms = torch.stack(spectrograms)
-    contextual_tokens = torch.IntTensor(contextual_tokens)
-
-    return spectrograms, contextual_tokens, len_tokens
 
 
 class RCB(nn.Module):
@@ -66,7 +21,9 @@ class RCB(nn.Module):
         self.group_norm2 = nn.GroupNorm(num_groups=4, num_channels=out_channels)
 
     def forward(self, x):
-        residual = x  # (batch, channel, feature, time)
+        # x.shape: (batch, feature, time)
+        x = x.unsqueeze(1)  # (batch, channel, feature, time)
+        residual = x
         x = self.group_norm1(x)
         x = F.relu(x)
         x = self.conv1(x)
@@ -87,7 +44,7 @@ class AudioEncoder(nn.Module):
             *[RCB(config.channels, config.channels) for _ in range(num_RCBs - 1)]
         )
 
-        self.conv1d = nn.Conv1d(in_channels=config.channels, out_channels=config.embedding_dim, kernel_size=bins)
+        self.conv1d = nn.Conv1d(in_channels=config.channels, out_channels=config.embedding_dim, kernel_size=config.fourier_bins)
 
     def forward(self, x):
         x = self.RCBs(x)  # (batch, channel, feature, time)
@@ -141,20 +98,57 @@ class SimilarityModel(nn.Module):
         self.audio_encoder = audio_encoder
         self.text_encoder = text_encoder
 
-    def forward(self, spec, pos, len_pos, neg):
+    def forward(self, spec, pos, len_pos, neg):        
         A = self.audio_encoder(spec)
         P = self.text_encoder(pos)
         N = self.text_encoder(neg)
 
         cumsum = np.cumsum([0] + len_pos)
 
-        PA = torch.empty((len(pos), A.shape[2]))
-        NA = torch.empty((len(neg), A.shape[2]))
+        PA = torch.empty((len(pos), A.shape[2]), device=A.device)
+        NA = torch.empty((len(neg), A.shape[2]), device=A.device)
 
         for i in range(len(A)):
             j, k = cumsum[i], cumsum[i + 1]
             PA[j:k] = torch.matmul(P[j:k], A[i])  # (samples, time)
             j, k = i * config.num_negative_samples, (i + 1) * config.num_negative_samples
             NA[j:k] = torch.matmul(N[j:k], A[i])  # (samples, time)
+
+        return PA, NA
+
+
+class TimeSimilarityModel(nn.Module):
+
+    def __init__(self, audio_encoder, text_encoder):
+        super(TimeSimilarityModel, self).__init__()
+        self.audio_encoder = audio_encoder
+        self.text_encoder = text_encoder
+
+    def forward(self, spec, pos, len_pos, neg):
+        assert spec.device == pos.device and spec.device == neg.device
+
+        config.time_report.start_timer('audio_encoder')
+        A = self.audio_encoder(spec)
+        torch.cuda.synchronize()
+        config.time_report.end_timer('audio_encoder')
+
+        config.time_report.start_timer('text_encoder')
+        P = self.text_encoder(pos)
+        N = self.text_encoder(neg)
+        torch.cuda.synchronize()
+        config.time_report.end_timer('text_encoder')
+
+        cumsum = np.cumsum([0] + len_pos)
+
+        config.time_report.start_timer('similarity')
+        PA = torch.empty((len(pos), A.shape[2]), device=A.device)
+        NA = torch.empty((len(neg), A.shape[2]), device=A.device)
+        for i in range(len(A)):
+            j, k = cumsum[i], cumsum[i + 1]
+            PA[j:k] = torch.matmul(P[j:k], A[i])  # (samples, time)
+            j, k = i * config.num_negative_samples, (i + 1) * config.num_negative_samples
+            NA[j:k] = torch.matmul(N[j:k], A[i])  # (samples, time)
+        torch.cuda.synchronize()
+        config.time_report.end_timer('similarity')
 
         return PA, NA

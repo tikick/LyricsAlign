@@ -4,76 +4,49 @@ import DALI as dali_code
 import bisect
 import numpy as np
 import os
+from tqdm import tqdm
+import h5py
 import pickle
 import string
 from math import floor
+import torch
+from torch import nn
 from torch.utils.data import Dataset
+import torchaudio
+import warnings
+import librosa
 
 import config
-from utils import load, load_lyrics, gen_phone_gt
 
 phone_dict = ['AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY',
               'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y',
               'Z', 'ZH', ' ']
 phone2int = {phone_dict[i]: i for i in range(len(phone_dict))}
-char_dict = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
-             'v', 'w', 'x', 'y', 'z', "'", ' ']
-char2int = {char_dict[i]: i for i in range(len(char_dict))}
 
-
-def encode_chars(dict_list):
-    lyrics_list = [d['text'] for d in dict_list]
-    lyrics = ' '.join(lyrics_list)
-    # lyrics = ' '.join(lyrics.split())
-    chars = []
-    for c in lyrics.lower():
-        idx = string.ascii_lowercase.find(c)
-        if idx == -1:
-            if c == "'":
-                idx = 26
-            elif c == ' ':
-                idx = 27
-            else:
-                continue  # remove unknown characters
-        chars.append(idx)
-    return chars
-
-
-def encode_phonemes(dict_list):
-    phonemes_nested_list = [d['text'] for d in dict_list]
-
-    phonemes_list = []
-    for i, word_phonemes in enumerate(phonemes_nested_list):
-        phonemes_list.extend(word_phonemes)
-        if i < len(phonemes_nested_list) - 1:
-            phonemes_list.append(' ')
-
-    phonemes = []
-    for p in phonemes_list:
-        idx = phone2int[p]
-        phonemes.append(idx)
-
-    return phonemes
+#char_dict = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+#             'v', 'w', 'x', 'y', 'z', "'", ' ']
+#char2int = {char_dict[i]: i for i in range(len(char_dict))}
 
 
 def get_dali(lang='english'):
-    dali_data = dali_code.get_the_DALI_dataset(config.dali_annot_path, skip=[], keep=[])
+    dali_data = dali_code.get_the_DALI_dataset(config.dali_annot_path, skip=[],
+        keep=[])
+        #keep=['0a3cd469757e470389178d44808273ab', '0a81772ae3a7404f9ef09ecd1f94db07', '0dea06fa7ca04eb88b17e8d83993adc3', '1ae34dc139ea43669501fb9cef85cbd0', '1afbb77f88dc44e9bedc07b54341be9c', '1b9c139f491c41f5b0776eefd21c122d'])
 
     lang_subset = []
 
     audio_files = os.listdir(config.dali_audio_path)
     for file in audio_files:
         if os.path.exists(os.path.join(config.dali_annot_path, file[:-4] + '.gz')):
-            # get annotations and info for the current song
+            # get annotations and metadata for the current song
             annot = dali_data[file[:-4]].annotations['annot']
-            info = dali_data[file[:-4]].info
+            metadata = dali_data[file[:-4]].info['metadata']
 
-            # language filter
-            if lang is not None and info['metadata']['language'] != lang:
+            if lang is not None and metadata['language'] != lang:
                 continue
 
             song = {'id': file[:-4],
-                    'path': os.path.join(config.dali_audio_path, file),
+                    'audio_path': os.path.join(config.dali_audio_path, file),
                     'words': annot['words'],
                     'phonemes': annot['phonemes']
                     }
@@ -83,46 +56,111 @@ def get_dali(lang='english'):
     return lang_subset
 
 
-class LyricsAlignDataset(Dataset):
+class DaliDatasetHDF5(Dataset):
+
+    def __init__(self, dataset, partition, in_memory=False):
+        super(DaliDatasetHDF5, self).__init__()
+
+        hdf_file_path = os.path.join(config.hdf_dir, partition + '.hdf5')
+
+        if not os.path.exists(hdf_file_path):
+            if not os.path.exists(config.hdf_dir):
+                os.makedirs(config.hdf_dir)
+
+            print(f'Creating {partition} samples')
+            sample_id = 0
+            
+            with h5py.File(hdf_file_path, 'w', libver='latest') as f:
+
+                for song in tqdm(dataset):
+                    waveform = load(song['audio_path'], sr=config.sr)
+
+                    start_times = [d['time'][0] for d in song['words']]
+                    end_times = [d['time'][1] for d in song['words']]
+
+                    max_num_samples = floor((len(waveform) - config.sample_length) / config.hop_size) + 1
+                    for i in range(max_num_samples):
+                        sample_start = i * config.hop_size
+                        sample_end = sample_start + config.sample_length
+                        assert sample_end <= len(waveform)
+
+                        # find the lyrics within (start, end)
+                        idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
+                        idx_last_word = bisect.bisect_right(end_times, sample_end / config.sr) - 1
+
+                        if idx_first_word > idx_last_word:  # no words (fully contained) in this sample, skip
+                            continue
+
+                        # convert characters/phonemes present in (start, end) to numerical representation
+                        chars = encode_chars(song['words'][idx_first_word:idx_last_word + 1])
+                        phonemes = encode_phonemes(song['phonemes'][idx_first_word:idx_last_word + 1])
+
+                        spec = wav2spec(waveform[sample_start:sample_end])
+
+                        # sample = (spec, chars, phonemes)
+                        grp = f.create_group(str(sample_id))
+                        grp.create_dataset('spectrogram', data=spec)
+                        grp.create_dataset('chars', data=chars)
+                        grp.create_dataset('phonemes', data=phonemes)
+                        sample_id += 1
+                
+                f.attrs['num_samples'] = sample_id
+
+        driver = 'core' if in_memory else None  # Load hdf file fully into memory if desired
+        self.hdf_file = h5py.File(hdf_file_path, 'r', driver=driver, libver='latest')
+        self.length = self.hdf_file.attrs['num_samples']
+
+    def __getitem__(self, index):
+        spec = self.hdf_file[str(index)]['spectrogram']
+        chars = self.hdf_file[str(index)]['chars']
+        phonemes = self.hdf_file[str(index)]['phonemes']
+        return spec, chars, phonemes
+
+    def __len__(self):
+        return self.length
+
+    def close(self):
+        self.hdf_file.close()
+
+
+class DaliDatasetPickle(Dataset):
     def __init__(self, dataset, partition):
-        super(LyricsAlignDataset, self).__init__()
+        super(DaliDatasetPickle, self).__init__()
 
-        pickle_file = os.path.join(config.pickle_dir, partition + '_' + str(config.sr) + '.pkl')
+        pickle_file = os.path.join(config.pickle_dir, partition + '.pkl')
 
-        # Check if pickle file needs to be written
         if not os.path.exists(pickle_file):
-            # Create pickle folder if it doesn't exist
             if not os.path.exists(config.pickle_dir):
                 os.makedirs(config.pickle_dir)
 
-            print('Creating {partition} samples')
+            print(f'Creating {partition} samples')
             samples = []
-            for song in dataset:
-                waveform = load(song['path'], sr=config.sr)
+            for song in tqdm(dataset):
+                waveform = load(song['audio_path'], sr=config.sr)
 
                 start_times = [d['time'][0] for d in song['words']]
                 end_times = [d['time'][1] for d in song['words']]
 
-                max_num_samples = floor(((len(waveform) - config.input_length) / config.hop_size) + 1)
+                max_num_samples = floor(((len(waveform) - config.sample_length) / config.hop_size) + 1)
                 for i in range(max_num_samples):
                     sample_start = i * config.hop_size
-                    sample_end = sample_start + config.input_length
+                    sample_end = sample_start + config.sample_length
                     assert sample_end <= len(waveform)
 
                     # find the lyrics within (start, end)
-                    idx_first_word = bisect.bisect_left(start_times,
-                                                        sample_start / config.sr)  # could use increasing iterator to
-                    # avoid log factor
+                    idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
                     idx_last_word = bisect.bisect_right(end_times, sample_end / config.sr) - 1
 
-                    if idx_first_word > idx_last_word:  # invalid sample, skip
+                    if idx_first_word > idx_last_word:  # no words (fully contained) in this sample, skip
                         continue
 
                     # convert characters/phonemes present in (start, end) to numerical representation
                     chars = encode_chars(song['words'][idx_first_word:idx_last_word + 1])
                     phonemes = encode_phonemes(song['phonemes'][idx_first_word:idx_last_word + 1])
 
-                    sample = (waveform[sample_start:sample_end], chars, phonemes)
+                    spec = wav2spec(waveform[sample_start:sample_end])
+                    
+                    sample = (spec, chars, phonemes)
                     samples.append(sample)
 
             # write samples onto pickle file
@@ -134,15 +172,78 @@ class LyricsAlignDataset(Dataset):
             self.samples = pickle.load(f)
 
     def __getitem__(self, index):
-        return self.samples[index]  # (waveform, chars, phonemes)
+        return self.samples[index]  # (spec, chars, phonemes)
 
     def __len__(self):
         return len(self.samples)
 
 
+def encode_chars(dict_list) -> np.ndarray:
+    lyrics_list = [d['text'] for d in dict_list]
+    lyrics = ' '.join(lyrics_list)
+    # lyrics = ' '.join(lyrics.split())
+    lyrics = ' ' * config.context + lyrics + ' ' * config.context  # padding
+    chars = []
+    for c in lyrics.lower():
+        idx = string.ascii_lowercase.find(c)
+        if idx == -1:
+            if c == "'":
+                idx = 26
+            elif c == ' ':
+                idx = 27
+            else:
+                continue  # remove unknown characters
+        chars.append(idx)
+    return np.array(chars, dtype=np.short)
+
+def encode_phonemes(dict_list) -> np.ndarray:
+    phonemes_nested_list = [d['text'] for d in dict_list]
+
+    phonemes_list = []
+    for i, word_phonemes in enumerate(phonemes_nested_list):
+        phonemes_list.extend(word_phonemes)
+        if i < len(phonemes_nested_list) - 1:
+            phonemes_list.append(' ')
+    phonemes_list = [' '] * config.context + phonemes_list + [' '] * config.context  # padding
+
+    phonemes = []
+    for p in phonemes_list:
+        idx = phone2int[p]
+        phonemes.append(idx)
+
+    return np.array(phonemes, dtype=np.short)
+
+def load(path: str, sr: int) -> np.ndarray:
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        y, _ = librosa.load(path, sr=sr, res_type='kaiser_fast')
+
+    if len(y.shape) != 1:
+        raise ValueError('Waveform has multiple dimensions')
+
+    return y
+
+class LogSpectrogram(nn.Module):
+    def __init__(self):
+        super(LogSpectrogram, self).__init__()
+        self.spectrogram = torchaudio.transforms.Spectrogram(n_fft=config.n_fft, power=1)
+
+    def forward(self, waveform):
+        spec = self.spectrogram(waveform)
+        return torch.log(1 + spec)
+    
+def wav2spec(waveform: np.ndarray) -> np.ndarray:
+    waveform = torch.Tensor(waveform)
+    log_spec = LogSpectrogram()(waveform)
+    return log_spec.numpy()
+
+
 class LyricsDatabase:
     def __init__(self, dataset):
 
+        print('Computing negative sampling probabilities')
+
+        assert config.context <= 1
         frequencies = np.zeros((pow(config.vocab_size, 2 * config.context + 1),), dtype=int)
 
         for song in dataset:
@@ -159,6 +260,7 @@ class LyricsDatabase:
         self.prob = frequencies / np.sum(frequencies)
 
     def sample(self, num_samples):
+        # can avoid sampling positive samples by setting frequencies of positives to 0, sampling negatives, and restoring the frequencies
         indices = np.random.choice(len(self.prob), size=num_samples, p=self.prob)
         contextual_tokens = [self._idx2contextual_token(idx) for idx in indices]
         return contextual_tokens
@@ -179,3 +281,25 @@ class LyricsDatabase:
             idx = idx // config.vocab_size
         contextual_token = list(reversed(contextual_token))
         return contextual_token
+
+
+def collate(data):
+    spectrograms = []
+    contextual_tokens = []
+    len_tokens = []
+
+    for spec, chars, phonemes in data:
+        tokens = chars if config.use_chars else phonemes
+
+        spectrograms.append(spec)
+
+        # extract context for each token
+        token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
+        contextual_tokens += token_with_context
+        len_tokens.append(len(token_with_context))
+
+    # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
+    spectrograms = torch.Tensor(np.array(spectrograms))
+    contextual_tokens = torch.IntTensor(np.array(contextual_tokens))
+
+    return spectrograms, contextual_tokens, len_tokens
