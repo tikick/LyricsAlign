@@ -34,12 +34,12 @@ class RCB(nn.Module):
 
 class AudioEncoder(nn.Module):
 
-    def __init__(self, num_RCBs=10):
+    def __init__(self):
         super(AudioEncoder, self).__init__()
 
         self.RCBs = nn.Sequential(
             RCB(1, config.channels),
-            *[RCB(config.channels, config.channels) for _ in range(num_RCBs - 1)]
+            *[RCB(config.channels, config.channels) for _ in range(config.num_RCBs - 1)]
         )
 
         self.conv1d = nn.Conv1d(in_channels=config.channels, out_channels=config.embedding_dim, kernel_size=config.fourier_bins)

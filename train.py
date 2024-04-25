@@ -24,6 +24,7 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
     model.train()
     num_batches = len(train_loader.dataset) // config.batch_size
     train_loss = 0.
+    batch_loss = 0.
 
     with tqdm(total=num_batches) as pbar:
         for idx, batch in enumerate(train_loader):
@@ -43,13 +44,15 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
             optimizer.step()
 
             train_loss += loss.item()
+            batch_loss += loss.item()
 
             pbar.set_description('Current loss: {:.4f}'.format(loss))
             pbar.update(1)
 
-            if idx % 100 == 0:
-                train_metrics = {'train/train_loss': train_loss, 'train/batch_idx': idx}
+            if (idx + 1) % 100 == 0:
+                train_metrics = {'train/batch_loss': batch_loss / 100, 'train/batch_idx': idx}
                 wandb.log({**train_metrics})
+                batch_loss = 0.
 
     return train_loss / num_batches
 
