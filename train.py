@@ -47,7 +47,7 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
             pbar.set_description('Current loss: {:.4f}'.format(loss))
             pbar.update(1)
 
-            if idx % 100:
+            if idx % 100 == 0:
                 train_metrics = {'train/train_loss': train_loss, 'train/batch_idx': idx}
                 wandb.log({**train_metrics})
 
