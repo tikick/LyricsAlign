@@ -28,7 +28,7 @@ vocab_size = 28 if use_chars else 40
 
 ##### optimizer, data loader and others
 num_epochs = 3
-lr = 1e-4
+lr = 1e-3
 batch_size = 32
 num_workers = 1
 val_size = 0.2  # train validation split

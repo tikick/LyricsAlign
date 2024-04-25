@@ -50,7 +50,7 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
             pbar.update(1)
 
             if (idx + 1) % 100 == 0:
-                train_metrics = {'train/batch_loss': batch_loss / 100, 'train/batch_idx': idx}
+                train_metrics = {'train/batch_loss': batch_loss / 100, 'train/batch_idx': idx + 1}
                 wandb.log({**train_metrics})
                 batch_loss = 0.
 
