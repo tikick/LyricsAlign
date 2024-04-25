@@ -6,11 +6,10 @@ time_report = None
 
 
 ## paths
-base_path = '/Users/timonkick/Documents/ETH/master/Sem3/LyricsAlignment/code'
+base_path = '/itet-stor/tikick/net_scratch/LyricsAlign'
 dali_annot_path = os.path.join(base_path, 'DALI_v2.0/annot')
 dali_audio_path = os.path.join(base_path, 'DALI_v2.0/audio')
 checkpoint_dir = os.path.join(base_path, 'checkpoints')
-log_dir = os.path.join(base_path, 'logs')
 hdf_dir = os.path.join(base_path, 'hdfs')
 pickle_dir = os.path.join(base_path, 'pickles')
 
