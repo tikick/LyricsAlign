@@ -21,9 +21,7 @@ class RCB(nn.Module):
         self.group_norm2 = nn.GroupNorm(num_groups=4, num_channels=out_channels)
 
     def forward(self, x):
-        # x.shape: (batch, feature, time)
-        x = x.unsqueeze(1)  # (batch, channel, feature, time)
-        residual = x
+        residual = x    # (batch, channel, feature, time)
         x = self.group_norm1(x)
         x = F.relu(x)
         x = self.conv1(x)
@@ -47,6 +45,9 @@ class AudioEncoder(nn.Module):
         self.conv1d = nn.Conv1d(in_channels=config.channels, out_channels=config.embedding_dim, kernel_size=config.fourier_bins)
 
     def forward(self, x):
+        # x.shape: (batch, feature, time)
+        x = x.unsqueeze(1)  # (batch, channel, feature, time)
+
         x = self.RCBs(x)  # (batch, channel, feature, time)
 
         # 1D conv layer
