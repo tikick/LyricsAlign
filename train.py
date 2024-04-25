@@ -26,7 +26,7 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
     train_loss = 0.
 
     with tqdm(total=num_batches) as pbar:
-        for batch in train_loader:
+        for idx, batch in enumerate(train_loader):
             spectrograms, positives, len_positives = batch
             spectrograms, positives = spectrograms.to(device), positives.to(device)
 
@@ -46,6 +46,10 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
 
             pbar.set_description('Current loss: {:.4f}'.format(loss))
             pbar.update(1)
+
+            if idx % 100:
+                train_metrics = {'train/train_loss': train_loss, 'train/batch_idx': idx}
+                wandb.log({**train_metrics})
 
     return train_loss / num_batches
 
