@@ -18,7 +18,7 @@ pickle_dir = os.path.join(base_path, 'pickles')
 embedding_dim = 64
 
 ##### audio encoder
-um_RCBs = 5
+num_RCBs = 5
 channels = 64
 
 ##### text encoder
