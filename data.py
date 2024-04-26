@@ -7,16 +7,12 @@ import os
 from tqdm import tqdm
 import h5py
 import pickle
-import string
 from math import floor
 import torch
-from torch import nn
 from torch.utils.data import Dataset
-import torchaudio
-import warnings
-import librosa
 
 import config
+from utils import encode_chars, encode_phonemes, load, wav2spec
 
 phone_dict = ['AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY',
               'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y',
@@ -178,91 +174,67 @@ class DaliDatasetPickle(Dataset):
         return len(self.samples)
 
 
-def encode_chars(dict_list) -> np.ndarray:
-    lyrics_list = [d['text'] for d in dict_list]
-    lyrics = ' '.join(lyrics_list)
-    # lyrics = ' '.join(lyrics.split())
-    lyrics = ' ' * config.context + lyrics + ' ' * config.context  # padding
-    chars = []
-    for c in lyrics.lower():
-        idx = string.ascii_lowercase.find(c)
-        if idx == -1:
-            if c == "'":
-                idx = 26
-            elif c == ' ':
-                idx = 27
-            else:
-                continue  # remove unknown characters
-        chars.append(idx)
-    return np.array(chars, dtype=np.short)
-
-def encode_phonemes(dict_list) -> np.ndarray:
-    phonemes_nested_list = [d['text'] for d in dict_list]
-
-    phonemes_list = []
-    for i, word_phonemes in enumerate(phonemes_nested_list):
-        phonemes_list.extend(word_phonemes)
-        if i < len(phonemes_nested_list) - 1:
-            phonemes_list.append(' ')
-    phonemes_list = [' '] * config.context + phonemes_list + [' '] * config.context  # padding
-
-    phonemes = []
-    for p in phonemes_list:
-        idx = phone2int[p]
-        phonemes.append(idx)
-
-    return np.array(phonemes, dtype=np.short)
-
-def load(path: str, sr: int) -> np.ndarray:
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        y, _ = librosa.load(path, sr=sr, res_type='kaiser_fast')
-
-    if len(y.shape) != 1:
-        raise ValueError('Waveform has multiple dimensions')
-
-    return y
-
-class LogSpectrogram(nn.Module):
-    def __init__(self):
-        super(LogSpectrogram, self).__init__()
-        self.spectrogram = torchaudio.transforms.Spectrogram(n_fft=config.n_fft, power=1)
-
-    def forward(self, waveform):
-        spec = self.spectrogram(waveform)
-        return torch.log(1 + spec)
-    
-def wav2spec(waveform: np.ndarray) -> np.ndarray:
-    waveform = torch.Tensor(waveform)
-    log_spec = LogSpectrogram()(waveform)
-    return log_spec.numpy()
-
-
 class LyricsDatabase:
     def __init__(self, dataset):
 
-        print('Computing negative sampling probabilities')
+        pickle_file = os.path.join(config.pickle_dir, 'neg_probs.pkl')
 
-        assert config.context <= 1
-        frequencies = np.zeros((pow(config.vocab_size, 2 * config.context + 1),), dtype=int)
+        if not os.path.exists(pickle_file):
+            if not os.path.exists(config.pickle_dir):
+                os.makedirs(config.pickle_dir)
 
-        for song in dataset:
-            if config.use_chars:
-                tokens = encode_chars(song['words'])
-            else:
-                tokens = encode_phonemes(song['phonemes'])
+            print('Computing negative sampling probabilities')
 
-            token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
-            for contextual_token in token_with_context:
+            assert config.context <= 1
+            frequencies = np.zeros((pow(config.vocab_size, 2 * config.context + 1),), dtype=int)
+
+            for song in tqdm(dataset):
+                if config.use_chars:
+                    tokens = encode_chars(song['words'])
+                else:
+                    tokens = encode_phonemes(song['phonemes'])
+
+                token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
+                for contextual_token in token_with_context:
+                    idx = self._contextual_token2idx(contextual_token)
+                    frequencies[idx] += 1
+            
+            # write frequencies onto pickle file
+            with open(pickle_file, 'wb') as f:
+                pickle.dump(frequencies, f)
+
+        # load frequencies from pickle file
+        with open(pickle_file, 'rb') as f:
+            self.frequencies = pickle.load(f)
+
+    def sample(self, num_samples, pos, len_pos):
+        # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
+
+        contextual_tokens = []
+        cumsum = np.cumsum([0] + len_pos)
+
+        for i in range(len(len_pos)):
+            j, k = cumsum[i], cumsum[i + 1]
+
+            # set frequencies of positive samples to 0
+            original_freq = []
+            for l in range(j, k):
+                contextual_token = pos[j + l]
                 idx = self._contextual_token2idx(contextual_token)
-                frequencies[idx] += 1
+                original_freq.append(self.frequencies[idx])
+                self.frequencies[idx] = 0
+            
+            # sample negatives
+            prob = self.frequencies / np.sum(self.frequencies)
+            indices = np.random.choice(len(prob), size=num_samples, p=prob)
+            contextual_tokens += [self._idx2contextual_token(idx) for idx in indices]
 
-        self.prob = frequencies / np.sum(frequencies)
+            # restore original frequencies
+            for l in range(j, k):
+                contextual_token = pos[j + l]
+                idx = self._contextual_token2idx(contextual_token)
+                self.frequencies[idx] = original_freq[l]
 
-    def sample(self, num_samples):
-        # can avoid sampling positive samples by setting frequencies of positives to 0, sampling negatives, and restoring the frequencies
-        indices = np.random.choice(len(self.prob), size=num_samples, p=self.prob)
-        contextual_tokens = [self._idx2contextual_token(idx) for idx in indices]
         return contextual_tokens
 
     @staticmethod

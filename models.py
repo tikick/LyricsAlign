@@ -94,10 +94,10 @@ class TextEncoder(nn.Module):
 
 class SimilarityModel(nn.Module):
 
-    def __init__(self, audio_encoder, text_encoder):
+    def __init__(self):
         super(SimilarityModel, self).__init__()
-        self.audio_encoder = audio_encoder
-        self.text_encoder = text_encoder
+        self.audio_encoder = AudioEncoder()
+        self.text_encoder = TextEncoder()
 
     def forward(self, spec, pos, len_pos, neg):        
         A = self.audio_encoder(spec)
@@ -118,12 +118,53 @@ class SimilarityModel(nn.Module):
         return PA, NA
 
 
+class TimeAudioEncoder(nn.Module):
+
+    def __init__(self):
+        super(AudioEncoder, self).__init__()
+
+        self.RCBs = nn.Sequential(
+            RCB(1, config.channels),
+            *[RCB(config.channels, config.channels) for _ in range(config.num_RCBs - 1)]
+        )
+
+        self.conv1d = nn.Conv1d(in_channels=config.channels, out_channels=config.embedding_dim, kernel_size=config.fourier_bins)
+
+    def forward(self, x):
+        # x.shape: (batch, feature, time)
+        x = x.unsqueeze(1)  # (batch, channel, feature, time)
+
+        config.time_report.start_timer('audio_encoder.RCBs')
+        x = self.RCBs(x)  # (batch, channel, feature, time)
+        torch.cuda.synchronize()
+        config.time_report.end_timer('audio_encoder.RCBs')
+
+        # 1D conv layer
+        # Merge batch and time dimension to apply 1D conv to each time bin, then separate the dimensions
+        x = x.permute(0, 3, 1, 2)  # (batch, time, channel, feature)
+        s = x.shape
+        x = x.reshape(s[0] * s[1], s[2], s[3])  # (batch, channel, feature)
+
+        config.time_report.start_timer('audio_encoder.conv1d')
+        x = self.conv1d(x)
+        torch.cuda.synchronize()
+        config.time_report.end_timer('audio_encoder.conv1d')
+
+        x = x.reshape(s[0], s[1], config.embedding_dim)  # (batch, time, embedding)
+        x = x.transpose(1, 2)  # (batch, embedding, time)
+
+        # l2 normalization
+        x = F.normalize(x, p=2, dim=1)
+
+        return x
+    
+
 class TimeSimilarityModel(nn.Module):
 
-    def __init__(self, audio_encoder, text_encoder):
+    def __init__(self):
         super(TimeSimilarityModel, self).__init__()
-        self.audio_encoder = audio_encoder
-        self.text_encoder = text_encoder
+        self.audio_encoder = TimeAudioEncoder()
+        self.text_encoder = TextEncoder()
 
     def forward(self, spec, pos, len_pos, neg):
         assert spec.device == pos.device and spec.device == neg.device

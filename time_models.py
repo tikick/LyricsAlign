@@ -110,15 +110,14 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
     config.time_report.add_timer('epoch')
     config.time_report.add_timer('train_loader')
     config.time_report.add_timer('batch.to(device)')
-    config.time_report.add_timer('zero_grad')
     config.time_report.add_timer('sampling negatives')
-    config.time_report.add_timer('negatives.to(device)')
     config.time_report.add_timer('model')
     config.time_report.add_timer('loss')
     config.time_report.add_timer('backward')
-    config.time_report.add_timer('step')
 
     config.time_report.add_timer('audio_encoder')
+    config.time_report.add_timer('audio_encoder.RCBs')
+    config.time_report.add_timer('audio_encoder.conv1d')
     config.time_report.add_timer('text_encoder')
     config.time_report.add_timer('similarity')
 
@@ -135,26 +134,22 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
             config.time_report.end_timer('train_loader')
 
             spectrograms, positives, len_positives = batch
-            #print('data.shape:', spectrograms.shape, positives.shape)
+
+            config.time_report.start_timer('sampling negatives')
+            negatives = lyrics_database.sample(config.num_negative_samples, positives, len_positives)
+            torch.cuda.synchronize()
+            config.time_report.end_timer('sampling negatives')
+            
+            negatives = torch.IntTensor(negatives)
+
+            #print('data.shape:', spectrograms.shape, positives.shape, negatives.shape)
+
             config.time_report.start_timer('batch.to(device)')
-            spectrograms, positives = spectrograms.to(device), positives.to(device)
+            spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
             torch.cuda.synchronize()
             config.time_report.end_timer('batch.to(device)')
 
-            config.time_report.start_timer('zero_grad')
             optimizer.zero_grad()
-            torch.cuda.synchronize()
-            config.time_report.end_timer('zero_grad')
-
-            config.time_report.start_timer('sampling negatives')
-            negatives = lyrics_database.sample(config.batch_size * config.num_negative_samples)
-            torch.cuda.synchronize()
-            config.time_report.end_timer('sampling negatives')
-
-            config.time_report.start_timer('negatives.to(device)')
-            negatives = torch.IntTensor(negatives).to(device)
-            torch.cuda.synchronize()
-            config.time_report.end_timer('negatives.to(device)')
 
             config.time_report.start_timer('model')
             PA, NA = model(spectrograms, positives, len_positives, negatives)
@@ -171,11 +166,8 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
             torch.cuda.synchronize()
             config.time_report.end_timer('backward')
 
-            config.time_report.start_timer('step')
             optimizer.step()
-            torch.cuda.synchronize()
-            config.time_report.end_timer('step')
-
+            
             pbar.update(1)
 
         torch.cuda.synchronize()
@@ -191,9 +183,7 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Device:', device)
 
-    audio_encoder = AudioEncoder()
-    text_encoder = TextEncoder()
-    model = TimeSimilarityModel(audio_encoder, text_encoder).to(device)
+    model = TimeSimilarityModel().to(device)
 
     # if train and val files already exist:
         # dali = dali_train = dali_val = []  # no need to load dali, files already exist

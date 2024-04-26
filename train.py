@@ -29,12 +29,11 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
     with tqdm(total=num_batches) as pbar:
         for idx, batch in enumerate(train_loader):
             spectrograms, positives, len_positives = batch
-            spectrograms, positives = spectrograms.to(device), positives.to(device)
+            negatives = lyrics_database.sample(config.num_negative_samples, positives, len_positives)
+            negatives = torch.IntTensor(negatives)
+            spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
 
             optimizer.zero_grad()
-
-            negatives = lyrics_database.sample(config.batch_size * config.num_negative_samples)
-            negatives = torch.IntTensor(negatives).to(device)
 
             PA, NA = model(spectrograms, positives, len_positives, negatives)
 
@@ -65,10 +64,9 @@ def validate(model, device, val_loader, lyrics_database, criterion):
     with tqdm(total=num_batches) as pbar:
         for batch in val_loader:
             spectrograms, positives, len_positives = batch
-            spectrograms, positives = spectrograms.to(device), positives.to(device)
-
-            negatives = lyrics_database.sample(config.batch_size * config.num_negative_samples)
-            negatives = torch.IntTensor(negatives).to(device)
+            negatives = lyrics_database.sample(config.num_negative_samples, positives, len_positives)
+            negatives = torch.IntTensor(negatives)
+            spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
 
             PA, NA = model(spectrograms, positives, len_positives, negatives)
 
@@ -88,9 +86,7 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Device:', device)
 
-    audio_encoder = AudioEncoder()
-    text_encoder = TextEncoder()
-    model = SimilarityModel(audio_encoder, text_encoder).to(device)
+    model = SimilarityModel().to(device)
     # count_parameters(model)
 
     # if train and val files already exist:
