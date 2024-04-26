@@ -27,9 +27,9 @@ use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
 ##### optimizer, data loader and others
-num_epochs = 3
-lr = 1e-5
-batch_size = 32
+num_epochs = 5
+lr = 1e-4
+batch_size = 64
 num_workers = 1
 val_size = 0.2  # train validation split
 
