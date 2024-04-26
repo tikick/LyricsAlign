@@ -118,6 +118,8 @@ def main():
             'lr': config.lr,
             'batch_size': config.batch_size,
             'num_epochs': config.num_epochs,
+            'dali_size': len(dali),
+            'num_RCBs': config.num_RCBs
         }
     )
 
@@ -138,7 +140,7 @@ def main():
         
         wandb.log({**train_metrics, **val_metrics})
 
-        print(f'Train Loss: {train_loss:.3f}, Valid Loss: {val_loss:3f}')
+        print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}')
 
         if val_loss < best_loss:
             print('Model improved on validation set')

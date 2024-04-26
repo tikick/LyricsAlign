@@ -121,7 +121,7 @@ class SimilarityModel(nn.Module):
 class TimeAudioEncoder(nn.Module):
 
     def __init__(self):
-        super(AudioEncoder, self).__init__()
+        super(TimeAudioEncoder, self).__init__()
 
         self.RCBs = nn.Sequential(
             RCB(1, config.channels),
