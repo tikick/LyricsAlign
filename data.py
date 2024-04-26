@@ -219,7 +219,7 @@ class LyricsDatabase:
             # set frequencies of positive samples to 0
             original_freq = []
             for l in range(j, k):
-                contextual_token = pos[j + l]
+                contextual_token = pos[l]
                 idx = self._contextual_token2idx(contextual_token)
                 original_freq.append(self.frequencies[idx])
                 self.frequencies[idx] = 0
@@ -231,9 +231,9 @@ class LyricsDatabase:
 
             # restore original frequencies
             for l in range(j, k):
-                contextual_token = pos[j + l]
+                contextual_token = pos[l]
                 idx = self._contextual_token2idx(contextual_token)
-                self.frequencies[idx] = original_freq[l]
+                self.frequencies[idx] = original_freq[l - j]
 
         return contextual_tokens
 
