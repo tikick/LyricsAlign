@@ -18,7 +18,7 @@ pickle_dir = os.path.join(base_path, 'pickles')
 embedding_dim = 64
 
 ##### audio encoder
-num_RCBs = 5
+num_RCBs = 10
 channels = 64
 
 ##### text encoder
@@ -29,7 +29,7 @@ vocab_size = 28 if use_chars else 40
 ##### optimizer, data loader and others
 num_epochs = 5
 lr = 1e-4
-batch_size = 64
+batch_size = 32
 num_workers = 0
 val_size = 0.2  # train validation split
 
