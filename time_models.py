@@ -176,12 +176,17 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
     config.time_report.report()
 
 def main():
+    print(f'numRCBs: {config.num_RCBs},
+            channels: {config.channels},
+            use_chars: {config.use_chars},
+            batch_size: {config.batch_size}')
+
     config.time_report = TimeReport()
 
     set_seed()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Device:', device)
+    # print('Device:', device)
 
     model = TimeSimilarityModel().to(device)
 
@@ -209,7 +214,7 @@ def main():
     criterion = contrastive_loss
 
     for epoch in range(1):
-        print('Epoch:', epoch)
+        print('Running one epoch')
         train(model, device, train_loader, lyrics_database, criterion, optimizer)
 
 
