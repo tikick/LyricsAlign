@@ -112,21 +112,20 @@ def main():
     optimizer = optim.Adam(model.parameters(), config.lr)
     criterion = contrastive_loss
 
-    wandb.init(
-        project='Lyrics Alignment',
-        config={
-            'lr': config.lr,
-            'batch_size': config.batch_size,
-            'num_RCBs': config.num_RCBs,
-            'channels': config.channels,
-            'use_chars': config.use_chars,
-            'context': config.context,
-            'num_epochs': config.num_epochs,
-            'dali_size': len(dali),
-            'val_size': config.val_size,
-            'num_negative_samples': config.num_negative_samples
-        }
-    )
+    cfg = {'lr': config.lr,
+           'batch_size': config.batch_size,
+           'num_RCBs': config.num_RCBs,
+           'channels': config.channels,
+           'use_chars': config.use_chars,
+           'context': config.context,
+           'num_epochs': config.num_epochs,
+           'dali_size': len(dali),
+           'val_size': config.val_size,
+           'num_negative_samples': config.num_negative_samples}
+    
+    wandb.init(project='Lyrics Alignment', config=cfg)
+
+    print(cfg)
 
     if not os.path.isdir(config.checkpoint_dir):
         os.makedirs(config.checkpoint_dir)
