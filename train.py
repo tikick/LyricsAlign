@@ -142,10 +142,10 @@ def main():
 
         val_loss = validate(model, device, val_loader, lyrics_database, criterion)
         val_metrics = {'val/val_loss': val_loss, 'val/epoch': epoch}
-        
-        wandb.log({**train_metrics, **val_metrics})
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}')
+        
+        wandb.log({**train_metrics, **val_metrics})
 
         if val_loss < best_loss:
             print('Model improved on validation set')
