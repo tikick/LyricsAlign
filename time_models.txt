@@ -4,7 +4,7 @@ Starting on: Sat Apr 27 13:22:12 CEST 2024
 SLURM_JOB_ID: 920336
 Conda activated
 Running time_models.py
-numRCBs: 10, channels: 64, use_chars: False, batch_size: 32
+{'numRCBs': 10, 'channels': 64, 'use_chars': False, 'batch_size': 32, 'num_workers': 1}
 Size of DALI: 500
 Num training samples: 28521
 Num validation samples: 7014
@@ -33,7 +33,7 @@ Starting on: Sat Apr 27 13:58:52 CEST 2024
 SLURM_JOB_ID: 920338
 Conda activated
 Running time_models.py
-numRCBs: 5, channels: 64, use_chars: False, batch_size: 32
+{'numRCBs': 5, 'channels': 64, 'use_chars': False, 'batch_size': 32, 'num_workers': 1}
 Size of DALI: 500
 Num training samples: 28521
 Num validation samples: 7014
@@ -53,3 +53,37 @@ Running one epoch
  Time report [similarity]: 2.42 seconds 
  ----------------------------------- 
 Finished at: Sat Apr 27 14:13:21 CEST 2024
+
+
+
+batch_size: 128
+torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.70 GiB. GPU 0 has a total capacity of 23.64 GiB of which 470.50 MiB is free. Including non-PyTorch memory, this process has 23.18 GiB memory in use. Of the allocated memory 22.08 GiB is allocated by PyTorch, and 31.23 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+
+
+
+Running on node: tikgpu04
+In directory: /itet-stor/tikick/net_scratch/tmp
+Starting on: Sat Apr 27 15:50:13 CEST 2024
+SLURM_JOB_ID: 920346
+Conda activated
+Running time_models.py
+{'numRCBs': 5, 'channels': 64, 'use_chars': False, 'batch_size': 64, 'num_workers': 1}
+Size of DALI: 500
+Num training samples: 28521
+Num validation samples: 7014
+Running one epoch
+ ------------Time Report------------ 
+ Time report [epoch]: 733.52 seconds 
+ Time report [train_loader]: 1.72 seconds 
+ Time report [batch.to(device)]: 1.81 seconds 
+ Time report [sampling negatives]: 133.40 seconds 
+ Time report [model]: 137.68 seconds 
+ Time report [loss]: 0.22 seconds 
+ Time report [backward]: 447.56 seconds 
+ Time report [audio_encoder]: 134.53 seconds 
+ Time report [audio_encoder.RCBs]: 125.85 seconds 
+ Time report [audio_encoder.conv1d]: 8.57 seconds 
+ Time report [text_encoder]: 0.89 seconds 
+ Time report [similarity]: 2.24 seconds 
+ ----------------------------------- 
+Finished at: Sat Apr 27 16:04:38 CEST 2024

@@ -176,7 +176,12 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
     config.time_report.report()
 
 def main():
-    print(f'numRCBs: {config.num_RCBs}, channels: {config.channels}, use_chars: {config.use_chars}, batch_size: {config.batch_size}')
+    cfg = {'numRCBs': config.num_RCBs,
+           'channels': config.channels,
+           'use_chars': config.use_chars,
+           'batch_size': config.batch_size,
+           'num_workers': config.num_workers}
+    print(cfg)
 
     config.time_report = TimeReport()
 
