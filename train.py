@@ -84,7 +84,7 @@ def main():
     set_seed()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Device:', device)
+    # print('Device:', device)
 
     model = SimilarityModel().to(device)
     # count_parameters(model)
@@ -117,9 +117,14 @@ def main():
         config={
             'lr': config.lr,
             'batch_size': config.batch_size,
+            'num_RCBs': config.num_RCBs,
+            'channels': config.channels,
+            'use_chars': config.use_chars,
+            'context': config.context,
             'num_epochs': config.num_epochs,
             'dali_size': len(dali),
-            'num_RCBs': config.num_RCBs
+            'val_size': config.val_size,
+            'num_negative_samples': config.num_negative_samples
         }
     )
 
