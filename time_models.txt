@@ -145,3 +145,32 @@ Running one epoch
  Time report [similarity]: 2.19 seconds 
  ----------------------------------- 
 Finished at: Sun Apr 28 11:01:56 CEST 2024
+
+
+
+Running on node: tikgpu04
+In directory: /itet-stor/tikick/net_scratch/tmp
+Starting on: Sun Apr 28 11:08:12 CEST 2024
+SLURM_JOB_ID: 921366
+Conda activated
+Running time_models.py
+{'numRCBs': 2, 'channels': 64, 'use_chars': True, 'batch_size': 64, 'num_workers': 0}
+Size of DALI: 500
+Num training samples: 28521
+Num validation samples: 7014
+Running one epoch
+ ------------Time Report------------ 
+ Time report [epoch]: 462.05 seconds 
+ Time report [train_loader]: 4.99 seconds 
+ Time report [batch.to(device)]: 1.50 seconds 
+ Time report [sampling negatives]: 138.32 seconds 
+ Time report [model]: 55.77 seconds 
+ Time report [loss]: 0.20 seconds 
+ Time report [backward]: 250.65 seconds 
+ Time report [audio_encoder]: 52.60 seconds 
+ Time report [audio_encoder.RCBs]: 44.13 seconds 
+ Time report [audio_encoder.conv1d]: 8.38 seconds 
+ Time report [text_encoder]: 0.88 seconds 
+ Time report [similarity]: 2.26 seconds 
+ ----------------------------------- 
+Finished at: Sun Apr 28 11:17:14 CEST 2024
