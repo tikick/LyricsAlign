@@ -23,13 +23,13 @@ channels = 64
 
 ##### text encoder
 context = 1
-use_chars = False  # if false uses phonemes
+use_chars = True  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
 ##### optimizer, data loader and others
-num_epochs = 10
+num_epochs = 5
 lr = 1e-4
-batch_size = 128
+batch_size = 64
 num_workers = 0
 val_size = 0.2  # train validation split
 
