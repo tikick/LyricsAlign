@@ -11,11 +11,11 @@ import config
 class RCB(nn.Module):
     """Residual Convolutional Block"""
 
-    def __init__(self, in_channels, out_channels, kernel=3):
+    def __init__(self, in_channels, out_channels, kernel_size=3):
         super(RCB, self).__init__()
 
-        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel, padding=kernel // 2)
-        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel, padding=kernel // 2)
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size, padding=kernel_size // 2)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size, padding=kernel_size // 2)
         self.group_norm1 = nn.GroupNorm(num_groups=1 if in_channels == 1 else 4,
                                         num_channels=in_channels)  # how many groups?
         self.group_norm2 = nn.GroupNorm(num_groups=4, num_channels=out_channels)
@@ -79,6 +79,8 @@ class TextEncoder(nn.Module):
         )
 
     def forward(self, x):
+        assert len(x.shape[1]) == 1 + 2 * config.context
+
         # (batch, context)
         x = self.embedding_layer(x)  # (batch, context, embedding)
 
@@ -116,6 +118,13 @@ class SimilarityModel(nn.Module):
             NA[j:k] = torch.matmul(N[j:k], A[i])  # (samples, time)
 
         return PA, NA
+    
+
+def contrastive_loss(PA, NA):
+    return torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
+           torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
+
+
 
 
 class TimeAudioEncoder(nn.Module):

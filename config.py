@@ -38,7 +38,7 @@ val_size = 0.2  # train validation split
 num_negative_samples = 1_000
 # if you change the following parameters remember to delete the sample files, or the new samples will not be computed
 sr = 11025  # waveform sampling rate
-sample_length = sr * 5  # length in waveform samples, corresponds to 5 seconds
-hop_size = sample_length // 2  # in waveform samples
+segment_length = sr * 5  # length in waveform samples, corresponds to a 5 seconds audio segment
+hop_size = segment_length // 2  # in waveform samples
 n_fft = 512
 fourier_bins = n_fft // 2 + 1

@@ -74,10 +74,10 @@ class DaliDatasetHDF5(Dataset):
                     start_times = [d['time'][0] for d in song['words']]
                     end_times = [d['time'][1] for d in song['words']]
 
-                    max_num_samples = floor((len(waveform) - config.sample_length) / config.hop_size) + 1
+                    max_num_samples = floor((len(waveform) - config.segment_length) / config.hop_size) + 1
                     for i in range(max_num_samples):
                         sample_start = i * config.hop_size
-                        sample_end = sample_start + config.sample_length
+                        sample_end = sample_start + config.segment_length
                         assert sample_end <= len(waveform)
 
                         # find the lyrics within (start, end)
@@ -137,10 +137,10 @@ class DaliDatasetPickle(Dataset):
                 start_times = [d['time'][0] for d in song['words']]
                 end_times = [d['time'][1] for d in song['words']]
 
-                max_num_samples = floor(((len(waveform) - config.sample_length) / config.hop_size) + 1)
+                max_num_samples = floor(((len(waveform) - config.segment_length) / config.hop_size) + 1)
                 for i in range(max_num_samples):
                     sample_start = i * config.hop_size
-                    sample_end = sample_start + config.sample_length
+                    sample_end = sample_start + config.segment_length
                     assert sample_end <= len(waveform)
 
                     # find the lyrics within (start, end)

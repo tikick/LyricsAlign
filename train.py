@@ -11,13 +11,8 @@ import wandb
 
 import config
 from data import get_dali, DaliDatasetPickle, LyricsDatabase, collate
-from models import AudioEncoder, TextEncoder, SimilarityModel
+from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
-
-
-def contrastive_loss(PA, NA):
-    return torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
-           torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
 
 
 def train(model, device, train_loader, lyrics_database, criterion, optimizer):
