@@ -101,23 +101,36 @@ class SimilarityModel(nn.Module):
         self.audio_encoder = AudioEncoder()
         self.text_encoder = TextEncoder()
 
-    def forward(self, spec, pos, len_pos, neg):        
-        A = self.audio_encoder(spec)
-        P = self.text_encoder(pos)
-        N = self.text_encoder(neg)
+    def forward(self, spec, pos, len_pos=None, neg=None):
+        # if len_pos=None, neg=None then we're in eval, otherwise in train
+        
+        if neg is not None:
+            A = self.audio_encoder(spec)
+            P = self.text_encoder(pos)
+            N = self.text_encoder(neg)
 
-        cumsum = np.cumsum([0] + len_pos)
+            cumsum = np.cumsum([0] + len_pos)
 
-        PA = torch.empty((len(pos), A.shape[2]), device=A.device)
-        NA = torch.empty((len(neg), A.shape[2]), device=A.device)
+            PA = torch.empty((len(pos), A.shape[2]), device=A.device)
+            NA = torch.empty((len(neg), A.shape[2]), device=A.device)
 
-        for i in range(len(A)):
-            j, k = cumsum[i], cumsum[i + 1]
-            PA[j:k] = torch.matmul(P[j:k], A[i])  # (samples, time)
-            j, k = i * config.num_negative_samples, (i + 1) * config.num_negative_samples
-            NA[j:k] = torch.matmul(N[j:k], A[i])  # (samples, time)
+            for i in range(len(A)):
+                j, k = cumsum[i], cumsum[i + 1]
+                PA[j:k] = torch.matmul(P[j:k], A[i])  # (samples, time)
+                j, k = i * config.num_negative_samples, (i + 1) * config.num_negative_samples
+                NA[j:k] = torch.matmul(N[j:k], A[i])  # (samples, time)
 
-        return PA, NA
+            return PA, NA
+        
+        else:
+            assert A.shape[0] == 1
+
+            A = self.audio_encoder(spec)
+            P = self.text_encoder(pos)
+            
+            S = torch.matmul(P, A[0])
+            
+            return 0.5 * (S + 1)
     
 
 def contrastive_loss(PA, NA):

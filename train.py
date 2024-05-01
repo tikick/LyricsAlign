@@ -13,6 +13,7 @@ import config
 from data import get_dali, DaliDatasetPickle, LyricsDatabase, collate
 from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
+from decode import align
 
 
 def train(model, device, train_loader, lyrics_database, criterion, optimizer):
@@ -21,32 +22,28 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
     train_loss = 0.
     batch_loss = 0.
 
-    with tqdm(total=num_batches) as pbar:
-        for idx, batch in enumerate(train_loader):
-            spectrograms, positives, len_positives = batch
-            negatives = lyrics_database.sample(config.num_negative_samples, positives, len_positives)
-            negatives = torch.IntTensor(negatives)
-            spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
+    for idx, batch in enumerate(train_loader):
+        spectrograms, positives, len_positives = batch
+        negatives = lyrics_database.sample(config.num_negative_samples, positives, len_positives)
+        negatives = torch.IntTensor(negatives)
+        spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
 
-            optimizer.zero_grad()
+        optimizer.zero_grad()
 
-            PA, NA = model(spectrograms, positives, len_positives, negatives)
+        PA, NA = model(spectrograms, positives, len_positives, negatives)
 
-            loss = criterion(PA, NA)
-            loss.backward()
+        loss = criterion(PA, NA)
+        loss.backward()
 
-            optimizer.step()
+        optimizer.step()
 
-            train_loss += loss.item()
-            batch_loss += loss.item()
+        train_loss += loss.item()
+        batch_loss += loss.item()
 
-            pbar.set_description('Current loss: {:.4f}'.format(loss))
-            pbar.update(1)
-
-            if (idx + 1) % 100 == 0:
-                train_metrics = {'train/batch_loss': batch_loss / 100, 'train/batch_idx': idx + 1}
-                wandb.log({**train_metrics})
-                batch_loss = 0.
+        if (idx + 1) % 100 == 0:
+            train_metrics = {'train/batch_loss': batch_loss / 100, 'train/batch_idx': idx + 1}
+            wandb.log({**train_metrics})
+            batch_loss = 0.
 
     return train_loss / num_batches
 
@@ -56,7 +53,7 @@ def validate(model, device, val_loader, lyrics_database, criterion):
     num_batches = len(val_loader.dataset) // config.batch_size
     val_loss = 0.
 
-    with tqdm(total=num_batches) as pbar:
+    with torch.no_grad():
         for batch in val_loader:
             spectrograms, positives, len_positives = batch
             negatives = lyrics_database.sample(config.num_negative_samples, positives, len_positives)
@@ -69,10 +66,24 @@ def validate(model, device, val_loader, lyrics_database, criterion):
 
             val_loss += loss.item()
 
-            pbar.set_description("Current loss: {:.4f}".format(loss))
-            pbar.update(1)
-
     return val_loss / num_batches
+
+
+def eval(model, device, eval_dataset, metric):
+    model.eval()
+
+    with torch.no_grad():
+        for song in eval_dataset:
+            spectrograms, positives, gt_alignment = song
+            spectrograms, positives = spectrograms.to(device), positives.to(device)
+
+            S = model(spectrograms, positives)
+            S = S.cpu()  # detach?
+
+            alignment = align(S)
+
+            metric(alignment, gt_alignment)
+
 
 
 def main():
