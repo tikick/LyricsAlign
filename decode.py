@@ -34,7 +34,7 @@ def align(S, song, level='word'):
 
     words = song['words'] if config.use_chars else song['phonemes']
     word_alignment = [(0, 0) for _ in range(len(words))]
-    l, r = 0
+    l = r = 0
     for word in words:
         num_tokens = len(word['text'])
         r += num_tokens

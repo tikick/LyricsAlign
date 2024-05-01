@@ -41,9 +41,8 @@ def count_parameters(model):
     return total_num_params
 
 
-def encode_chars(dict_list) -> np.ndarray:
-    lyrics_list = [d['text'] for d in dict_list]
-    lyrics = ' '.join(lyrics_list)
+def encode_chars(words) -> np.ndarray:
+    lyrics = ' '.join(words)
     # lyrics = ' '.join(lyrics.split())
     lyrics = ' ' * config.context + lyrics + ' ' * config.context  # padding
     chars = []
@@ -59,14 +58,11 @@ def encode_chars(dict_list) -> np.ndarray:
         chars.append(idx)
     return np.array(chars, dtype=np.short)
 
-def encode_phonemes(dict_list) -> np.ndarray:
-    phonemes_nested_list = [d['text'] for d in dict_list]
-
+def encode_phonemes(words) -> np.ndarray:
     phonemes_list = []
-    for i, word_phonemes in enumerate(phonemes_nested_list):
-        phonemes_list.extend(word_phonemes)
-        if i < len(phonemes_nested_list) - 1:
-            phonemes_list.append(' ')
+    for word_phonemes in words:
+        phonemes_list += word_phonemes + [' ']
+    phonemes_list = phonemes_list[:-1]
     phonemes_list = [' '] * config.context + phonemes_list + [' '] * config.context  # padding
 
     phonemes = []

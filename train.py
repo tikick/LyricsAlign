@@ -10,7 +10,7 @@ from tqdm import tqdm
 import wandb
 
 import config
-from data import get_dali, DaliDatasetPickle, LyricsDatabase, collate
+from data import get_dali, DaliDatasetPickle, LyricsDatabase, collate, eval_collate
 from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
 from decode import align
@@ -74,10 +74,10 @@ def eval(model, device, eval_dataset, metric):
 
     with torch.no_grad():
         for song in eval_dataset:
-            spectrograms, positives, gt_alignment = song
-            spectrograms, positives = spectrograms.to(device), positives.to(device)
+            spectrogram, positives, gt_alignment = eval_collate(song)
+            spectrogram, positives = spectrogram.to(device), positives.to(device)
 
-            S = model(spectrograms, positives)
+            S = model(spectrogram, positives)
             S = S.cpu()  # detach?
 
             alignment = align(S)

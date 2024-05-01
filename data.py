@@ -10,6 +10,8 @@ import pickle
 from math import floor
 import torch
 from torch.utils.data import Dataset
+from g2p_en import G2p
+import string
 
 import config
 from utils import encode_chars, encode_phonemes, load, wav2spec
@@ -33,90 +35,116 @@ def get_dali(lang='english'):
 
     audio_files = os.listdir(config.dali_audio_path)
     for file in audio_files:
-        if os.path.exists(os.path.join(config.dali_annot_path, file[:-4] + '.gz')):
-            # get annotations and metadata for the current song
-            annot = dali_data[file[:-4]].annotations['annot']
-            metadata = dali_data[file[:-4]].info['metadata']
+        annot = dali_data[file[:-4]].annotations['annot']
+        metadata = dali_data[file[:-4]].info['metadata']
 
-            if lang is not None and metadata['language'] != lang:
-                continue
+        if lang is not None and metadata['language'] != lang:
+            continue
 
-            song = {'id': file[:-4],
-                    'audio_path': os.path.join(config.dali_audio_path, file),
-                    'words': annot['words'],
-                    'phonemes': annot['phonemes']
-                    }
+        song = {'id': file[:-4],
+                'audio_path': os.path.join(config.dali_audio_path, file),
+                'words': [d['text'] for d in annot['words']],
+                'times': [d['time'] for d in annot['words']],
+                'phonemes': [d['text'] for d in annot['phonemes']]
+                }
 
-            lang_subset.append(song)
+        lang_subset.append(song)
 
     return lang_subset
 
 
-class DaliDatasetHDF5(Dataset):
+def get_jamendo(lang='english'):
+    g2p = G2p()
+    audio_files = os.listdir(config.jamendo_audio_path)
+    songs = []
 
-    def __init__(self, dataset, partition, in_memory=False):
-        super(DaliDatasetHDF5, self).__init__()
+    for file in audio_files:  #?
 
-        hdf_file_path = os.path.join(config.hdf_dir, partition + '.hdf5')
+        if lang is not None and metadata['language'] != lang:
+            continue
 
-        if not os.path.exists(hdf_file_path):
-            if not os.path.exists(config.hdf_dir):
-                os.makedirs(config.hdf_dir)
+        lyrics_file = os.path.join(config.jamendo_lyrics_path, file[:-4])
+        with open(lyrics_file + '.txt', 'r') as f:
+            lines = f.read().splitlines()
+        lines = [l for l in lines if len(l) > 0]  # remove empty lines between paragraphs
+        lyrics = ' '.join(lines)
 
-            print(f'Creating {partition} samples')
-            sample_id = 0
-            
-            with h5py.File(hdf_file_path, 'w', libver='latest') as f:
+        # compute (start, end) indices for all lines
+        char_indices = []
+        start = end = 0  # end is non-inclusive
+        for line in lines:
+            end = start + len(line)
+            char_indices.append((start, end))
+            start = end + 1  # end points to space between lines, + 1 gives the start of the next line
 
-                for song in tqdm(dataset):
-                    waveform = load(song['audio_path'], sr=config.sr)
+        phonemes_list = []
+        phoneme_indices = []
+        start = end = 0  # end is non-inclusive
+        for line in lines:
+            line_phonemes = []
+            for word in line.split():
+                word_phonemes = g2p(word)
+                word_phonemes = [p if p[-1] not in string.digits else p[:-1] for p in word_phonemes]
+                line_phonemes += word_phonemes + [' ']
 
-                    start_times = [d['time'][0] for d in song['words']]
-                    end_times = [d['time'][1] for d in song['words']]
+            phonemes_list += line_phonemes
 
-                    max_num_samples = floor((len(waveform) - config.segment_length) / config.hop_size) + 1
-                    for i in range(max_num_samples):
-                        sample_start = i * config.hop_size
-                        sample_end = sample_start + config.segment_length
-                        assert sample_end <= len(waveform)
+            end = start + len(line_phonemes) - 1  # remove last space
+            phoneme_indices.append((start, end))
+            start = end + 1  # end points to space between lines, + 1 gives the start of the next line
 
-                        # find the lyrics within (start, end)
-                        idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
-                        idx_last_word = bisect.bisect_right(end_times, sample_end / config.sr) - 1
+        phonemes_list = phonemes_list[:-1]  # remove last space
+        
+        song = {'id': file[:-4],
+                #'audio_path': os.path.join(config.jamendo_audio_path, file),
+                'lyrics': lyrics,
+                'char_indices': char_indices,
+                'phonemes': phonemes_list,
+                'phoneme_indices': phoneme_indices
+                }
+        
+        songs.append(song)
+    
+    return songs
 
-                        if idx_first_word > idx_last_word:  # no words (fully contained) in this sample, skip
-                            continue
 
-                        # convert characters/phonemes present in (start, end) to numerical representation
-                        chars = encode_chars(song['words'][idx_first_word:idx_last_word + 1])
-                        phonemes = encode_phonemes(song['phonemes'][idx_first_word:idx_last_word + 1])
+class EvalDataset(Dataset):
+    def __init__(self, dataset):
+        super(EvalDataset, self).__init__()
 
-                        spec = wav2spec(waveform[sample_start:sample_end])
+        pickle_file = os.path.join(config.pickle_dir, 'eval.pkl')
 
-                        # sample = (spec, chars, phonemes)
-                        grp = f.create_group(str(sample_id))
-                        grp.create_dataset('spectrogram', data=spec)
-                        grp.create_dataset('chars', data=chars)
-                        grp.create_dataset('phonemes', data=phonemes)
-                        sample_id += 1
-                
-                f.attrs['num_samples'] = sample_id
+        if not os.path.exists(pickle_file):
+            if not os.path.exists(config.pickle_dir):
+                os.makedirs(config.pickle_dir)
 
-        driver = 'core' if in_memory else None  # Load hdf file fully into memory if desired
-        self.hdf_file = h5py.File(hdf_file_path, 'r', driver=driver, libver='latest')
-        self.length = self.hdf_file.attrs['num_samples']
+            print(f'Processing eval songs')
+            songs = []
+            for song in tqdm(dataset):
+                waveform = load(song['audio_path'], sr=config.sr)
+
+                # convert characters/phonemes to numerical representation
+                chars = encode_chars(song['words'])
+                phonemes = encode_phonemes(song['phonemes'])
+
+                spec = wav2spec(waveform)
+                    
+                songs.append((spec, chars, phonemes))  # gt_alignment?
+
+            # write songs onto pickle file
+            with open(pickle_file, 'wb') as f:
+                pickle.dump(songs, f)
+
+        # load songs from pickle file
+        with open(pickle_file, 'rb') as f:
+            self.songs = pickle.load(f)
 
     def __getitem__(self, index):
-        spec = self.hdf_file[str(index)]['spectrogram']
-        chars = self.hdf_file[str(index)]['chars']
-        phonemes = self.hdf_file[str(index)]['phonemes']
-        return spec, chars, phonemes
+        return self.songs[index]  # (spec, chars, phonemes)
 
     def __len__(self):
-        return self.length
-
-    def close(self):
-        self.hdf_file.close()
+        return len(self.songs)
+    
 
 
 class DaliDatasetPickle(Dataset):
@@ -134,8 +162,8 @@ class DaliDatasetPickle(Dataset):
             for song in tqdm(dataset):
                 waveform = load(song['audio_path'], sr=config.sr)
 
-                start_times = [d['time'][0] for d in song['words']]
-                end_times = [d['time'][1] for d in song['words']]
+                start_times = song['times'][:, 0]
+                end_times = song['times'][:, 1]
 
                 max_num_samples = floor(((len(waveform) - config.segment_length) / config.hop_size) + 1)
                 for i in range(max_num_samples):
@@ -255,6 +283,22 @@ class LyricsDatabase:
         return contextual_token
 
 
+def eval_collate(data):
+    spec, chars, phonemes = data
+    tokens = chars if config.use_chars else phonemes
+    # add "silence" before and after the tokens, could also add between lines
+    #tokens = [' '] + tokens.tolist() + [' ']  # should add silence when reading the file
+
+    # extract context for each token
+    contextual_tokens = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
+
+    spectrogram = torch.Tensor(spec).unsqueeze(0)  # batch dimension
+    # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
+    contextual_tokens = torch.IntTensor(np.array(contextual_tokens))
+
+    return spectrogram, contextual_tokens
+
+
 def collate(data):
     spectrograms = []
     contextual_tokens = []
@@ -275,3 +319,70 @@ def collate(data):
     contextual_tokens = torch.IntTensor(np.array(contextual_tokens))
 
     return spectrograms, contextual_tokens, len_tokens
+
+
+class DaliDatasetHDF5(Dataset):
+
+    def __init__(self, dataset, partition, in_memory=False):
+        super(DaliDatasetHDF5, self).__init__()
+
+        hdf_file_path = os.path.join(config.hdf_dir, partition + '.hdf5')
+
+        if not os.path.exists(hdf_file_path):
+            if not os.path.exists(config.hdf_dir):
+                os.makedirs(config.hdf_dir)
+
+            print(f'Creating {partition} samples')
+            sample_id = 0
+            
+            with h5py.File(hdf_file_path, 'w', libver='latest') as f:
+
+                for song in tqdm(dataset):
+                    waveform = load(song['audio_path'], sr=config.sr)
+
+                    start_times = [d['time'][0] for d in song['words']]
+                    end_times = [d['time'][1] for d in song['words']]
+
+                    max_num_samples = floor((len(waveform) - config.segment_length) / config.hop_size) + 1
+                    for i in range(max_num_samples):
+                        sample_start = i * config.hop_size
+                        sample_end = sample_start + config.segment_length
+                        assert sample_end <= len(waveform)
+
+                        # find the lyrics within (start, end)
+                        idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
+                        idx_last_word = bisect.bisect_right(end_times, sample_end / config.sr) - 1
+
+                        if idx_first_word > idx_last_word:  # no words (fully contained) in this sample, skip
+                            continue
+
+                        # convert characters/phonemes present in (start, end) to numerical representation
+                        chars = encode_chars(song['words'][idx_first_word:idx_last_word + 1])
+                        phonemes = encode_phonemes(song['phonemes'][idx_first_word:idx_last_word + 1])
+
+                        spec = wav2spec(waveform[sample_start:sample_end])
+
+                        # sample = (spec, chars, phonemes)
+                        grp = f.create_group(str(sample_id))
+                        grp.create_dataset('spectrogram', data=spec)
+                        grp.create_dataset('chars', data=chars)
+                        grp.create_dataset('phonemes', data=phonemes)
+                        sample_id += 1
+                
+                f.attrs['num_samples'] = sample_id
+
+        driver = 'core' if in_memory else None  # Load hdf file fully into memory if desired
+        self.hdf_file = h5py.File(hdf_file_path, 'r', driver=driver, libver='latest')
+        self.length = self.hdf_file.attrs['num_samples']
+
+    def __getitem__(self, index):
+        spec = self.hdf_file[str(index)]['spectrogram']
+        chars = self.hdf_file[str(index)]['chars']
+        phonemes = self.hdf_file[str(index)]['phonemes']
+        return spec, chars, phonemes
+
+    def __len__(self):
+        return self.length
+
+    def close(self):
+        self.hdf_file.close()
