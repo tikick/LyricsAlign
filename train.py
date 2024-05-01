@@ -40,9 +40,9 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
         train_loss += loss.item()
         batch_loss += loss.item()
 
-        if (idx + 1) % 100 == 0:
-            train_metrics = {'train/batch_loss': batch_loss / 100, 'train/batch_idx': idx + 1}
-            wandb.log({**train_metrics})
+        log_checkpoint = 100  # log every 100 batches
+        if idx % log_checkpoint == 0:
+            wandb.log({'train/batch_loss': batch_loss / log_checkpoint, 'train/batch_idx': idx})
             batch_loss = 0.
 
     return train_loss / num_batches
@@ -143,15 +143,13 @@ def main():
         print('Epoch:', epoch)
 
         train_loss = train(model, device, train_loader, lyrics_database, criterion, optimizer)
-        train_metrics = {'train/train_loss': train_loss, 'train/epoch': epoch}
+        wandb.log({'train/train_loss': train_loss, 'train/epoch': epoch})
 
         val_loss = validate(model, device, val_loader, lyrics_database, criterion)
-        val_metrics = {'val/val_loss': val_loss, 'val/epoch': epoch}
+        wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}')
         
-        wandb.log({**train_metrics, **val_metrics})
-
         if val_loss < best_loss:
             print('Model improved on validation set')
             best_loss = val_loss
