@@ -10,7 +10,7 @@ from tqdm import tqdm
 import wandb
 
 import config
-from data import get_dali, DaliDatasetPickle, LyricsDatabase, collate, eval_collate
+from data import get_dali, DaliDataset, LyricsDatabase, collate, eval_collate
 from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
 from decode import align
@@ -69,18 +69,18 @@ def validate(model, device, val_loader, lyrics_database, criterion):
     return val_loss / num_batches
 
 
-def eval(model, device, eval_dataset, metric):
+def eval(model, device, jamendo, metric):
     model.eval()
 
     with torch.no_grad():
-        for song in eval_dataset:
-            spectrogram, positives, gt_alignment = eval_collate(song)
+        for song in jamendo:
+            spectrogram, positives = process_jamendo(song)
             spectrogram, positives = spectrogram.to(device), positives.to(device)
 
             S = model(spectrogram, positives)
             S = S.cpu()  # detach?
 
-            alignment = align(S)
+            alignment = align(S, song)
 
             metric(alignment, gt_alignment)
 
@@ -103,8 +103,8 @@ def main():
     print('Size of DALI:', len(dali))
     dali_train, dali_val = train_test_split(dali, test_size=config.val_size, random_state=97)
 
-    train_data = DaliDatasetPickle(dali_train, 'train')
-    val_data = DaliDatasetPickle(dali_val, 'val')
+    train_data = DaliDataset(dali_train, 'train')
+    val_data = DaliDataset(dali_val, 'val')
     print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
 

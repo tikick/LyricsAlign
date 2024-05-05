@@ -11,18 +11,17 @@ from torch import nn
 import string
 
 
-phone_dict = ['AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY',
+phoneme_dict = ['AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY',
               'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y',
               'Z', 'ZH', ' ']
-phone2int = {phone_dict[i]: i for i in range(len(phone_dict))}
+phoneme2int = {phoneme_dict[i]: i for i in range(len(phoneme_dict))}
 
-#char_dict = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
-#             'v', 'w', 'x', 'y', 'z', "'", ' ']
-#char2int = {char_dict[i]: i for i in range(len(char_dict))}
+char_dict = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+             'v', 'w', 'x', 'y', 'z', "'", ' ']
+char2int = {char_dict[i]: i for i in range(len(char_dict))}
 
 
 def set_seed(seed=97):
-    # random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
@@ -41,36 +40,32 @@ def count_parameters(model):
     return total_num_params
 
 
-def encode_chars(words) -> np.ndarray:
+def encode_words(words, space_padding):
     lyrics = ' '.join(words)
-    # lyrics = ' '.join(lyrics.split())
-    lyrics = ' ' * config.context + lyrics + ' ' * config.context  # padding
+    lyrics = ' ' * space_padding + lyrics + ' ' * space_padding
+    
     chars = []
     for c in lyrics.lower():
-        idx = string.ascii_lowercase.find(c)
-        if idx == -1:
-            if c == "'":
-                idx = 26
-            elif c == ' ':
-                idx = 27
-            else:
-                continue  # remove unknown characters
+        try:
+            idx = char2int[c]
+        except KeyError:
+            pass  # remove unknown characters
         chars.append(idx)
-    return np.array(chars, dtype=np.short)
+    return chars
 
-def encode_phonemes(words) -> np.ndarray:
+def encode_phowords(phowords, space_padding):
     phonemes_list = []
-    for word_phonemes in words:
+    for word_phonemes in phowords:
         phonemes_list += word_phonemes + [' ']
     phonemes_list = phonemes_list[:-1]
-    phonemes_list = [' '] * config.context + phonemes_list + [' '] * config.context  # padding
+    phonemes_list = [' '] * space_padding + phonemes_list + [' '] * space_padding
 
     phonemes = []
     for p in phonemes_list:
-        idx = phone2int[p]
+        idx = phoneme2int[p]
         phonemes.append(idx)
+    return phonemes
 
-    return np.array(phonemes, dtype=np.short)
 
 def load(path: str, sr: int) -> np.ndarray:
     with warnings.catch_warnings():
