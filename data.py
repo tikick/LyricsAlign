@@ -17,15 +17,6 @@ import csv
 import config
 from utils import encode_words, encode_phowords, load, wav2spec
 
-phone_dict = ['AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY',
-              'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y',
-              'Z', 'ZH', ' ']
-phone2int = {phone_dict[i]: i for i in range(len(phone_dict))}
-
-#char_dict = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
-#             'v', 'w', 'x', 'y', 'z', "'", ' ']
-#char2int = {char_dict[i]: i for i in range(len(char_dict))}
-
 
 def get_dali(lang='english'):
     dali_data = dali_code.get_the_DALI_dataset(config.dali_annot_path, skip=[],
@@ -102,37 +93,50 @@ def get_jamendo(lang='english'):
     return songs
 
 
-class JamendoDataset(Dataset):
-    def __init__(self, dataset):
-        super(JamendoDataset, self).__init__()
+def jamendo_collate(song):
 
-        pickle_file = os.path.join(config.pickle_dir, 'jamendo.pkl')
+    waveform = load(song['audio_path'], sr=config.sr)
+    spec = wav2spec(waveform)
+    spectrogram = torch.Tensor(spec).unsqueeze(0)  # batch dimension
 
-        if not os.path.exists(pickle_file):
-            if not os.path.exists(config.pickle_dir):
-                os.makedirs(config.pickle_dir)
+    if config.use_chars:
+        tokens = encode_words(song['words'], space_padding=config.context + 1)  # +1 silence padding for alignment
+    else:
+        tokens = encode_phowords(song['phowords'], pace_padding=config.context + 1)  # +1 silence padding for alignment
+    # silence padding could also be added between lines ?
 
-            print(f'Processing eval songs')
-            songs = []
-            for song in tqdm(dataset):
-                waveform = load(song['audio_path'], sr=config.sr)
-                spec = wav2spec(waveform)
-                songs.append((spec, song['words'], song['phowords'], song['line_indices']))  # gt_alignment?
+    # extract context for each token
+    contextual_tokens = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
+    # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
+    contextual_tokens = torch.IntTensor(np.array(contextual_tokens))
 
-            # write songs onto pickle file
-            with open(pickle_file, 'wb') as f:
-                pickle.dump(songs, f)
+    return spectrogram, contextual_tokens
 
-        # load songs from pickle file
-        with open(pickle_file, 'rb') as f:
-            self.songs = pickle.load(f)
 
-    def __getitem__(self, index):
-        return self.songs[index]  # (spec, words, phowords, line_indices)
+def collate(data):
+    spectrograms = []
+    contextual_tokens = []
+    len_tokens = []
 
-    def __len__(self):
-        return len(self.songs)
-    
+    for spec, words, phowords in data:
+        spectrograms.append(spec)
+
+        if config.use_chars:
+            tokens = encode_words(words, space_padding=config.context)
+        else:
+            tokens = encode_phowords(phowords, pace_padding=config.context)
+
+        # extract context for each token
+        token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
+        contextual_tokens += token_with_context
+        len_tokens.append(len(token_with_context))
+
+    # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
+    spectrograms = torch.Tensor(np.array(spectrograms))
+    contextual_tokens = torch.IntTensor(np.array(contextual_tokens))
+
+    return spectrograms, contextual_tokens, len_tokens
+
 
 class DaliDataset(Dataset):
     def __init__(self, dataset, partition):
@@ -266,48 +270,3 @@ class LyricsDatabase:
             idx = idx // config.vocab_size
         contextual_token = list(reversed(contextual_token))
         return contextual_token
-
-
-def jamendo_collate(song):
-
-    waveform = load(song['audio_path'], sr=config.sr)
-    spec = wav2spec(waveform)
-    spectrogram = torch.Tensor(spec).unsqueeze(0)  # batch dimension
-
-    if config.use_chars:
-        tokens = encode_words(song['words'], space_padding=config.context + 1)  # +1 silence padding for alignment
-    else:
-        tokens = encode_phowords(song['phowords'], pace_padding=config.context + 1)  # +1 silence padding for alignment
-    # silence padding could also be added between lines ?
-
-    # extract context for each token
-    contextual_tokens = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
-    # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
-    contextual_tokens = torch.IntTensor(np.array(contextual_tokens))
-
-    return spectrogram, contextual_tokens
-
-
-def collate(data):
-    spectrograms = []
-    contextual_tokens = []
-    len_tokens = []
-
-    for spec, words, phowords in data:
-        spectrograms.append(spec)
-
-        if config.use_chars:
-            tokens = encode_words(words, space_padding=config.context)
-        else:
-            tokens = encode_phowords(phowords, pace_padding=config.context)
-
-        # extract context for each token
-        token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
-        contextual_tokens += token_with_context
-        len_tokens.append(len(token_with_context))
-
-    # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
-    spectrograms = torch.Tensor(np.array(spectrograms))
-    contextual_tokens = torch.IntTensor(np.array(contextual_tokens))
-
-    return spectrograms, contextual_tokens, len_tokens

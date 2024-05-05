@@ -10,10 +10,11 @@ from tqdm import tqdm
 import wandb
 
 import config
-from data import get_dali, DaliDataset, LyricsDatabase, collate, eval_collate
+from data import get_dali, DaliDataset, LyricsDatabase, collate, jamendo_collate
 from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
 from decode import align
+from eval import evaluate
 
 
 def train(model, device, train_loader, lyrics_database, criterion, optimizer):
@@ -67,23 +68,6 @@ def validate(model, device, val_loader, lyrics_database, criterion):
             val_loss += loss.item()
 
     return val_loss / num_batches
-
-
-def eval(model, device, jamendo, metric):
-    model.eval()
-
-    with torch.no_grad():
-        for song in jamendo:
-            spectrogram, positives = process_jamendo(song)
-            spectrogram, positives = spectrogram.to(device), positives.to(device)
-
-            S = model(spectrogram, positives)
-            S = S.cpu()  # detach?
-
-            alignment = align(S, song)
-
-            metric(alignment, gt_alignment)
-
 
 
 def main():
@@ -147,6 +131,9 @@ def main():
 
         val_loss = validate(model, device, val_loader, lyrics_database, criterion)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
+
+        eval_metric = evaluate(...)
+        wandb.log(...)
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}')
         
