@@ -15,17 +15,17 @@ import string
 import csv
 
 import config
-from utils import encode_words, encode_phowords, load, wav2spec
+from utils import encode_words, encode_phowords, load, wav2spec, words2phowords
 
 
 def get_dali(lang='english'):
-    dali_data = dali_code.get_the_DALI_dataset(config.dali_annot_path, skip=[],
+    dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[],
         keep=[])
         #keep=['0a3cd469757e470389178d44808273ab', '0a81772ae3a7404f9ef09ecd1f94db07', '0dea06fa7ca04eb88b17e8d83993adc3', '1ae34dc139ea43669501fb9cef85cbd0', '1afbb77f88dc44e9bedc07b54341be9c', '1b9c139f491c41f5b0776eefd21c122d'])
 
     songs = []
 
-    audio_files = os.listdir(config.dali_audio_path)  # only get songs for which we have audio files
+    audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
     for file in audio_files:
         annot = dali_data[file[:-4]].annotations['annot']
         metadata = dali_data[file[:-4]].info['metadata']
@@ -33,10 +33,13 @@ def get_dali(lang='english'):
         if lang is not None and metadata['language'] != lang:
             continue
 
+        words = [d['text'] for d in annot['words']]
+        phowords = words2phowords(words)   # ???
+
         song = {'id': file[:-4],
-                'audio_path': os.path.join(config.dali_audio_path, file),
-                'words': [d['text'] for d in annot['words']],
-                'phowords': [d['text'] for d in annot['phonemes']],
+                'audio_path': os.path.join(config.dali_audio, file),
+                'words': words,
+                'phowords': [d['text'] for d in annot['phonemes']],  # ???
                 'times': [d['time'] for d in annot['words']]
                 }
 
@@ -46,11 +49,10 @@ def get_dali(lang='english'):
 
 
 def get_jamendo(lang='english'):
-    g2p = G2p()
     songs = []
 
-    with open("JamendoLyrics.csv", "r") as f:
-        reader = csv.reader(f, delimiter="\t")
+    with open(config.jamendo_metadata, "r") as metadata:
+        reader = csv.reader(metadata, delimiter="\t")
         for i, line in enumerate(reader):
             if i == 0:  # skip header
                 continue
@@ -59,33 +61,42 @@ def get_jamendo(lang='english'):
             if language != lang:
                 continue
 
-            lyrics_file = os.path.join(config.jamendo_lyrics_path, audio_name[:-4])
+            lyrics_file = os.path.join(config.jamendo_lyrics, audio_name[:-4])
             with open(lyrics_file + '.txt', 'r') as f:
                 lines = f.read().splitlines()
             lines = [l for l in lines if len(l) > 0]  # remove empty lines between paragraphs
 
-            line_indices = []  # compute (start, end) indices for all lines
-            words = []
-            start = end = 0  # end is non-inclusive
-            for line in lines:
-                line_words = line.split()
-                words += line_words
-                end = start + len(line_words)
-                line_indices.append((start, end))
-                start = end
+            words = ' '.join(lines).split()
 
             phowords = []
-            start = end = 0  # end is non-inclusive
-            for word in words:
-                word_phonemes = g2p(word)
-                word_phonemes = [p if p[-1] not in string.digits else p[:-1] for p in word_phonemes]
-                phowords.append(word_phonemes)
+            pholines = []
+            for line in lines:
+                line_phonemes = []
+                for word in line.split():
+                    word = word.strip("'")  # g2p handles leading and trailing ' strangely
+                    word_phonemes = g2p(word)
+                    word_phonemes = [p if p[-1] not in string.digits else p[:-1] for p in word_phonemes]
+                    phowords.append(word_phonemes)
+                    line_phonemes += word_phonemes + [' ']
+                line_phonemes = line_phonemes[:-1]  # remove last space
+                pholines.append(line_phonemes)
+            
+            gt_alignment = []  # ground truth alignment
+            with open(config.jamendo_annotations, "r") as annotations:
+                reader = csv.reader(annotations, delimiter="\t")
+                for i, line in enumerate(reader):
+                    if i == 0:  # skip header
+                        continue
+                    word_start, word_end = line[0], line[1]
+                    gt_alignment.append((word_start, word_end))
             
             song = {'id': audio_name[:-4],
-                    'audio_path': os.path.join(config.jamendo_audio_path, audio_name),
+                    'audio_path': os.path.join(config.jamendo_audio, audio_name),
                     'words': words,
                     'phowords': phowords,
-                    'line_indices': line_indices
+                    'lines': lines,
+                    'pholines': pholines,
+                    'gt_alignment': gt_alignment
                     }
             
             songs.append(song)
@@ -94,26 +105,13 @@ def get_jamendo(lang='english'):
 
 
 def jamendo_collate(song):
-
     waveform = load(song['audio_path'], sr=config.sr)
     spec = wav2spec(waveform)
-    spectrogram = torch.Tensor(spec).unsqueeze(0)  # batch dimension
-
-    if config.use_chars:
-        tokens = encode_words(song['words'], space_padding=config.context + 1)  # +1 silence padding for alignment
-    else:
-        tokens = encode_phowords(song['phowords'], pace_padding=config.context + 1)  # +1 silence padding for alignment
-    # silence padding could also be added between lines ?
-
-    # extract context for each token
-    contextual_tokens = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
-    # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
-    contextual_tokens = torch.IntTensor(np.array(contextual_tokens))
-
+    spectrogram, contextual_tokens, _ = collate([spec, song['words'], song['phowords']], eval=True)
     return spectrogram, contextual_tokens
 
 
-def collate(data):
+def collate(data, eval=False):
     spectrograms = []
     contextual_tokens = []
     len_tokens = []
@@ -121,10 +119,13 @@ def collate(data):
     for spec, words, phowords in data:
         spectrograms.append(spec)
 
+        padding = config.context
+        if eval:
+            padding += 1  # +1 silence padding for alignment
         if config.use_chars:
-            tokens = encode_words(words, space_padding=config.context)
+            tokens = encode_words(words, space_padding=padding)
         else:
-            tokens = encode_phowords(phowords, pace_padding=config.context)
+            tokens = encode_phowords(phowords, pace_padding=padding)
 
         # extract context for each token
         token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]

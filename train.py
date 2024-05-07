@@ -10,7 +10,7 @@ from tqdm import tqdm
 import wandb
 
 import config
-from data import get_dali, DaliDataset, LyricsDatabase, collate, jamendo_collate
+from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate
 from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
 from decode import align
@@ -99,6 +99,8 @@ def main():
     
     lyrics_database = LyricsDatabase(dali)
 
+    jamendo = get_jamendo()
+
     optimizer = optim.Adam(model.parameters(), config.lr)
     criterion = contrastive_loss
 
@@ -132,8 +134,9 @@ def main():
         val_loss = validate(model, device, val_loader, lyrics_database, criterion)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
-        eval_metric = evaluate(...)
-        wandb.log(...)
+        PCO_score, AAE_score = evaluate(model, device, jamendo, metric='PCO')
+        wandb.log({'metric/PCO_score': PCO_score, 'metric/epoch': epoch})
+        wandb.log({'metric/AAE_score': AAE_score, 'metric/epoch': epoch})
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}')
         

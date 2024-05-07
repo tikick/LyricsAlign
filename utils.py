@@ -9,6 +9,7 @@ import warnings
 import librosa
 from torch import nn
 import string
+from g2p_en import G2p
 
 
 phoneme_dict = ['AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY',
@@ -19,6 +20,8 @@ phoneme2int = {phoneme_dict[i]: i for i in range(len(phoneme_dict))}
 char_dict = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
              'v', 'w', 'x', 'y', 'z', "'", ' ']
 char2int = {char_dict[i]: i for i in range(len(char_dict))}
+
+g2p = G2p()
 
 
 def set_seed(seed=97):
@@ -38,6 +41,19 @@ def count_parameters(model):
     print(table)
     print(f'Total Trainable Params: {total_num_params}')
     return total_num_params
+
+
+def words2phowords(words):
+    phowords = []
+    for word in words:
+        word = word.strip("',")  # g2p does not remove leading and trailing ',
+        word_phonemes = g2p(word)
+        word_phonemes = [p if p[-1] not in string.digits else p[:-1] for p in word_phonemes]
+        phowords.append(word_phonemes)
+    return phowords
+
+def lines2pholines(lines):
+    pass
 
 
 def encode_words(words, space_padding):

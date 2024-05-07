@@ -7,11 +7,18 @@ time_report = None
 
 ## paths
 base_path = '/itet-stor/tikick/net_scratch/LyricsAlign'
-dali_annot_path = os.path.join(base_path, 'DALI_v2.0/annot')
-dali_audio_path = os.path.join(base_path, 'DALI_v2.0/audio')
+
+dali_annotations = os.path.join(base_path, 'DALI_v2.0/annot')
+dali_audio = os.path.join(base_path, 'DALI_v2.0/audio')
+
 checkpoint_dir = os.path.join(base_path, 'checkpoints')
-hdf_dir = os.path.join(base_path, 'hdfs')
 pickle_dir = os.path.join(base_path, 'pickles')
+
+jamendo_base = os.path.join(base_path, 'jamendolyrics')
+jamendo_metadata = os.path.join(jamendo_base, 'JamendoLyrics.csv')
+jamendo_annotations = os.path.join(jamendo_base, 'annotations')
+jamendo_lyrics = os.path.join(jamendo_base, 'lyrics')
+jamendo_audio = os.path.join(jamendo_base, 'audio')
 
 
 ## model hyperparameters
