@@ -5,17 +5,14 @@ import bisect
 import numpy as np
 import os
 from tqdm import tqdm
-import h5py
 import pickle
 from math import floor
 import torch
 from torch.utils.data import Dataset
-from g2p_en import G2p
-import string
 import csv
 
 import config
-from utils import encode_words, encode_phowords, load, wav2spec, words2phowords
+from utils import encode_words, encode_phowords, load, wav2spec, words2phowords, lines2pholines, read_gt_alignment
 
 
 def get_dali(lang='english'):
@@ -34,12 +31,12 @@ def get_dali(lang='english'):
             continue
 
         words = [d['text'] for d in annot['words']]
-        phowords = words2phowords(words)   # ???
+        phowords = words2phowords(words)
 
         song = {'id': file[:-4],
                 'audio_path': os.path.join(config.dali_audio, file),
                 'words': words,
-                'phowords': [d['text'] for d in annot['phonemes']],  # ???
+                'phowords': [d['text'] for d in annot['phonemes']],  # or phowords from g2p
                 'times': [d['time'] for d in annot['words']]
                 }
 
@@ -51,47 +48,23 @@ def get_dali(lang='english'):
 def get_jamendo(lang='english'):
     songs = []
 
-    with open(config.jamendo_metadata, "r") as metadata:
-        reader = csv.reader(metadata, delimiter="\t")
-        for i, line in enumerate(reader):
-            if i == 0:  # skip header
-                continue
-            
-            audio_name, language = line[2], line[6]
+    with open(config.jamendo_metadata, 'r') as f:
+        reader = csv.reader(f, delimiter='\t')
+        for line in reader[1:]:  # skip header
+            audio_file, language = line[2], line[6]
             if language != lang:
                 continue
 
-            lyrics_file = os.path.join(config.jamendo_lyrics, audio_name[:-4])
-            with open(lyrics_file + '.txt', 'r') as f:
+            with open(os.path.join(config.jamendo_lyrics, audio_file[:-4] + '.txt'), 'r') as f:
                 lines = f.read().splitlines()
             lines = [l for l in lines if len(l) > 0]  # remove empty lines between paragraphs
-
             words = ' '.join(lines).split()
-
-            phowords = []
-            pholines = []
-            for line in lines:
-                line_phonemes = []
-                for word in line.split():
-                    word = word.strip("'")  # g2p handles leading and trailing ' strangely
-                    word_phonemes = g2p(word)
-                    word_phonemes = [p if p[-1] not in string.digits else p[:-1] for p in word_phonemes]
-                    phowords.append(word_phonemes)
-                    line_phonemes += word_phonemes + [' ']
-                line_phonemes = line_phonemes[:-1]  # remove last space
-                pholines.append(line_phonemes)
+            phowords = words2phowords(words)
+            pholines = lines2pholines(lines)
+            gt_alignment = read_gt_alignment(audio_file[:-4])
             
-            gt_alignment = []  # ground truth alignment
-            with open(config.jamendo_annotations, "r") as annotations:
-                reader = csv.reader(annotations, delimiter="\t")
-                for i, line in enumerate(reader):
-                    if i == 0:  # skip header
-                        continue
-                    word_start, word_end = line[0], line[1]
-                    gt_alignment.append((word_start, word_end))
-            
-            song = {'id': audio_name[:-4],
-                    'audio_path': os.path.join(config.jamendo_audio, audio_name),
+            song = {'id': audio_file[:-4],
+                    'audio_path': os.path.join(config.jamendo_audio, audio_file),
                     'words': words,
                     'phowords': phowords,
                     'lines': lines,

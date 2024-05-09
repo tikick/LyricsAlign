@@ -1,5 +1,3 @@
-# Some of the code comes from https://github.com/jhuang448/LyricsAlignment-MTL
-
 import torch
 import numpy as np
 from prettytable import PrettyTable
@@ -10,15 +8,14 @@ import librosa
 from torch import nn
 import string
 from g2p_en import G2p
+import csv
+import os
 
 
-phoneme_dict = ['AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY',
-              'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y',
-              'Z', 'ZH', ' ']
+phoneme_dict = ['AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH', ' ']
 phoneme2int = {phoneme_dict[i]: i for i in range(len(phoneme_dict))}
 
-char_dict = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
-             'v', 'w', 'x', 'y', 'z', "'", ' ']
+char_dict = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', "'", ' ']
 char2int = {char_dict[i]: i for i in range(len(char_dict))}
 
 g2p = G2p()
@@ -46,14 +43,38 @@ def count_parameters(model):
 def words2phowords(words):
     phowords = []
     for word in words:
-        word = word.strip("',")  # g2p does not remove leading and trailing ',
+        word = word.strip("',.!?")  # g2p does not remove leading and trailing special chars
         word_phonemes = g2p(word)
         word_phonemes = [p if p[-1] not in string.digits else p[:-1] for p in word_phonemes]
         phowords.append(word_phonemes)
+
+        for p in word_phonemes:
+            if p not in phoneme_dict:
+                print(f'Unknown phoneme: {p}')
+
     return phowords
 
 def lines2pholines(lines):
-    pass
+    pholines = []
+    for line in lines:
+        words = line.split()
+        phowords = words2phowords(words)
+        pholine = []
+        for phoword in phowords:
+            line_phonemes += phoword + [' ']
+        pholine = line_phonemes[:-1]  # remove last space
+        pholines.append(pholine)
+    return pholines
+
+
+def read_gt_alignment(file):
+    gt_alignment = []
+    with open(os.path.join(config.jamendo_annotations, file), 'r') as f:
+        reader = csv.reader(f, delimiter='\t')
+        for line in reader[1:]:  # skip header
+            word_start, word_end = line[0], line[1]
+            gt_alignment.append((word_start, word_end))
+    return gt_alignment
 
 
 def encode_words(words, space_padding):

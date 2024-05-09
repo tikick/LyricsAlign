@@ -16,7 +16,7 @@ pickle_dir = os.path.join(base_path, 'pickles')
 
 jamendo_base = os.path.join(base_path, 'jamendolyrics')
 jamendo_metadata = os.path.join(jamendo_base, 'JamendoLyrics.csv')
-jamendo_annotations = os.path.join(jamendo_base, 'annotations')
+jamendo_annotations = os.path.join(jamendo_base, 'annotations/words')
 jamendo_lyrics = os.path.join(jamendo_base, 'lyrics')
 jamendo_audio = os.path.join(jamendo_base, 'audio')
 
