@@ -45,7 +45,7 @@ def get_dali(lang='english'):
     return songs
 
 
-def get_jamendo(lang='english'):
+def get_jamendo(lang='English'):
     songs = []
 
     with open(config.jamendo_metadata, 'r') as f:
