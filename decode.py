@@ -5,37 +5,38 @@ import config
 
 def _align(S, song, level='word'):
     # finds monotonic path maximizing the cumulative similarity score
-    # level = ['token', 'word']
 
-    # take silence padding into account
-    # alignment in spec frames, need to convert to seconds
+    # take pre- and post-silence into account
 
-    # assert level in ['token', 'word']
+    assert level in ['token', 'word']
 
     num_tokens, num_frames = S.shape
 
-    DP = torch.zeros_like(S)  # -np.inf?
-    DP[0, 0] = S[0, 0]
+    DP = - torch.ones_like(S)
+    parent = - torch.ones_like(S, dtype=int)
 
     for i in range(num_tokens):
-        for j in range(1, num_frames):
-            if i == 0:
-                DP[i, j] = DP[i, j - 1]
+        for j in range(i, num_frames):
+            if i == 0 and j == 0:
+                DP[i, j] = S[i, j]
+                parent[i, j] = -1
+            elif i == 0:
+                DP[i, j] = DP[i, j - 1] + S[i, j]
+                parent[i, j] = i
             else:
-                DP[i, j] = max(DP[i, j - 1], DP[i - 1, j - 1])
-            DP[i, j] += S[i, j]
+                m = max(DP[i, j - 1], DP[i - 1, j - 1])
+                DP[i, j] = m + S[i, j]
+                parent[i, j] = i if m == DP[i, j - 1] else i - 1
 
     token_alignment = []
-    start, end = num_frames  # end non-inclusive
-    for token in reversed(1, range(num_tokens)):
-        if token > 0:
-            while DP[token, start - 1] > DP[token - 1, start - 1]:  # start should always be > 0, as token > 0
-                start -= 1
-        else:  # token == 0:
-            start = 0
-        token_alignment.append((start, end))
-        end = start
-        start -= 1
+    token_start = token_end = num_frames
+    for token in reversed(range(num_tokens)):
+        assert token_start > 0
+        token_start -= 1
+        while parent[token, token_start] == token:
+            token_start -= 1
+        token_alignment.append((token_start, token_end))
+        token_end = token_start
 
     token_alignment = list(reversed(token_alignment))
     
@@ -44,14 +45,14 @@ def _align(S, song, level='word'):
     
     words = song['words'] if config.use_chars else song['phowords']
     word_alignment = []
-    first_token = last_token = 1  # first and last token of current word, skip first silence token
-    for i, word in enumerate(words):
-        num_tokens = len(word)
-        last_token = first_token + num_tokens - 1
-        start = token_alignment[first_token][0]
-        end = token_alignment[last_token][1]
-        word_alignment.append((start, end))
-        first_token = last_token + 2  # +1 space between words
+    first_word_token = last_word_token = 1
+    for word in words:
+        num_word_tokens = len(word)
+        last_word_token = first_word_token + num_word_tokens - 1
+        word_start = token_alignment[first_word_token][0]
+        word_end = token_alignment[last_word_token][1]
+        word_alignment.append((word_start, word_end))
+        first_word_token = last_word_token + 2  # +1 space between words
 
     return word_alignment
 
@@ -66,27 +67,38 @@ def align(S, song, masked, level='word'):
     
 
 def compute_line_mask(S, song, token_alignment):
-    token_duration = 9 if config.use_chars else 17  # duration in frames (duration in seconds times fps)
-    tol_window_length = 108
+    # take pre- and post-silence into account
+    
+    token_duration = 9 if config.use_chars else 17  # duration in frames (0.2 * fps and 0.4 * fps)
+    tol_window_length = 108  # 2.5 * fps
 
     mask = torch.zeros_like(S)
+    num_tokens, num_frames = S.shape
 
     lines = song['lines'] if config.use_chars else song['pholines']
-    first_token = last_token = 1  # first token of current line, skip first silence token
-    for i, line in enumerate(lines):
-        num_tokens = len(line)
-        last_token = first_token + num_tokens - 1
-        middle_token = first_token + num_tokens / 2
+    first_line_token = last_line_token = 1
+    for line in lines:
+        num_line_tokens = len(line)
+        last_line_token = first_line_token + num_line_tokens - 1
+        middle_token = first_line_token + num_line_tokens // 2
         line_center = token_alignment[middle_token][0]
-        line_start = line_center - (num_tokens - 1) * token_duration / 2
-        line_end = line_center + (num_tokens + 1) * token_duration / 2 + 1 # +1 to make non-inclusive (?)
+        line_start = max(line_center - (num_line_tokens - 1) * token_duration // 2, 0)
+        line_end = min(line_center + (num_line_tokens + 1) * token_duration // 2 + 1, num_frames)  # +1 to make non-inclusive
 
-        mask[first_token:last_token, line_start:line_end] = 1
+        mask[first_line_token:last_line_token, line_start:line_end] = 1
         # add linear tolerance window
-        mask[first_token:last_token, line_start - tol_window_length:line_start] = torch.linspace(0, 1, tol_window_length)
-        mask[first_token:last_token, line_end + 1:line_end + tol_window_length + 1] = torch.linspace(1, 0, tol_window_length)
+        # left tolerance window
+        window_start = max(line_start - tol_window_length, 0)
+        window_end = line_start
+        mask[first_line_token:last_line_token, window_start:window_end] = \
+            torch.linspace(0, 1, tol_window_length)[tol_window_length - (window_end - window_start):]
+        # right tolerance window
+        window_start = line_end
+        window_end = min(line_end + tol_window_length, num_frames)
+        mask[first_line_token:last_line_token, window_start:window_end] = \
+            torch.linspace(1, 0, tol_window_length)[:window_end - window_start]
 
-        first_token += num_tokens + 1  # +1 space between lines
+        first_line_token = last_line_token + 2  # +1 space between lines
     
     return mask
 

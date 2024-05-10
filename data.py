@@ -17,8 +17,8 @@ from utils import encode_words, encode_phowords, load, wav2spec, words2phowords,
 
 def get_dali(lang='english'):
     dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[],
-        keep=[])
-        #keep=['0a3cd469757e470389178d44808273ab', '0a81772ae3a7404f9ef09ecd1f94db07', '0dea06fa7ca04eb88b17e8d83993adc3', '1ae34dc139ea43669501fb9cef85cbd0', '1afbb77f88dc44e9bedc07b54341be9c', '1b9c139f491c41f5b0776eefd21c122d'])
+        #keep=[])
+        keep=['0a3cd469757e470389178d44808273ab', '0a81772ae3a7404f9ef09ecd1f94db07', '0dea06fa7ca04eb88b17e8d83993adc3', '1ae34dc139ea43669501fb9cef85cbd0', '1afbb77f88dc44e9bedc07b54341be9c', '1b9c139f491c41f5b0776eefd21c122d'])
 
     songs = []
 
@@ -29,15 +29,17 @@ def get_dali(lang='english'):
 
         if lang is not None and metadata['language'] != lang:
             continue
-
+        
         words = [d['text'] for d in annot['words']]
-        phowords = words2phowords(words)
+        times = [d['time'] for d in annot['words']]
+        #words, times = normalize_dali_annot(words, times, unknowns_fate=config.unknowns_fate)
+        phowords = [d['text'] for d in annot['phonemes']]  #words2phowords(words)
 
         song = {'id': file[:-4],
                 'audio_path': os.path.join(config.dali_audio, file),
                 'words': words,
-                'phowords': [d['text'] for d in annot['phonemes']],  # or phowords from g2p
-                'times': [d['time'] for d in annot['words']]
+                'phowords': phowords,
+                'times': times
                 }
 
         songs.append(song)
@@ -45,23 +47,23 @@ def get_dali(lang='english'):
     return songs
 
 
-def get_jamendo(lang='English'):
+def get_jamendo(lang='English'):  # jamendo is already normalized
     songs = []
 
     with open(config.jamendo_metadata, 'r') as f:
-        reader = csv.reader(f, delimiter='\t')
-        for line in reader[1:]:  # skip header
-            audio_file, language = line[2], line[6]
-            if language != lang:
+        reader = csv.DictReader(f, delimiter=',')
+        for row in reader:
+            if row['Language'] != lang:
                 continue
 
+            audio_file = row['Filepath']
             with open(os.path.join(config.jamendo_lyrics, audio_file[:-4] + '.txt'), 'r') as f:
                 lines = f.read().splitlines()
             lines = [l for l in lines if len(l) > 0]  # remove empty lines between paragraphs
             words = ' '.join(lines).split()
             phowords = words2phowords(words)
             pholines = lines2pholines(lines)
-            gt_alignment = read_gt_alignment(audio_file[:-4])
+            gt_alignment = read_gt_alignment(os.path.join(config.jamendo_annotations, audio_file[:-4] + '.csv'))
             
             song = {'id': audio_file[:-4],
                     'audio_path': os.path.join(config.jamendo_audio, audio_file),
@@ -80,7 +82,7 @@ def get_jamendo(lang='English'):
 def jamendo_collate(song):
     waveform = load(song['audio_path'], sr=config.sr)
     spec = wav2spec(waveform)
-    spectrogram, contextual_tokens, _ = collate([spec, song['words'], song['phowords']], eval=True)
+    spectrogram, contextual_tokens, _ = collate(data=[(spec, song['words'], song['phowords'])], eval=True)
     return spectrogram, contextual_tokens
 
 
@@ -98,7 +100,7 @@ def collate(data, eval=False):
         if config.use_chars:
             tokens = encode_words(words, space_padding=padding)
         else:
-            tokens = encode_phowords(phowords, pace_padding=padding)
+            tokens = encode_phowords(phowords, space_padding=padding)
 
         # extract context for each token
         token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]

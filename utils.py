@@ -12,10 +12,10 @@ import csv
 import os
 
 
-phoneme_dict = ['AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH', ' ']
+phoneme_dict = [' ', 'AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH']
 phoneme2int = {phoneme_dict[i]: i for i in range(len(phoneme_dict))}
 
-char_dict = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', "'", ' ']
+char_dict = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', "'"]
 char2int = {char_dict[i]: i for i in range(len(char_dict))}
 
 g2p = G2p()
@@ -43,14 +43,15 @@ def count_parameters(model):
 def words2phowords(words):
     phowords = []
     for word in words:
-        word = word.strip("',.!?")  # g2p does not remove leading and trailing special chars
-        word_phonemes = g2p(word)
-        word_phonemes = [p if p[-1] not in string.digits else p[:-1] for p in word_phonemes]
-        phowords.append(word_phonemes)
+        raw_word = word
+        word = word.strip("'")  # g2p does not remove leading and trailing '
+        phoword = g2p(word)
+        phoword = [p if p[-1] not in string.digits else p[:-1] for p in phoword]
+        phowords.append(phoword)
 
-        for p in word_phonemes:
-            if p not in phoneme_dict:
-                print(f'Unknown phoneme: {p}')
+        for p in phoword:
+            if p not in phoneme_dict[1:]:
+                raise NotImplemented(f'Unknown phoneme "{p}" in word "{raw_word}"')
 
     return phowords
 
@@ -61,20 +62,25 @@ def lines2pholines(lines):
         phowords = words2phowords(words)
         pholine = []
         for phoword in phowords:
-            line_phonemes += phoword + [' ']
-        pholine = line_phonemes[:-1]  # remove last space
+            pholine += phoword + [' ']
+        pholine = pholine[:-1]  # remove last space
         pholines.append(pholine)
     return pholines
 
 
-def read_gt_alignment(file):
-    gt_alignment = []
-    with open(os.path.join(config.jamendo_annotations, file), 'r') as f:
-        reader = csv.reader(f, delimiter='\t')
-        for line in reader[1:]:  # skip header
-            word_start, word_end = line[0], line[1]
-            gt_alignment.append((word_start, word_end))
-    return gt_alignment
+def normalize_dali_annot(raw_words, raw_times, cut=False):
+    # if cut=True removes the whole word, else strips the unknown chars from the word
+    # stripping away punctuation and only then cutting might be better
+    words = []
+    times = []
+    for raw_word, raw_time in zip(raw_words, raw_times):
+        #raw_word = raw_word.strip(''',.!?'"''')
+        word = filter(lambda c: c in char_dict[1:], raw_word.lower())
+        if len(word) == 0 or  \
+           len(word) < len(raw_word) and (cut or len(word) > 15):  # len(word) > 15: raw_word is likely multiple words separated by special chars, e.g. -
+            continue
+        words.append(word)
+        times.append(raw_time)
 
 
 def encode_words(words, space_padding):
@@ -82,26 +88,32 @@ def encode_words(words, space_padding):
     lyrics = ' ' * space_padding + lyrics + ' ' * space_padding
     
     chars = []
-    for c in lyrics.lower():
-        try:
-            idx = char2int[c]
-        except KeyError:
-            pass  # remove unknown characters
+    for c in lyrics:
+        idx = char2int[c]
         chars.append(idx)
     return chars
 
 def encode_phowords(phowords, space_padding):
-    phonemes_list = []
-    for word_phonemes in phowords:
-        phonemes_list += word_phonemes + [' ']
-    phonemes_list = phonemes_list[:-1]
-    phonemes_list = [' '] * space_padding + phonemes_list + [' '] * space_padding
-
     phonemes = []
-    for p in phonemes_list:
+    for phoword in phowords:
+        phonemes += phoword + [' ']
+    phonemes = phonemes[:-1]
+    phonemes = [' '] * space_padding + phonemes + [' '] * space_padding
+
+    enc_phonemes = []
+    for p in phonemes:
         idx = phoneme2int[p]
-        phonemes.append(idx)
-    return phonemes
+        enc_phonemes.append(idx)
+    return enc_phonemes
+
+
+def read_gt_alignment(gt_file):
+    gt_alignment = []
+    with open(gt_file, 'r') as f:
+        reader = csv.DictReader(f, delimiter=',')
+        for row in reader:
+            gt_alignment.append((float(row['word_start']), float(row['word_end'])))
+    return gt_alignment
 
 
 def load(path: str, sr: int) -> np.ndarray:

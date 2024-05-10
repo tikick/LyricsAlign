@@ -79,7 +79,7 @@ class TextEncoder(nn.Module):
         )
 
     def forward(self, x):
-        assert len(x.shape[1]) == 1 + 2 * config.context
+        assert x.shape[1] == 1 + 2 * config.context
 
         # (batch, context)
         x = self.embedding_layer(x)  # (batch, context, embedding)
@@ -123,7 +123,7 @@ class SimilarityModel(nn.Module):
             return PA, NA
         
         else:
-            assert A.shape[0] == 1
+            assert spec.shape[0] == 1
 
             A = self.audio_encoder(spec)
             P = self.text_encoder(pos)

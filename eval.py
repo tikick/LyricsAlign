@@ -8,7 +8,7 @@ from tqdm import tqdm
 import wandb
 
 import config
-from data import get_dali, DaliDataset, LyricsDatabase, collate, jamendo_collate
+from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate
 from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
 from decode import align
@@ -49,3 +49,14 @@ def percentage_of_correct_onsets(alignment, gt_alignment, tol=0.3):
         if abs(time[0] - gt_time[0]) <= tol:
             correct_onsets += 1
     return correct_onsets / len(alignment)
+
+
+if __name__ == '__main__':
+    print('Running eval.py')
+    #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    #model = SimilarityModel().to(device)
+    jamendo = get_jamendo()
+    #PCO_score, AAE_score = evaluate(model, device, jamendo)
+    song = jamendo[0]
+    S = torch.rand(1245, 2000)  # torch.Size([1245, 10062])
+    alignment = align(S, song, masked=True)
