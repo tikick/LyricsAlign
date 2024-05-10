@@ -17,8 +17,8 @@ from utils import encode_words, encode_phowords, load, wav2spec, words2phowords,
 
 def get_dali(lang='english'):
     dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[],
-        #keep=[])
-        keep=['0a3cd469757e470389178d44808273ab', '0a81772ae3a7404f9ef09ecd1f94db07', '0dea06fa7ca04eb88b17e8d83993adc3', '1ae34dc139ea43669501fb9cef85cbd0', '1afbb77f88dc44e9bedc07b54341be9c', '1b9c139f491c41f5b0776eefd21c122d'])
+        keep=[])
+        #keep=['0a3cd469757e470389178d44808273ab', '0a81772ae3a7404f9ef09ecd1f94db07', '0dea06fa7ca04eb88b17e8d83993adc3', '1ae34dc139ea43669501fb9cef85cbd0', '1afbb77f88dc44e9bedc07b54341be9c', '1b9c139f491c41f5b0776eefd21c122d'])
 
     songs = []
 
