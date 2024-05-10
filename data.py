@@ -118,7 +118,8 @@ class DaliDataset(Dataset):
     def __init__(self, dataset, partition):
         super(DaliDataset, self).__init__()
 
-        pickle_file = os.path.join(config.pickle_dir, 'dali_' + partition + '.pkl')
+        #pickle_file = os.path.join(config.pickle_dir, 'dali_' + partition + '.pkl')
+        pickle_file = os.path.join(config.pickle_dir, partition + '.pkl')
 
         if not os.path.exists(pickle_file):
             if not os.path.exists(config.pickle_dir):
@@ -129,8 +130,8 @@ class DaliDataset(Dataset):
             for song in tqdm(dataset):
                 waveform = load(song['audio_path'], sr=config.sr)
 
-                start_times = song['times'][:, 0]
-                end_times = song['times'][:, 1]
+                start_times = [start_time for (start_time, _) in song['times']]
+                end_times = [end_time for (_, end_time) in song['times']]
 
                 max_num_samples = floor(((len(waveform) - config.segment_length) / config.hop_size) + 1)
                 for i in range(max_num_samples):
