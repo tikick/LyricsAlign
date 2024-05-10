@@ -134,7 +134,7 @@ def main():
         val_loss = validate(model, device, val_loader, lyrics_database, criterion)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
-        PCO_score, AAE_score = evaluate(model, device, jamendo, metric='PCO')
+        PCO_score, AAE_score = evaluate(model, device, jamendo)
         wandb.log({'metric/PCO_score': PCO_score, 'metric/epoch': epoch})
         wandb.log({'metric/AAE_score': AAE_score, 'metric/epoch': epoch})
 
