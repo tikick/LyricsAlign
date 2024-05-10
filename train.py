@@ -13,7 +13,6 @@ import config
 from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate
 from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
-from decode import align
 from eval import evaluate
 
 
@@ -23,7 +22,7 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
     train_loss = 0.
     batch_loss = 0.
 
-    for idx, batch in enumerate(train_loader):
+    for idx, batch in enumerate(tqdm(train_loader)):
         spectrograms, positives, len_positives = batch
         negatives = lyrics_database.sample(config.num_negative_samples, positives, len_positives)
         negatives = torch.IntTensor(negatives)
@@ -55,7 +54,7 @@ def validate(model, device, val_loader, lyrics_database, criterion):
     val_loss = 0.
 
     with torch.no_grad():
-        for batch in val_loader:
+        for batch in tqdm(val_loader):
             spectrograms, positives, len_positives = batch
             negatives = lyrics_database.sample(config.num_negative_samples, positives, len_positives)
             negatives = torch.IntTensor(negatives)
@@ -138,7 +137,7 @@ def main():
         wandb.log({'metric/PCO_score': PCO_score, 'metric/epoch': epoch})
         wandb.log({'metric/AAE_score': AAE_score, 'metric/epoch': epoch})
 
-        print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}')
+        print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_score}, AAE: {AAE_score}')
         
         if val_loss < best_loss:
             print('Model improved on validation set')
