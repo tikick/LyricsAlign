@@ -6,7 +6,7 @@ time_report = None
 
 
 ## paths
-base_path = '/Users/timonkick/Documents/GitHub/LyricsAlign'  #'/itet-stor/tikick/net_scratch/LyricsAlign'
+base_path = '/itet-stor/tikick/net_scratch/LyricsAlign'
 
 dali_annotations = os.path.join(base_path, 'DALI_v2.0/annot')
 dali_audio = os.path.join(base_path, 'DALI_v2.0/audio')
@@ -36,7 +36,7 @@ vocab_size = 28 if use_chars else 40
 ##### optimizer, data loader and others
 num_epochs = 5
 lr = 1e-4
-batch_size = 64
+batch_size = 32
 num_workers = 0
 val_size = 0.2  # train validation split
 
