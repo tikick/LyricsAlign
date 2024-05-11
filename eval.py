@@ -20,7 +20,7 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
     AAE_score = 0.
 
     with torch.no_grad():
-        for song in jamendo:
+        for song in tqdm(jamendo):
             spectrogram, positives = jamendo_collate(song)
             spectrogram, positives = spectrogram.to(device), positives.to(device)
 
