@@ -86,7 +86,6 @@ if __name__ == '__main__':
     config.time_report.start_timer('get_jamendo')
     jamendo = get_jamendo()
     config.time_report.end_timer('get_jamendo')
-    jamendo = jamendo[:1]
 
     config.time_report.start_timer('eval')
     PCO_score, AAE_score = evaluate(model, device, jamendo)
