@@ -1,4 +1,3 @@
-import torch
 import numpy as np
 
 import config
@@ -13,7 +12,6 @@ def _align(S, song, level='word'):
 
     num_tokens, num_frames = S.shape
 
-    config.time_report.start_timer('DP')
     DP = - np.ones_like(S)
     parent = - np.ones_like(S, dtype=int)
 
@@ -29,9 +27,7 @@ def _align(S, song, level='word'):
                 m = max(DP[i, j - 1], DP[i - 1, j - 1])
                 DP[i, j] = m + S[i, j]
                 parent[i, j] = i if m == DP[i, j - 1] else i - 1
-    config.time_report.end_timer('DP')
 
-    config.time_report.start_timer('backtracing')
     token_alignment = []
     token_start = token_end = num_frames
     for token in reversed(range(num_tokens)):
@@ -43,12 +39,10 @@ def _align(S, song, level='word'):
         token_end = token_start
 
     token_alignment = list(reversed(token_alignment))
-    config.time_report.end_timer('backtracing')
     
     if level == 'token':
         return token_alignment
     
-    config.time_report.start_timer('word_alignment')
     words = song['words'] if config.use_chars else song['phowords']
     word_alignment = []
     first_word_token = last_word_token = 1
@@ -59,7 +53,6 @@ def _align(S, song, level='word'):
         word_end = token_alignment[last_word_token][1]
         word_alignment.append((word_start, word_end))
         first_word_token = last_word_token + 2  # +1 space between words
-    config.time_report.end_timer('word_alignment')
 
     return word_alignment
 
@@ -67,11 +60,7 @@ def _align(S, song, level='word'):
 def align(S, song, masked, level='word'):
     if masked:
         token_alignment = _align(S, song, level='token')
-
-        config.time_report.start_timer('compute_line_mask')
         mask = compute_line_mask(S, song, token_alignment)
-        config.time_report.end_timer('compute_line_mask')
-
         S = S * mask
     alignment = _align(S, song, level)
     return convert_frames_to_seconds(alignment)

@@ -66,30 +66,7 @@ def percentage_of_correct_onsets(alignment, gt_alignment, tol=0.3):
 
 if __name__ == '__main__':
     print('Running eval.py')
-
-    config.time_report = TimeReport()
-
-    config.time_report.add_timer('get_jamendo')
-    config.time_report.add_timer('eval')
-    config.time_report.add_timer('jamendo_collate')
-    config.time_report.add_timer('model')
-    config.time_report.add_timer('alignment')
-
-    config.time_report.add_timer('DP')
-    config.time_report.add_timer('backtracing')
-    config.time_report.add_timer('word_alignment')
-    config.time_report.add_timer('compute_line_mask')
-
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
-
-    config.time_report.start_timer('get_jamendo')
     jamendo = get_jamendo()
-    config.time_report.end_timer('get_jamendo')
-
-    config.time_report.start_timer('eval')
     PCO_score, AAE_score = evaluate(model, device, jamendo)
-    torch.cuda.synchronize()
-    config.time_report.end_timer('eval')
-
-    config.time_report.report()
