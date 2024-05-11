@@ -189,7 +189,6 @@ class TimeSimilarityModel(nn.Module):
         self.text_encoder = TextEncoder()
 
     def forward(self, spec, pos, len_pos, neg):
-        assert spec.device == pos.device and spec.device == neg.device
 
         config.time_report.start_timer('audio_encoder')
         A = self.audio_encoder(spec)

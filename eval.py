@@ -12,6 +12,7 @@ from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, ja
 from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
 from decode import align
+from time_report import TimeReport
 
 
 def evaluate(model, device, jamendo):  #, metric='PCO'):
@@ -21,13 +22,26 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
 
     with torch.no_grad():
         for song in tqdm(jamendo):
+
+            config.time_report.start_timer('jamendo_collate')
             spectrogram, positives = jamendo_collate(song)
+            torch.cuda.synchronize()
+            config.time_report.end_timer('jamendo_collate')
+
             spectrogram, positives = spectrogram.to(device), positives.to(device)
 
+            config.time_report.start_timer('model')
             S = model(spectrogram, positives)
+            torch.cuda.synchronize()
+            config.time_report.end_timer('model')
             S = S.cpu()  # detach?
+            print(S.shape)
 
+            config.time_report.start_timer('alignment')
             alignment = align(S, song, masked=True)
+            torch.cuda.synchronize()
+            config.time_report.end_timer('alignment')
+
             PCO_score += percentage_of_correct_onsets(alignment, song['gt_alignment'])
             AAE_score += average_absolute_error(alignment, song['gt_alignment'])
         
@@ -53,10 +67,32 @@ def percentage_of_correct_onsets(alignment, gt_alignment, tol=0.3):
 
 if __name__ == '__main__':
     print('Running eval.py')
-    #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    #model = SimilarityModel().to(device)
+
+    config.time_report = TimeReport()
+
+    config.time_report.add_timer('get_jamendo')
+    config.time_report.add_timer('eval')
+    config.time_report.add_timer('jamendo_collate')
+    config.time_report.add_timer('model')
+    config.time_report.add_timer('alignment')
+
+    config.time_report.add_timer('DP')
+    config.time_report.add_timer('backtracing')
+    config.time_report.add_timer('word_alignment')
+    config.time_report.add_timer('compute_line_mask')
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = SimilarityModel().to(device)
+
+    config.time_report.start_timer('get_jamendo')
     jamendo = get_jamendo()
-    #PCO_score, AAE_score = evaluate(model, device, jamendo)
-    song = jamendo[0]
-    S = torch.rand(1245, 2000)  # torch.Size([1245, 10062])
-    alignment = align(S, song, masked=True)
+    torch.cuda.synchronize()
+    config.time_report.end_timer('get_jamendo')
+    jamendo = jamendo[:1]
+
+    config.time_report.start_timer('eval')
+    PCO_score, AAE_score = evaluate(model, device, jamendo)
+    torch.cuda.synchronize()
+    config.time_report.end_timer('eval')
+
+    config.time_report.report()
