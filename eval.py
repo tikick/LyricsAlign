@@ -25,7 +25,6 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
 
             config.time_report.start_timer('jamendo_collate')
             spectrogram, positives = jamendo_collate(song)
-            torch.cuda.synchronize()
             config.time_report.end_timer('jamendo_collate')
 
             spectrogram, positives = spectrogram.to(device), positives.to(device)
@@ -35,11 +34,11 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
             torch.cuda.synchronize()
             config.time_report.end_timer('model')
             S = S.cpu()  # detach?
+            S = S.numpy()
             print(S.shape)
 
             config.time_report.start_timer('alignment')
             alignment = align(S, song, masked=True)
-            torch.cuda.synchronize()
             config.time_report.end_timer('alignment')
 
             PCO_score += percentage_of_correct_onsets(alignment, song['gt_alignment'])
@@ -86,7 +85,6 @@ if __name__ == '__main__':
 
     config.time_report.start_timer('get_jamendo')
     jamendo = get_jamendo()
-    torch.cuda.synchronize()
     config.time_report.end_timer('get_jamendo')
     jamendo = jamendo[:1]
 

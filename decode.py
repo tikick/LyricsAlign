@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 import config
 
@@ -13,8 +14,8 @@ def _align(S, song, level='word'):
     num_tokens, num_frames = S.shape
 
     config.time_report.start_timer('DP')
-    DP = - torch.ones_like(S)
-    parent = - torch.ones_like(S, dtype=int)
+    DP = - np.ones_like(S)
+    parent = - np.ones_like(S, dtype=int)
 
     for i in range(num_tokens):
         for j in range(i, num_frames):
@@ -28,7 +29,6 @@ def _align(S, song, level='word'):
                 m = max(DP[i, j - 1], DP[i - 1, j - 1])
                 DP[i, j] = m + S[i, j]
                 parent[i, j] = i if m == DP[i, j - 1] else i - 1
-    torch.cuda.synchronize()
     config.time_report.end_timer('DP')
 
     config.time_report.start_timer('backtracing')
@@ -43,7 +43,6 @@ def _align(S, song, level='word'):
         token_end = token_start
 
     token_alignment = list(reversed(token_alignment))
-    torch.cuda.synchronize()
     config.time_report.end_timer('backtracing')
     
     if level == 'token':
@@ -60,7 +59,6 @@ def _align(S, song, level='word'):
         word_end = token_alignment[last_word_token][1]
         word_alignment.append((word_start, word_end))
         first_word_token = last_word_token + 2  # +1 space between words
-    torch.cuda.synchronize()
     config.time_report.end_timer('word_alignment')
 
     return word_alignment
@@ -72,7 +70,6 @@ def align(S, song, masked, level='word'):
 
         config.time_report.start_timer('compute_line_mask')
         mask = compute_line_mask(S, song, token_alignment)
-        torch.cuda.synchronize()
         config.time_report.end_timer('compute_line_mask')
 
         S = S * mask
@@ -86,7 +83,7 @@ def compute_line_mask(S, song, token_alignment):
     token_duration = 9 if config.use_chars else 17  # duration in frames (0.2 * fps and 0.4 * fps)
     tol_window_length = 108  # 2.5 * fps
 
-    mask = torch.zeros_like(S)
+    mask = np.zeros_like(S)
     num_tokens, num_frames = S.shape
 
     lines = song['lines'] if config.use_chars else song['pholines']
@@ -105,12 +102,12 @@ def compute_line_mask(S, song, token_alignment):
         window_start = max(line_start - tol_window_length, 0)
         window_end = line_start
         mask[first_line_token:last_line_token, window_start:window_end] = \
-            torch.linspace(0, 1, tol_window_length)[tol_window_length - (window_end - window_start):]
+            np.linspace(0, 1, tol_window_length)[tol_window_length - (window_end - window_start):]
         # right tolerance window
         window_start = line_end
         window_end = min(line_end + tol_window_length, num_frames)
         mask[first_line_token:last_line_token, window_start:window_end] = \
-            torch.linspace(1, 0, tol_window_length)[:window_end - window_start]
+            np.linspace(1, 0, tol_window_length)[:window_end - window_start]
 
         first_line_token = last_line_token + 2  # +1 space between lines
     
