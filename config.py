@@ -34,7 +34,7 @@ use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
 ##### optimizer, data loader and others
-num_epochs = 5
+num_epochs = 10
 lr = 1e-4
 batch_size = 32
 
@@ -48,3 +48,7 @@ segment_length = sr * 5  # length in waveform samples, corresponds to a 5 second
 hop_size = segment_length // 2  # in waveform samples
 n_fft = 512
 fourier_bins = n_fft // 2 + 1
+
+
+## alignment
+masked = True

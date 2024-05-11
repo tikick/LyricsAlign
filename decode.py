@@ -57,8 +57,8 @@ def _align(S, song, level='word'):
     return word_alignment
 
 
-def align(S, song, masked, level='word'):
-    if masked:
+def align(S, song, level='word'):
+    if config.masked:
         token_alignment = _align(S, song, level='token')
         mask = compute_line_mask(S, song, token_alignment)
         S = S * mask
