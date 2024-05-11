@@ -37,7 +37,6 @@ vocab_size = 28 if use_chars else 40
 num_epochs = 5
 lr = 1e-4
 batch_size = 32
-num_workers = 0
 
 
 ## dataset, samples and spectrograms

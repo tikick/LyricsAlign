@@ -76,7 +76,7 @@ def normalize_dali_annot(raw_words, raw_times, cut=False):
     for raw_word, raw_time in zip(raw_words, raw_times):
         #raw_word = raw_word.strip(''',.!?'"''')
         word = filter(lambda c: c in char_dict[1:], raw_word.lower())
-        if len(word) == 0 or  \
+        if len(word) == 0 or \
            len(word) < len(raw_word) and (cut or len(word) > 15):  # len(word) > 15: raw_word is likely multiple words separated by special chars, e.g. -
             continue
         words.append(word)

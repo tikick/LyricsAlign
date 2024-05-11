@@ -41,8 +41,8 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
         batch_loss += loss.item()
 
         log_checkpoint = 100  # log every 100 batches
-        if idx % log_checkpoint == 0:
-            wandb.log({'train/batch_loss': batch_loss / log_checkpoint, 'train/batch_idx': idx})
+        if (idx + 1) % log_checkpoint == 0:
+            wandb.log({'train/batch_loss': batch_loss / log_checkpoint, 'train/batch_idx': idx + 1})
             batch_loss = 0.
 
     return train_loss / num_batches
@@ -91,10 +91,8 @@ def main():
     print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
 
-    train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate,
-                              num_workers=config.num_workers if device.type == 'cuda' else 0)
-    val_loader = DataLoader(  dataset=val_data, batch_size=config.batch_size, shuffle=False, collate_fn=collate,
-                              num_workers=config.num_workers if device.type == 'cuda' else 0)
+    train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate,)
+    val_loader = DataLoader(dataset=val_data, batch_size=config.batch_size, shuffle=False, collate_fn=collate,)
     
     lyrics_database = LyricsDatabase(dali)
 

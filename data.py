@@ -32,7 +32,7 @@ def get_dali(lang='english'):
         
         words = [d['text'] for d in annot['words']]
         times = [d['time'] for d in annot['words']]
-        #words, times = normalize_dali_annot(words, times, unknowns_fate=config.unknowns_fate)
+        #words, times = normalize_dali_annot(words, times, cut=config.dali_cut_words_with_unknown_chars)
         phowords = [d['text'] for d in annot['phonemes']]  #words2phowords(words)
 
         song = {'id': file[:-4],
