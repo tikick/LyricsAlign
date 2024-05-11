@@ -101,16 +101,18 @@ def main():
     optimizer = optim.Adam(model.parameters(), config.lr)
     criterion = contrastive_loss
 
-    cfg = {'lr': config.lr,
-           'batch_size': config.batch_size,
+    cfg = {'embedding_dim': config.embedding_dim,
            'num_RCBs': config.num_RCBs,
            'channels': config.channels,
-           'use_chars': config.use_chars,
            'context': config.context,
+           'use_chars': config.use_chars,
            'num_epochs': config.num_epochs,
-           'dali_size': len(dali),
+           'lr': config.lr,
+           'batch_size': config.batch_size,
+           'num_negative_samples': config.num_negative_samples,
            'val_size': config.val_size,
-           'num_negative_samples': config.num_negative_samples}
+           'masked': config.masked,
+           'dali_size': len(dali)}
     
     wandb.init(project='Lyrics Alignment', config=cfg)
 
