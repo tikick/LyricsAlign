@@ -12,7 +12,6 @@ from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, ja
 from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
 from decode import align
-from time_report import TimeReport
 
 
 def evaluate(model, device, jamendo):  #, metric='PCO'):
@@ -22,25 +21,14 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
 
     with torch.no_grad():
         for song in tqdm(jamendo):
-
-            config.time_report.start_timer('jamendo_collate')
             spectrogram, positives = jamendo_collate(song)
-            config.time_report.end_timer('jamendo_collate')
-
             spectrogram, positives = spectrogram.to(device), positives.to(device)
 
-            config.time_report.start_timer('model')
             S = model(spectrogram, positives)
-            torch.cuda.synchronize()
-            config.time_report.end_timer('model')
-            S = S.cpu()  # detach?
-            S = S.numpy()
+            S = S.cpu().numpy()
             print(S.shape)
 
-            config.time_report.start_timer('alignment')
             alignment = align(S, song, masked=True)
-            config.time_report.end_timer('alignment')
-
             PCO_score += percentage_of_correct_onsets(alignment, song['gt_alignment'])
             AAE_score += average_absolute_error(alignment, song['gt_alignment'])
         
