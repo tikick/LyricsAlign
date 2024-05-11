@@ -51,4 +51,4 @@ fourier_bins = n_fft // 2 + 1
 
 
 ## alignment
-masked = True
+masked = False
