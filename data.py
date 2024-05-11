@@ -184,7 +184,7 @@ class LyricsDatabase:
                 if config.use_chars:
                     tokens = encode_words(song['words'], space_padding=config.context)
                 else:
-                    tokens = encode_phowords(song['phowords'], pace_padding=config.context)
+                    tokens = encode_phowords(song['phowords'], space_padding=config.context)
 
                 # extract context for each token
                 token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
