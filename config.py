@@ -25,7 +25,7 @@ jamendo_audio = os.path.join(jamendo_base, 'mp3')
 embedding_dim = 64
 
 ##### audio encoder
-num_RCBs = 2
+num_RCBs = 10
 channels = 64
 
 ##### text encoder
