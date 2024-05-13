@@ -44,5 +44,4 @@ if __name__ == '__main__':
     download_dali_audio()
     audio_path = os.path.join(config.dali_audio, '0a3cd469757e470389178d44808273ab.mp3')
     waveform = load(audio_path, sr=config.sr)
-    np.set_printoptions(linewidth=np.inf)
-    print(waveform)
+    print(np.max(waveform))
