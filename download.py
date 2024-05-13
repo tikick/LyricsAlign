@@ -30,7 +30,7 @@ def download_dali_audio():
         try:
             video = YouTube(url)
             stream = video.streams.filter(only_audio=True).first()
-            stream.download(output_path=config.dali_audio, filename=dali_id + '.wav')
+            stream.download(output_path=config.dali_audio, filename=dali_id + '.mp3')
             num_downloads += 1
         except Exception as e:
             num_fails += 1
@@ -40,6 +40,7 @@ def download_dali_audio():
 
 
 if __name__ == '__main__':
-    audio_path = os.path.join(config.dali_audio, '0a3cd469757e470389178d44808273ab.wav')
+    download_dali_audio()
+    audio_path = os.path.join(config.dali_audio, '0a3cd469757e470389178d44808273ab.mp3')
     waveform = load(audio_path, sr=config.sr)
     print(waveform)
