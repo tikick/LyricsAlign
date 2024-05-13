@@ -7,7 +7,7 @@ from utils import load
 
 
 def download_dali_audio():
-    dali_data = dali_code.get_the_DALI_dataset(config.dali_annot, skip=[],
+    dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[],
                                                #keep=[])
                                                keep=['0a3cd469757e470389178d44808273ab'])
 
