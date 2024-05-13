@@ -82,7 +82,7 @@ def main():
         # dali = dali_train = dali_val = []  # no need to load dali, files already exist
     # else:
     dali = get_dali()
-    dali = dali[:500]  # use smaller dataset for testing
+    #dali = dali[:500]  # use smaller dataset for testing
     print('Size of DALI:', len(dali))
     dali_train, dali_val = train_test_split(dali, test_size=config.val_size, random_state=97)
 
@@ -91,8 +91,8 @@ def main():
     print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
 
-    train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate,)
-    val_loader = DataLoader(dataset=val_data, batch_size=config.batch_size, shuffle=False, collate_fn=collate,)
+    train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
+    val_loader = DataLoader(dataset=val_data, batch_size=config.batch_size, shuffle=False, collate_fn=collate)
     
     lyrics_database = LyricsDatabase(dali)
 

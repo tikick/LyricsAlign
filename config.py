@@ -25,7 +25,7 @@ jamendo_audio = os.path.join(jamendo_base, 'mp3')
 embedding_dim = 64
 
 ##### audio encoder
-num_RCBs = 10
+num_RCBs = 2
 channels = 64
 
 ##### text encoder
@@ -34,7 +34,7 @@ use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
 ##### optimizer, data loader and others
-num_epochs = 10
+num_epochs = 50
 lr = 1e-4
 batch_size = 32
 
@@ -42,7 +42,7 @@ batch_size = 32
 ## dataset, samples and spectrograms
 num_negative_samples = 1_000
 # if you change the following parameters remember to delete the sample files, or the new samples will not be computed
-val_size = 0.2  # train validation split
+val_size = 0.1  # train validation split
 sr = 11025  # waveform sampling rate
 segment_length = sr * 5  # length in waveform samples, corresponds to a 5 seconds audio segment
 hop_size = segment_length // 2  # in waveform samples

@@ -12,7 +12,7 @@ def _align(S, song, level='word'):
 
     num_tokens, num_frames = S.shape
 
-    DP = - np.ones_like(S)
+    DP = -np.inf * np.ones_like(S)
     parent = - np.ones_like(S, dtype=int)
 
     for i in range(num_tokens):
@@ -27,6 +27,9 @@ def _align(S, song, level='word'):
                 m = max(DP[i, j - 1], DP[i - 1, j - 1])
                 DP[i, j] = m + S[i, j]
                 parent[i, j] = i if m == DP[i, j - 1] else i - 1
+    
+    #print('DP =\n', DP)
+    #print('parent =\n', parent)
 
     token_alignment = []
     token_start = token_end = num_frames
@@ -107,3 +110,33 @@ def convert_frames_to_seconds(alignment):
     # convert (start, end) from spec frames to seconds
     fps = 43.07
     return [(start / fps, end / fps) for (start, end) in alignment]
+
+
+if __name__ == '__main__':
+    np.set_printoptions(linewidth=np.inf)
+
+    #signal = np.random.rand(20)
+    #signal = 2 * signal - 1
+    signal = np.array([-1, 1, -1, 1, 1, 1, -1, -1, -1, -1])#[-0.88,  0.99, -0.66,  0.52,  0.15,  0.80, -0.60, -0.68, -0.70, -0.95])#, -0.84425061, -0.24026376, 0.90270039,  0.48420148,  0.68169934, -0.34080505,  0.98538769,  0.33862212, 0.61028969,  0.12509671])
+    print(signal)
+
+    #half_signal = np.concatenate((signal[:10:2], signal[10:20], signal[20::2]))
+    half_signal = signal[::2].copy()
+    print(half_signal)
+
+    signal = np.expand_dims(signal, axis=0)
+    half_signal = np.expand_dims(half_signal, axis=1)
+
+    S = np.matmul(half_signal, signal)
+    S = 0.5 * (S + 1)
+
+    #aabbbacccc
+    S = np.array([[1, 1, 0, 0, 0, 1, 0, 0, 0, 0], # a
+                  [0, 0, 1, 1, 1, 0, 0, 0, 0, 0], # b
+                  [1, 1, 0, 0, 0, 1, 0, 0, 0, 0], # a
+                  [0, 0, 0, 0, 0, 0, 1, 1, 1, 1]]) # c
+
+    print('S =\n', S)
+
+    alignment = _align(S, None, level='token')
+    print('alignment =\n', alignment)

@@ -3,34 +3,43 @@ import os
 from pytube import YouTube
 
 import config
+from utils import load
 
-dali_data = dali_code.get_the_DALI_dataset(config.dali_annot_path, skip=[], keep=[])
 
-base_url = 'https://www.youtube.com/watch?v='
-lang = 'english'
+def download_dali_audio():
+    dali_data = dali_code.get_the_DALI_dataset(config.dali_annot_path, skip=[],
+                                               #keep=[])
+                                               keep=['0a3cd469757e470389178d44808273ab'])
 
-if not os.path.isdir(config.dali_audio):
-    os.makedirs(config.dali_audio)
+    base_url = 'https://www.youtube.com/watch?v='
+    lang = 'english'
 
-num_downloads = 0
-num_fails = 0
+    if not os.path.isdir(config.dali_audio):
+        os.makedirs(config.dali_audio)
 
-annot_list = os.listdir(config.dali_annot_path)
-for file in annot_list:
-    dali_id = file[:-3]
+    num_downloads = 0
+    num_fails = 0
 
-    if lang is not None and dali_data[dali_id].info['metadata']['language'] != lang:
-        continue
+    for dali_id in dali_data:
 
-    url = base_url + dali_data[dali_id].info['audio']['url']
+        if lang is not None and dali_data[dali_id].info['metadata']['language'] != lang:
+            continue
 
-    try:
-        video = YouTube(url)
-        stream = video.streams.filter(only_audio=True).first()
-        stream.download(output_path=config.dali_audio, filename=dali_id + '.wav')
-        num_downloads += 1
-    except Exception as e:
-        num_fails += 1
-        print(f'Failed to download dali_id={dali_id}, url={url}: {repr(e)}')
+        url = base_url + dali_data[dali_id].info['audio']['url']
 
-print(f'Successfully donwloaded {num_downloads} / {num_downloads + num_fails} songs')
+        try:
+            video = YouTube(url)
+            stream = video.streams.filter(only_audio=True).first()
+            stream.download(output_path=config.dali_audio, filename=dali_id + '.mp3')
+            num_downloads += 1
+        except Exception as e:
+            num_fails += 1
+            print(f'Failed to download dali_id={dali_id}, url={url}: {repr(e)}')
+
+    print(f'Successfully donwloaded {num_downloads} / {num_downloads + num_fails} songs')
+
+
+if __name__ == '__main__':
+    audio_path = os.path.join(config.dali_audio, '0a3cd469757e470389178d44808273ab.mp3')
+    waveform = load(audio_path, sr=config.sr)
+    print(waveform)

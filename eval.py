@@ -26,7 +26,7 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
 
             S = model(spectrogram, positives)
             S = S.cpu().numpy()
-            print('S.shape:', S.shape)
+            #print('S.shape:', S.shape)
 
             alignment = align(S, song)
             PCO_score += percentage_of_correct_onsets(alignment, song['gt_alignment'])

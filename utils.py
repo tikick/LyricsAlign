@@ -46,7 +46,7 @@ def words2phowords(words):
         raw_word = word
         word = word.strip("'")  # g2p does not remove leading and trailing '
         phoword = g2p(word)
-        phoword = [p if p[-1] not in string.digits else p[:-1] for p in phoword]
+        phoword = [p[:-1] if p[-1] in string.digits else p for p in phoword]
         phowords.append(phoword)
 
         for p in phoword:
@@ -74,7 +74,6 @@ def normalize_dali_annot(raw_words, raw_times, cut=False):
     words = []
     times = []
     for raw_word, raw_time in zip(raw_words, raw_times):
-        #raw_word = raw_word.strip(''',.!?'"''')
         word = filter(lambda c: c in char_dict[1:], raw_word.lower())
         if len(word) == 0 or \
            len(word) < len(raw_word) and (cut or len(word) > 15):  # len(word) > 15: raw_word is likely multiple words separated by special chars, e.g. -

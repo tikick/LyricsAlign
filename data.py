@@ -12,7 +12,7 @@ from torch.utils.data import Dataset
 import csv
 
 import config
-from utils import encode_words, encode_phowords, load, wav2spec, words2phowords, lines2pholines, read_gt_alignment
+from utils import encode_words, encode_phowords, load, wav2spec, words2phowords, lines2pholines, read_gt_alignment, normalize_dali_annot
 
 
 def get_dali(lang='english'):
@@ -32,8 +32,8 @@ def get_dali(lang='english'):
         
         words = [d['text'] for d in annot['words']]
         times = [d['time'] for d in annot['words']]
-        #words, times = normalize_dali_annot(words, times, cut=config.dali_cut_words_with_unknown_chars)
-        phowords = [d['text'] for d in annot['phonemes']]  #words2phowords(words)
+        words, times = normalize_dali_annot(words, times)#, cut=config.dali_cut_words_with_unknown_chars)
+        phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
 
         song = {'id': file[:-4],
                 'audio_path': os.path.join(config.dali_audio, file),
@@ -118,8 +118,7 @@ class DaliDataset(Dataset):
     def __init__(self, dataset, partition):
         super(DaliDataset, self).__init__()
 
-        #pickle_file = os.path.join(config.pickle_dir, 'dali_' + partition + '.pkl')
-        pickle_file = os.path.join(config.pickle_dir, partition + '.pkl')
+        pickle_file = os.path.join(config.pickle_dir, 'dali_' + partition + '.pkl')
 
         if not os.path.exists(pickle_file):
             if not os.path.exists(config.pickle_dir):
