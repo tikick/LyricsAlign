@@ -10,6 +10,7 @@ from math import floor
 import torch
 from torch.utils.data import Dataset
 import csv
+from sklearn.model_selection import train_test_split
 
 import config
 from utils import encode_words, encode_phowords, load, wav2spec, words2phowords, lines2pholines, read_gt_alignment, normalize_dali_annot
@@ -149,12 +150,12 @@ class DaliDataset(Dataset):
                     sample = (spec, song['words'][idx_first_word:idx_last_word + 1], song['phowords'][idx_first_word:idx_last_word + 1])
                     samples.append(sample)
 
-            # write samples onto pickle file
             with open(pickle_file, 'wb') as f:
+                print(f'Writing {partition} samples')
                 pickle.dump(samples, f)
 
-        # load samples from pickle file
         with open(pickle_file, 'rb') as f:
+            print(f'Loading {partition} samples')
             self.samples = pickle.load(f)
 
     def __getitem__(self, index):
@@ -246,3 +247,19 @@ class LyricsDatabase:
             idx = idx // config.vocab_size
         contextual_token = list(reversed(contextual_token))
         return contextual_token
+    
+
+
+if __name__ == '__main__':
+    print('Running data.py')
+    
+    dali = get_dali()
+    print('Size of DALI:', len(dali))
+    dali_train, dali_val = train_test_split(dali, test_size=config.val_size, random_state=97)
+
+    train_data = DaliDataset(dali_train, 'train')
+    val_data = DaliDataset(dali_val, 'val')
+    print('Num training samples:', len(train_data))
+    print('Num validation samples:', len(val_data))
+    
+    lyrics_database = LyricsDatabase(dali)

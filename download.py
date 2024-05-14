@@ -27,7 +27,7 @@ def download_dali_audio():
         try:
             video = YouTube(url)
             stream = video.streams.filter(only_audio=True).first()
-            stream.download(output_path=config.dali_audio, filename=dali_id + '.mp3')
+            stream.download(output_path=config.dali_audio, filename=dali_id + '.wav')  # librosa.load() has problems with .mp3 
             num_downloads += 1
         except Exception as e:
             num_fails += 1
