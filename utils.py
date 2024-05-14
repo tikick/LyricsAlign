@@ -80,6 +80,7 @@ def normalize_dali_annot(raw_words, raw_times, cut=False):
             continue
         words.append(word)
         times.append(raw_time)
+    return words, times
 
 
 def encode_words(words, space_padding):
