@@ -9,7 +9,7 @@ time_report = None
 base_path = '/itet-stor/tikick/net_scratch/LyricsAlign'
 
 dali_annotations = os.path.join(base_path, 'DALI_v2.0/annot')
-dali_audio = os.path.join(base_path, 'DALI_v2.0/audio')
+dali_audio = os.path.join(base_path, 'DALI_v2.0/wav_audio')
 
 checkpoint_dir = os.path.join(base_path, 'checkpoints')
 pickle_dir = os.path.join(base_path, 'pickles')
