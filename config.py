@@ -11,7 +11,7 @@ base_path = '/itet-stor/tikick/net_scratch/LyricsAlign'
 dali_annotations = os.path.join(base_path, 'DALI_v2.0/annot')
 dali_audio = os.path.join(base_path, 'DALI_v2.0/wav_audio')
 
-checkpoint_dir = os.path.join(base_path, 'checkpoints')
+checkpoint_dir = os.path.join(base_path, 'checkpoints_sumloss')
 pickle_dir = os.path.join(base_path, 'pickles')
 
 jamendo_base = os.path.join(base_path, 'jamendolyrics')
@@ -34,7 +34,7 @@ use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
 ##### optimizer, data loader and others
-num_epochs = 50
+num_epochs = 10
 lr = 1e-4
 batch_size = 32
 

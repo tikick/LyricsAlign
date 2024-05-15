@@ -133,9 +133,14 @@ class SimilarityModel(nn.Module):
             return 0.5 * (S + 1)
     
 
+#def contrastive_loss(PA, NA):
+#    return torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
+#           torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
+
 def contrastive_loss(PA, NA):
-    return torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
-           torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
+    PA_max = torch.pow(torch.max(PA, dim=1).values - 1, 2)
+    NA_max = torch.pow(torch.max(NA, dim=1).values, 2)
+    return (torch.sum(PA_max) + torch.sum(NA_max)) / (len(PA_max) + len(NA_max))
 
 
 
