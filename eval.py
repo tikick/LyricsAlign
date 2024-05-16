@@ -10,7 +10,7 @@ import wandb
 import config
 from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate
 from models import SimilarityModel, contrastive_loss
-from utils import set_seed, count_parameters
+from utils import fix_seed, count_parameters
 from decode import align, _align
 
 
@@ -54,7 +54,7 @@ def percentage_of_correct_onsets(alignment, gt_alignment, tol=0.3):
 
 if __name__ == '__main__':
     print('Running eval.py')
-    
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
     model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_9')))
