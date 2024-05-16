@@ -35,6 +35,7 @@ def _align(S, song, level='word'):
                 parent[i, j] = i if m == DP[i, j - 1] else i - 1
     
     DP[DP == -np.inf] = 0
+    DP = DP / np.max(DP)
     wandb_images.append(wandb.Image(DP, caption='DP'))
 
     token_alignment = []
@@ -70,15 +71,12 @@ def _align(S, song, level='word'):
     
     assert len(word_alignment) == len(song['gt_alignment'])
 
-    alignment_image = np.zeros(shape=(len(words), S.shape[1]))
+    alignment_image = np.zeros(shape=(len(words), S.shape[1], 3))
     for word, frames in enumerate(word_alignment):
-        alignment_image[word, frames[0]:frames[1]] = 1
-    wandb_images.append(wandb.Image(alignment_image, caption='word_alignment'))
-
-    alignment_image = np.zeros(shape=(len(words), S.shape[1]))
+        alignment_image[word, frames[0]:frames[1], 0] = 1  # red channel
     for word, time in enumerate(song['gt_alignment']):
         frames = (int(time[0] * 43.07), int(time[1] * 43.07))
-        alignment_image[word, frames[0]:frames[1]] = 1
+        alignment_image[word, frames[0]:frames[1], 1] = 1  # green channel
     wandb_images.append(wandb.Image(alignment_image, caption='gt_alignment'))
 
     wandb.log({song['id']: wandb_images})
