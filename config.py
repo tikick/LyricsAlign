@@ -7,7 +7,7 @@ time_report = None
 
 
 ## paths
-base_path = '/Users/timonkick/Documents/GitHub/LyricsAlign'#'/itet-stor/tikick/net_scratch/LyricsAlign'#
+base_path = '/itet-stor/tikick/net_scratch/LyricsAlign'#'/Users/timonkick/Documents/GitHub/LyricsAlign'
 
 dali_annotations = os.path.join(base_path, 'DALI_v2.0/annot')
 dali_audio = os.path.join(base_path, 'DALI_v2.0/wav_audio')
