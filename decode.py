@@ -32,7 +32,7 @@ def _align(S, song, level='word'):
             else:
                 m = max(DP[i, j - 1], DP[i - 1, j - 1])
                 DP[i, j] = m + S[i, j]
-                parent[i, j] = i if m == DP[i, j - 1] else i - 1
+                parent[i, j] = i - 1 if m == DP[i - 1, j - 1] else i
     
     DP[DP == -np.inf] = 0
     DP = DP / np.max(DP)
