@@ -57,7 +57,7 @@ def _align(S, song, level='word'):
 
     alignment_image = np.zeros_like(DP)
     for token, time in enumerate(token_alignment):
-        alignment_image[token, time[0]:time[1]] = 1
+        alignment_image[token, int(time[0]):int(time[1])] = 1
     wandb_images.append(wandb.Image(alignment_image, caption='token_alignment'))
     
     if level == 'token':
