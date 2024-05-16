@@ -11,7 +11,7 @@ import config
 from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate
 from models import SimilarityModel, contrastive_loss
 from utils import set_seed, count_parameters
-from decode import align
+from decode import align, _align
 
 
 def evaluate(model, device, jamendo):  #, metric='PCO'):
@@ -28,7 +28,7 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
             S = S.cpu().numpy()
             #print('S.shape:', S.shape)
 
-            alignment = align(S, song)
+            alignment = _align(S, song)  # align
             PCO_score += percentage_of_correct_onsets(alignment, song['gt_alignment'])
             AAE_score += average_absolute_error(alignment, song['gt_alignment'])
         
@@ -54,7 +54,13 @@ def percentage_of_correct_onsets(alignment, gt_alignment, tol=0.3):
 
 if __name__ == '__main__':
     print('Running eval.py')
+    
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
+    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_9')))
+    model.eval()
     jamendo = get_jamendo()
+    jamendo = jamendo[:1]
+
+    wandb.init(project='Decode')
     PCO_score, AAE_score = evaluate(model, device, jamendo)

@@ -46,6 +46,11 @@ class AudioEncoder(nn.Module):
 
     def forward(self, x):
         # x.shape: (batch, feature, time)
+
+        assert x.shape[:2] == (config.batch_size, config.fourier_bins)
+        if config.train:
+            assert x.shape[2] == 216  # spectrograms have 216 frames (5 sec audio segments)
+
         x = x.unsqueeze(1)  # (batch, channel, feature, time)
 
         x = self.RCBs(x)  # (batch, channel, feature, time)
@@ -61,6 +66,10 @@ class AudioEncoder(nn.Module):
 
         # l2 normalization
         x = F.normalize(x, p=2, dim=1)
+
+        assert x.shape[:2] == (config.batch_size, config.embedding_dim)
+        if config.train:
+            assert x.shape[2] == 216  # spectrograms have 216 frames (5 sec audio segments)
 
         return x
 
@@ -79,6 +88,7 @@ class TextEncoder(nn.Module):
         )
 
     def forward(self, x):
+
         assert x.shape[1] == 1 + 2 * config.context
 
         # (batch, context)
@@ -90,6 +100,8 @@ class TextEncoder(nn.Module):
 
         # l2 normalization
         x = F.normalize(x, p=2, dim=1)
+
+        assert x.shape == (config.batch_size, config.embedding_dim)
 
         return x
 
@@ -103,6 +115,9 @@ class SimilarityModel(nn.Module):
 
     def forward(self, spec, pos, len_pos=None, neg=None):
         # if len_pos=None, neg=None then we're in eval, otherwise in train
+
+        assert len(spec) == len(len_pos) and len(spec) == config.batch_size
+        assert len(spec) <= len(pos) and len(neg) == config.batch_size * config.num_negative_samples
         
         if neg is not None:
             A = self.audio_encoder(spec)
@@ -123,7 +138,7 @@ class SimilarityModel(nn.Module):
             return PA, NA
         
         else:
-            assert spec.shape[0] == 1
+            assert len(spec) == 1
 
             A = self.audio_encoder(spec)
             P = self.text_encoder(pos)
@@ -133,14 +148,14 @@ class SimilarityModel(nn.Module):
             return 0.5 * (S + 1)
     
 
-#def contrastive_loss(PA, NA):
-#    return torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
-#           torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
-
 def contrastive_loss(PA, NA):
-    PA_max = torch.pow(torch.max(PA, dim=1).values - 1, 2)
-    NA_max = torch.pow(torch.max(NA, dim=1).values, 2)
-    return (torch.sum(PA_max) + torch.sum(NA_max)) / (len(PA_max) + len(NA_max))
+    return torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
+           torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
+
+#def contrastive_loss(PA, NA):
+#    PA_max = torch.pow(torch.max(PA, dim=1).values - 1, 2)
+#    NA_max = torch.pow(torch.max(NA, dim=1).values, 2)
+#    return (torch.sum(PA_max) + torch.sum(NA_max)) / (len(PA_max) + len(NA_max))
 
 
 

@@ -21,7 +21,7 @@ char2int = {char_dict[i]: i for i in range(len(char_dict))}
 g2p = G2p()
 
 
-def set_seed(seed=97):
+def fix_seed(seed=97):
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)

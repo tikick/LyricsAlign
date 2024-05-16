@@ -1,4 +1,5 @@
 import numpy as np
+import wandb
 
 import config
 
@@ -6,9 +7,14 @@ import config
 def _align(S, song, level='word'):
     # finds monotonic path maximizing the cumulative similarity score
 
-    # take pre- and post-silence into account
+    # NOTE: take pre- and post-silence into account
+
+    assert np.all((S >= 0) & (S <= 1))
 
     assert level in ['token', 'word']
+
+    wandb_images = []
+    wandb_images.append(wandb.Image(S, caption='S'))
 
     num_tokens, num_frames = S.shape
 
@@ -28,8 +34,14 @@ def _align(S, song, level='word'):
                 DP[i, j] = m + S[i, j]
                 parent[i, j] = i if m == DP[i, j - 1] else i - 1
     
-    #print('DP =\n', DP)
-    #print('parent =\n', parent)
+    wandb_images.append(wandb.Image(DP, caption='DP'))
+
+    parent_image = np.zeros_like(parent)
+    for i in range(num_tokens):
+        for j in range(num_frames):
+            if parent[i, j] == i:
+                parent_image[i, j] = 1
+    wandb_images.append(wandb.Image(parent_image, caption='parent'))
 
     token_alignment = []
     token_start = token_end = num_frames
@@ -42,6 +54,11 @@ def _align(S, song, level='word'):
         token_end = token_start
 
     token_alignment = list(reversed(token_alignment))
+
+    alignment_image = np.zeros_like(DP)
+    for token, time in enumerate(token_alignment):
+        alignment_image[token, time[0]:time[1]] = 1
+    wandb_images.append(wandb.Image(alignment_image, caption='token_alignment'))
     
     if level == 'token':
         return token_alignment
@@ -56,6 +73,20 @@ def _align(S, song, level='word'):
         word_end = token_alignment[last_word_token][1]
         word_alignment.append((word_start, word_end))
         first_word_token = last_word_token + 2  # +1 space between words
+    
+    assert len(word_alignment) == len(song['gt_alignment'])
+
+    alignment_image = np.zeros(shape=(len(words), S.shape[1]))
+    for word, time in enumerate(word_alignment):
+        alignment_image[word, time[0]:time[1]] = 1
+    wandb_images.append(wandb.Image(alignment_image, caption='word_alignment'))
+
+    alignment_image = np.zeros(shape=(len(words), len(song['gt_alignment'])))
+    for word, time in enumerate(song['gt_alignment']):
+        alignment_image[word, time[0]:time[1]] = 1
+    wandb_images.append(wandb.Image(alignment_image, caption='gt_alignment'))
+
+    wandb.log({song['id']: wandb_images})
 
     return word_alignment
 
@@ -113,30 +144,4 @@ def convert_frames_to_seconds(alignment):
 
 
 if __name__ == '__main__':
-    np.set_printoptions(linewidth=np.inf)
-
-    #signal = np.random.rand(20)
-    #signal = 2 * signal - 1
-    signal = np.array([-1, 1, -1, 1, 1, 1, -1, -1, -1, -1])#[-0.88,  0.99, -0.66,  0.52,  0.15,  0.80, -0.60, -0.68, -0.70, -0.95])#, -0.84425061, -0.24026376, 0.90270039,  0.48420148,  0.68169934, -0.34080505,  0.98538769,  0.33862212, 0.61028969,  0.12509671])
-    print(signal)
-
-    #half_signal = np.concatenate((signal[:10:2], signal[10:20], signal[20::2]))
-    half_signal = signal[::2].copy()
-    print(half_signal)
-
-    signal = np.expand_dims(signal, axis=0)
-    half_signal = np.expand_dims(half_signal, axis=1)
-
-    S = np.matmul(half_signal, signal)
-    S = 0.5 * (S + 1)
-
-    #aabbbacccc
-    S = np.array([[1, 1, 0, 0, 0, 1, 0, 0, 0, 0], # a
-                  [0, 0, 1, 1, 1, 0, 0, 0, 0, 0], # b
-                  [1, 1, 0, 0, 0, 1, 0, 0, 0, 0], # a
-                  [0, 0, 0, 0, 0, 0, 1, 1, 1, 1]]) # c
-
-    print('S =\n', S)
-
-    alignment = _align(S, None, level='token')
-    print('alignment =\n', alignment)
+    pass

@@ -12,7 +12,7 @@ import wandb
 import config
 from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate
 from models import SimilarityModel, contrastive_loss
-from utils import set_seed, count_parameters
+from utils import fix_seed, count_parameters
 from eval import evaluate
 
 
@@ -70,7 +70,7 @@ def validate(model, device, val_loader, lyrics_database, criterion):
 
 
 def main():
-    set_seed()
+    fix_seed()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # print('Device:', device)

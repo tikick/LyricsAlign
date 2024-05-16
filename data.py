@@ -106,11 +106,12 @@ def collate(data, eval=False):
         # extract context for each token
         token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
         contextual_tokens += token_with_context
+        assert len(token_with_context) > 0
         len_tokens.append(len(token_with_context))
 
     # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
     spectrograms = torch.Tensor(np.array(spectrograms))
-    contextual_tokens = torch.IntTensor(np.array(contextual_tokens))
+    contextual_tokens = torch.IntTensor(contextual_tokens)
 
     return spectrograms, contextual_tokens, len_tokens
 
