@@ -55,12 +55,13 @@ def percentage_of_correct_onsets(alignment, gt_alignment, tol=0.3):
 if __name__ == '__main__':
     print('Running eval.py')
 
+    fix_seed()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
     model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_9')))
-    model.eval()
     jamendo = get_jamendo()
     jamendo = jamendo[:1]
 
     wandb.init(project='Decode')
     PCO_score, AAE_score = evaluate(model, device, jamendo)
+    wandb.finish()
