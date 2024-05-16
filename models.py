@@ -47,8 +47,9 @@ class AudioEncoder(nn.Module):
     def forward(self, x):
         # x.shape: (batch, feature, time)
 
-        assert x.shape[:2] == (config.batch_size, config.fourier_bins)
+        assert x.shape[1] == config.fourier_bins
         if config.train:
+            assert x.shape[0] == config.batch_size
             assert x.shape[2] == 216  # spectrograms have 216 frames (5 sec audio segments)
 
         x = x.unsqueeze(1)  # (batch, channel, feature, time)
@@ -67,8 +68,9 @@ class AudioEncoder(nn.Module):
         # l2 normalization
         x = F.normalize(x, p=2, dim=1)
 
-        assert x.shape[:2] == (config.batch_size, config.embedding_dim)
+        assert x.shape[1] == config.embedding_dim
         if config.train:
+            assert x.shape[0] == config.batch_size
             assert x.shape[2] == 216  # spectrograms have 216 frames (5 sec audio segments)
 
         return x
@@ -101,7 +103,9 @@ class TextEncoder(nn.Module):
         # l2 normalization
         x = F.normalize(x, p=2, dim=1)
 
-        assert x.shape == (config.batch_size, config.embedding_dim)
+        assert x.shape[1] == config.embedding_dim
+        if config.train:
+            assert x.shape[0] == config.batch_size
 
         return x
 
@@ -116,10 +120,11 @@ class SimilarityModel(nn.Module):
     def forward(self, spec, pos, len_pos=None, neg=None):
         # if len_pos=None, neg=None then we're in eval, otherwise in train
 
-        if neg is not None:
+        if config.train:
             assert len(spec) == len(len_pos) and len(spec) == config.batch_size
             assert len(spec) <= len(pos) and len(neg) == config.batch_size * config.num_negative_samples
         
+        if neg is not None:
             A = self.audio_encoder(spec)
             P = self.text_encoder(pos)
             N = self.text_encoder(neg)
