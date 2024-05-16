@@ -10,7 +10,7 @@ import wandb
 import config
 from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate, get_jamendo_segments
 from models import SimilarityModel, contrastive_loss
-from utils import fix_seed, count_parameters
+from utils import fix_seed, count_parameters, load, read_gt_alignment
 from decode import align, _align
 
 
