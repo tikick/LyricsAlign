@@ -56,8 +56,8 @@ def _align(S, song, level='word'):
     token_alignment = list(reversed(token_alignment))
 
     alignment_image = np.zeros_like(DP)
-    for token, time in enumerate(token_alignment):
-        alignment_image[token, int(time[0]):int(time[1])] = 1
+    for token, frames in enumerate(token_alignment):
+        alignment_image[token, frames[0]:frames[1]] = 1
     wandb_images.append(wandb.Image(alignment_image, caption='token_alignment'))
     
     if level == 'token':
@@ -77,13 +77,14 @@ def _align(S, song, level='word'):
     assert len(word_alignment) == len(song['gt_alignment'])
 
     alignment_image = np.zeros(shape=(len(words), S.shape[1]))
-    for word, time in enumerate(word_alignment):
-        alignment_image[word, time[0]:time[1]] = 1
+    for word, frames in enumerate(word_alignment):
+        alignment_image[word, frames[0]:frames[1]] = 1
     wandb_images.append(wandb.Image(alignment_image, caption='word_alignment'))
 
     alignment_image = np.zeros(shape=(len(words), len(song['gt_alignment'])))
     for word, time in enumerate(song['gt_alignment']):
-        alignment_image[word, time[0]:time[1]] = 1
+        frames = (int(time[0] * 43.07), int(time[1] * 43.07))
+        alignment_image[word, frames[0]:frames[1]] = 1
     wandb_images.append(wandb.Image(alignment_image, caption='gt_alignment'))
 
     wandb.log({song['id']: wandb_images})
