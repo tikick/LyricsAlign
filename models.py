@@ -116,10 +116,10 @@ class SimilarityModel(nn.Module):
     def forward(self, spec, pos, len_pos=None, neg=None):
         # if len_pos=None, neg=None then we're in eval, otherwise in train
 
-        assert len(spec) == len(len_pos) and len(spec) == config.batch_size
-        assert len(spec) <= len(pos) and len(neg) == config.batch_size * config.num_negative_samples
-        
         if neg is not None:
+            assert len(spec) == len(len_pos) and len(spec) == config.batch_size
+            assert len(spec) <= len(pos) and len(neg) == config.batch_size * config.num_negative_samples
+        
             A = self.audio_encoder(spec)
             P = self.text_encoder(pos)
             N = self.text_encoder(neg)
