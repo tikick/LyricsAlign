@@ -7,7 +7,7 @@ time_report = None
 
 
 ## paths
-base_path = '/itet-stor/tikick/net_scratch/LyricsAlign'
+base_path = '/itet-stor/tikick/net_scratch/LyricsAlign'#'/Users/timonkick/Documents/GitHub/LyricsAlign'
 
 dali_annotations = os.path.join(base_path, 'DALI_v2.0/annot')
 dali_audio = os.path.join(base_path, 'DALI_v2.0/wav_audio')
@@ -21,6 +21,12 @@ jamendo_annotations = os.path.join(jamendo_base, 'annotations/words')
 jamendo_lyrics = os.path.join(jamendo_base, 'lyrics')
 jamendo_audio = os.path.join(jamendo_base, 'mp3')
 
+jamendo_segments_base = os.path.join(base_path, 'jamendo_segments')
+jamendo_segments_metadata = os.path.join(jamendo_segments_base, 'JamendoSegments.csv')
+jamendo_segments_annotations = os.path.join(jamendo_segments_base, 'annotations/words')
+jamendo_segments_lyrics = os.path.join(jamendo_segments_base, 'lyrics')
+jamendo_segments_audio = os.path.join(jamendo_segments_base, 'mp3')
+
 
 ## model hyperparameters
 embedding_dim = 64
@@ -31,7 +37,7 @@ channels = 64
 
 ##### text encoder
 context = 1
-use_chars = False  # if false uses phonemes
+use_chars = True  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
 ##### optimizer, data loader and others

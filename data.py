@@ -24,6 +24,8 @@ def get_dali(lang='english'):
     songs = []
 
     audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
+    unk_chars = 0
+    total_chars = 0  # measure DALI noise
     for file in audio_files:
         annot = dali_data[file[:-4]].annotations['annot']
         metadata = dali_data[file[:-4]].info['metadata']
@@ -33,8 +35,10 @@ def get_dali(lang='english'):
         
         words = [d['text'] for d in annot['words']]
         times = [d['time'] for d in annot['words']]
-        words, times = normalize_dali_annot(words, times)#, cut=config.dali_cut_words_with_unknown_chars)
+        words, times, _unk_chars, _total_chars = normalize_dali_annot(words, times)#, cut=config.dali_cut_words_with_unknown_chars)
         phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
+        unk_chars += _unk_chars
+        total_chars += _total_chars
 
         song = {'id': file[:-4],
                 'audio_path': os.path.join(config.dali_audio, file),
@@ -44,6 +48,8 @@ def get_dali(lang='english'):
                 }
 
         songs.append(song)
+
+    print(f'unk_chars = {unk_chars}, total_chars = {total_chars}')
 
     return songs
 
@@ -68,6 +74,38 @@ def get_jamendo(lang='English'):  # jamendo is already normalized
             
             song = {'id': audio_file[:-4],
                     'audio_path': os.path.join(config.jamendo_audio, audio_file),
+                    'words': words,
+                    'phowords': phowords,
+                    'lines': lines,
+                    'pholines': pholines,
+                    'gt_alignment': gt_alignment
+                    }
+            
+            songs.append(song)
+    
+    return songs
+
+
+def get_jamendo_segments(lang='English'):  # jamendo is already normalized
+    songs = []
+
+    with open(config.jamendo_segments_metadata, 'r') as f:
+        reader = csv.DictReader(f, delimiter=',')
+        for row in reader:
+            if row['Language'] != lang:
+                continue
+
+            audio_file = row['Filepath']
+            with open(os.path.join(config.jamendo_segments_lyrics, audio_file[:-4] + '.txt'), 'r') as f:
+                lines = f.read().splitlines()
+            lines = [l for l in lines if len(l) > 0]  # remove empty lines between paragraphs
+            words = ' '.join(lines).split()
+            phowords = words2phowords(words)
+            pholines = lines2pholines(lines)
+            gt_alignment = read_gt_alignment(os.path.join(config.jamendo_segments_annotations, audio_file[:-4] + '.csv'))
+            
+            song = {'id': audio_file[:-4],
+                    'audio_path': os.path.join(config.jamendo_segments_audio, audio_file),
                     'words': words,
                     'phowords': phowords,
                     'lines': lines,

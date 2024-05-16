@@ -73,14 +73,18 @@ def normalize_dali_annot(raw_words, raw_times, cut=False):
     # stripping away punctuation and only then cutting might be better
     words = []
     times = []
+    unk_chars = 0
+    total_chars = 0
     for raw_word, raw_time in zip(raw_words, raw_times):
+        total_chars += len(raw_word)
         word = ''.join(filter(lambda c: c in char_dict[1:], raw_word.lower()))
         if len(word) == 0 or \
            len(word) < len(raw_word) and (cut or len(word) > 15):  # len(word) > 15: raw_word is likely multiple words separated by special chars, e.g. -
             continue
         words.append(word)
         times.append(raw_time)
-    return words, times
+        unk_chars += len(raw_word) - len(word)
+    return words, times, unk_chars, total_chars
 
 
 def encode_words(words, space_padding):

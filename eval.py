@@ -8,7 +8,7 @@ from tqdm import tqdm
 import wandb
 
 import config
-from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate
+from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate, get_jamendo_segments
 from models import SimilarityModel, contrastive_loss
 from utils import fix_seed, count_parameters
 from decode import align, _align
@@ -52,6 +52,32 @@ def percentage_of_correct_onsets(alignment, gt_alignment, tol=0.3):
     return correct_onsets / len(alignment)
 
 
+def segment():
+    sr = 44100
+    audio_file = 'Tom_Orlando_-_The_One__feat._Tina_G_.mp3'
+
+    start = 18
+    end = 23
+
+    audio = load(os.path.join(config.jamendo_audio, audio_file), sr=sr)
+    audio_segment = audio[start * sr:end * sr]
+    #save_path = os.path.join(config.jamendo_segments_audio, str(start) + '-' + str(end) + '_' + audio_file)
+    #sf.write(save_path, segment, sr)
+
+    with open(os.path.join(config.jamendo_lyrics, audio_file[:-4] + '.txt'), 'r') as f:
+        lines = f.read().splitlines()
+    lines = [l for l in lines if len(l) > 0]  # remove empty lines between paragraphs
+    words = ' '.join(lines).split()
+    times = read_gt_alignment(os.path.join(config.jamendo_annotations, audio_file[:-4] + '.csv'))
+    segment_words = []
+    segment_times = []
+    for word, time in zip(words, times):
+        if time[0] >= start and time[1] <= end:
+            segment_words.appen(word)
+            segment_times.append((time[0] - start, time[1] - start))
+
+    return audio_segment, segment_words, segment_times
+
 if __name__ == '__main__':
     print('Running eval.py')
 
@@ -59,8 +85,9 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
     model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_9')))
-    jamendo = get_jamendo()
-    jamendo = jamendo[:1]
+    #jamendo = get_jamendo()
+    #jamendo = jamendo[:1]
+    jamendo = get_jamendo_segments()
 
     wandb.init(project='Decode')
     PCO_score, AAE_score = evaluate(model, device, jamendo)
