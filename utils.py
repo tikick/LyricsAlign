@@ -143,3 +143,48 @@ def wav2spec(waveform: np.ndarray) -> np.ndarray:
     waveform = torch.Tensor(waveform)
     log_spec = LogSpectrogram()(waveform)
     return log_spec.numpy()
+
+
+
+
+def gen_jamend_segment():
+    from utils import load, read_gt_alignment
+    import config
+    import soundfile as sf
+    import os
+    import csv
+
+    sr = 44100
+    audio_file = 'Tom_Orlando_-_The_One__feat._Tina_G_.mp3'
+
+    start = 40
+    end = 46
+
+    audio = load(os.path.join(config.jamendo_audio, audio_file), sr=sr)
+    audio_segment = audio[start * sr:end * sr]
+    audio_segment_file = str(start) + '-' + str(end) + '_' + audio_file
+    sf.write(os.path.join(config.jamendo_segments_audio, audio_segment_file), audio_segment, sr)
+
+    with open(os.path.join(config.jamendo_lyrics, audio_file[:-4] + '.txt'), 'r') as f:
+        lines = f.read().splitlines()
+    lines = [l for l in lines if len(l) > 0]  # remove empty lines between paragraphs
+    words = ' '.join(lines).split()
+    times = read_gt_alignment(os.path.join(config.jamendo_annotations, audio_file[:-4] + '.csv'))
+    segment_words = []
+    segment_times = []
+    for word, time in zip(words, times):
+        if time[0] >= start and time[1] <= end:
+            segment_words.append(word)
+            segment_times.append((time[0] - start, time[1] - start))
+
+    with open(os.path.join(config.jamendo_segments_lyrics, audio_segment_file[:-4] + '.txt'), 'w') as f:
+        f.write(' '.join(segment_words))
+
+    header = ['word_start', 'word_end']
+    with open(os.path.join(config.jamendo_segments_annotations, audio_segment_file[:-4] + '.csv'), 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        writer.writerows(segment_times)
+
+    with open(config.jamendo_segments_metadata, 'a') as f:
+        f.write(f'\n_,{audio_segment_file},_,_,_,_,English,_,_,_')
