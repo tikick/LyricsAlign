@@ -1,7 +1,6 @@
 import numpy as np
 import wandb
 import matplotlib.pyplot as plt
-from math import ceil
 
 import config
 
@@ -25,7 +24,7 @@ def encode_phowords(phowords, space_padding):
     phonemes = []
     for p in phonemes:
         phonemes.append(p)
-    return enc_phonemes
+    return phonemes
 
 def heatmap(data, row_labels, col_labels, ax=None,
             cbar_kw=None, cbarlabel="", **kwargs):
@@ -95,7 +94,6 @@ def _align(S, song, level='word'):
     assert level in ['token', 'word']
 
     fps = 43.07  # the number of spectrogram frames in a second
-    tps = 10  # plot xticks per second
 
     num_tokens, num_frames = S.shape
 
