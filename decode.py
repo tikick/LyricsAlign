@@ -49,6 +49,7 @@ def _align(S, song, level='word'):
     token_alignment_image = np.zeros_like(DP)
     for token, frames in enumerate(token_alignment):
         token_alignment_image[token, frames[0]:frames[1]] = 1
+    token_alignment_image[0, 0] = -1  # for aesthetics
     
     if level == 'token':
         return token_alignment
