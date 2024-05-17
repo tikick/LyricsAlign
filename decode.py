@@ -94,12 +94,12 @@ def _align(S, song, level='word'):
         #ax.set_yticklabels(ytick_labels, fontsize=8)
     
     r = len(tokens) // len(song['words'])
-    fig, axs = plt.subplots(4, 1, height_ratios=[r, r, r, 1], figsize=(14, 14))
+    fig, axs = plt.subplots(5, 1, height_ratios=[r, r, r, 1], figsize=(16, 14))
     show(S, axs[0], 'S', tokens, cmap='copper', cbar=True)
     show(DP, axs[1], 'DP', tokens, cmap='copper', cbar=True)
     show(token_alignment_image, axs[2], 'token alignment', tokens, cmap='tab20c')
     show(word_alignment_image, axs[3], 'word alignment', song['words'], cmap='tab20c')
-    show(gt_alignment_image, 'ground truth word alignment', song['words'], cmap='tab20c')
+    show(gt_alignment_image, axs[4], 'ground truth word alignment', song['words'], cmap='tab20c')
 
     wandb.log({'plots': plt})
     #plt.show()
