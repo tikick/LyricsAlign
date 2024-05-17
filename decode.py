@@ -1,89 +1,10 @@
 import numpy as np
 import wandb
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 import config
 
-
-def encode_words(words, space_padding):
-    lyrics = ' '.join(words)
-    lyrics = ' ' * space_padding + lyrics + ' ' * space_padding
-    
-    chars = []
-    for c in lyrics:
-        chars.append(c)
-    return chars
-
-def encode_phowords(phowords, space_padding):
-    phonemes = []
-    for phoword in phowords:
-        phonemes += phoword + [' ']
-    phonemes = phonemes[:-1]
-    phonemes = [' '] * space_padding + phonemes + [' '] * space_padding
-
-    phonemes = []
-    for p in phonemes:
-        phonemes.append(p)
-    return phonemes
-
-def heatmap(data, row_labels, col_labels, ax=None,
-            cbar_kw=None, cbarlabel="", **kwargs):
-    """
-    Create a heatmap from a numpy array and two lists of labels.
-
-    Parameters
-    ----------
-    data
-        A 2D numpy array of shape (M, N).
-    row_labels
-        A list or array of length M with the labels for the rows.
-    col_labels
-        A list or array of length N with the labels for the columns.
-    ax
-        A `matplotlib.axes.Axes` instance to which the heatmap is plotted.  If
-        not provided, use current Axes or create a new one.  Optional.
-    cbar_kw
-        A dictionary with arguments to `matplotlib.Figure.colorbar`.  Optional.
-    cbarlabel
-        The label for the colorbar.  Optional.
-    **kwargs
-        All other arguments are forwarded to `imshow`.
-    """
-
-    if ax is None:
-        ax = plt.gca()
-
-    if cbar_kw is None:
-        cbar_kw = {}
-
-    # Plot the heatmap
-    im = ax.imshow(data, **kwargs)
-
-    # Create colorbar
-    cbar = ax.figure.colorbar(im, ax=ax, **cbar_kw)
-    cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
-
-    # Show all ticks and label them with the respective list entries.
-    ax.set_xticks(np.arange(data.shape[1]), labels=col_labels)
-    ax.set_yticks(np.arange(data.shape[0]), labels=row_labels)
-
-    # Let the horizontal axes labeling appear on top.
-    ax.tick_params(top=True, bottom=False,
-                   labeltop=True, labelbottom=False)
-
-    # Rotate the tick labels and set their alignment.
-    plt.setp(ax.get_xticklabels(), rotation=-30, ha="right",
-             rotation_mode="anchor")
-
-    # Turn spines off and create white grid.
-    ax.spines[:].set_visible(False)
-
-    ax.set_xticks(np.arange(data.shape[1]+1)-.5, minor=True)
-    ax.set_yticks(np.arange(data.shape[0]+1)-.5, minor=True)
-    ax.grid(which="minor", color="w", linestyle='-', linewidth=3)
-    ax.tick_params(which="minor", bottom=False, left=False)
-
-    return im, cbar
 
 def _align(S, song, level='word'):
     # finds monotonic path maximizing the cumulative similarity score
@@ -99,7 +20,6 @@ def _align(S, song, level='word'):
 
     DP = np.zeros_like(S)  # -np.inf * np.ones_like(S)
     parent = - np.ones_like(S, dtype=int)
-
     for i in range(num_tokens):
         for j in range(i, num_frames):
             if i == 0 and j == 0:
@@ -113,8 +33,6 @@ def _align(S, song, level='word'):
                 DP[i, j] = m + S[i, j]
                 parent[i, j] = i - 1 if m == DP[i - 1, j - 1] else i
     
-    # DP = DP / np.max(DP)
-
     token_alignment = []
     token_start = token_end = num_frames
     for token in reversed(range(num_tokens)):
@@ -127,6 +45,7 @@ def _align(S, song, level='word'):
 
     token_alignment = list(reversed(token_alignment))
 
+    # for wandb logging
     token_alignment_image = np.zeros_like(DP)
     for token, frames in enumerate(token_alignment):
         token_alignment_image[token, frames[0]:frames[1]] = 1
@@ -147,26 +66,39 @@ def _align(S, song, level='word'):
     
     assert len(word_alignment) == len(song['gt_alignment'])
 
-    words = song['words']  # only for logging
+    # for wandb logging
+    words = song['words']
     word_alignment_image = np.zeros(shape=(len(words), num_frames))
     for word, frames in enumerate(word_alignment):
-        word_alignment_image[word, frames[0]:frames[1]] = -1
+        word_alignment_image[word, frames[0]:frames[1]] = 1
     for word, time in enumerate(song['gt_alignment']):
         frames = (int(time[0] * fps), int(time[1] * fps))
-        word_alignment_image[word, frames[0]:frames[1]] = 1
+        word_alignment_image[word, frames[0]:frames[1]] = -1
 
-    # log
+    # log plots
     if config.use_chars:
-        tokens = encode_words(song['words'], space_padding=config.context + 1)
+        tokens = encode_words(song['words'], space_padding=1)
     else:
-        tokens = encode_phowords(song['phowords'], space_padding=config.context + 1)
-    time = [i for i in range(num_frames)]
+        tokens = encode_phowords(song['phowords'], space_padding=1)
     
-    S, _ = heatmap(S, tokens, time)
-    DP, _ = heatmap(DP, tokens, time)
-    token_alignment_image, _ = heatmap(token_alignment_image, tokens, time)
-    word_alignment_image, _ = heatmap(word_alignment_image, song['words'], time)
+    def show(data, ax, title, ytick_labels, cmap, cbar=True):
+        im = ax.imshow(data, cmap=cmap, aspect='auto', interpolation='none')
+        if cbar:
+            ax.figure.colorbar(im, ax=ax)
+        ax.set_title(title)
+        ax.set_yticks(ticks=np.arange(data.shape[0]), labels=ytick_labels)
+        ax.tick_params(axis='both', labelsize=8)
+        #ax.set_yticklabels(ytick_labels, fontsize=8)
+    
+    r = len(tokens) // len(song['words'])
+    fig, axs = plt.subplots(4, 1, height_ratios=[r, r, r, 1], figsize=(14, 14))
+    show(S, axs[0], 'S', tokens, cmap='hot', cbar=True)
+    show(DP, axs[1], 'DP', tokens, cmap='hot', cbar=True)
+    show(token_alignment_image, axs[2], 'token alignment', tokens, cmap='RdBu')
+    show(word_alignment_image, axs[3], 'word alignment', song['words'], cmap='RdBu')
+
     wandb.log({'plots': plt})
+    #plt.show()
 
     return word_alignment
 
@@ -221,6 +153,20 @@ def convert_frames_to_seconds(alignment):
     # convert (start, end) from spec frames to seconds
     fps = 43.07
     return [(start / fps, end / fps) for (start, end) in alignment]
+
+
+# only for logging plots purposes
+def encode_words(words, space_padding):
+    lyrics = ' '.join(words)
+    lyrics = ' ' * space_padding + lyrics + ' ' * space_padding
+    return [c for c in lyrics]
+def encode_phowords(phowords, space_padding):
+    phonemes = []
+    for phoword in phowords:
+        phonemes += phoword + [' ']
+    phonemes = phonemes[:-1]
+    phonemes = [' '] * space_padding + phonemes + [' '] * space_padding
+    return phonemes
 
 
 if __name__ == '__main__':

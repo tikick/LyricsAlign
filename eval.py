@@ -20,8 +20,8 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
     AAE_score = 0.
 
     with torch.no_grad():
-        for song in tqdm(jamendo):
-            print('song:\n', song)
+        for song in jamendo:
+            #print('song:\n', song)
             spectrogram, positives = jamendo_collate(song)
             spectrogram, positives = spectrogram.to(device), positives.to(device)
 
@@ -59,10 +59,10 @@ if __name__ == '__main__':
     fix_seed()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
-    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_9')))
+    #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_9')))
     jamendo = get_jamendo_segments()#get_jamendo()
     jamendo = jamendo[:1]
 
-    wandb.init(project='Decode')
+    #wandb.init(project='Decode')
     PCO_score, AAE_score = evaluate(model, device, jamendo)
-    wandb.finish()
+    #wandb.finish()
