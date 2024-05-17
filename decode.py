@@ -166,10 +166,7 @@ def _align(S, song, level='word'):
     DP, _ = heatmap(DP, tokens, time)
     token_alignment_image, _ = heatmap(token_alignment_image, tokens, time)
     word_alignment_image, _ = heatmap(word_alignment_image, song['words'], time)
-    wandb.log({'S': S,
-                'DP': DP,
-                'token_alignment': token_alignment_image,
-                'word_alignment': word_alignment_image})
+    wandb.log({'plots': plt})
 
     return word_alignment
 
