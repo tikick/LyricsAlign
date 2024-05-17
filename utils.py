@@ -91,11 +91,11 @@ def encode_words(words, space_padding):
     lyrics = ' '.join(words)
     lyrics = ' ' * space_padding + lyrics + ' ' * space_padding
     
-    chars = []
+    enc_chars = []
     for c in lyrics:
         idx = char2int[c]
-        chars.append(idx)
-    return chars
+        enc_chars.append(idx)
+    return enc_chars
 
 def encode_phowords(phowords, space_padding):
     phonemes = []

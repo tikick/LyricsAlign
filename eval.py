@@ -21,6 +21,7 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
 
     with torch.no_grad():
         for song in tqdm(jamendo):
+            print('song:\n', song)
             spectrogram, positives = jamendo_collate(song)
             spectrogram, positives = spectrogram.to(device), positives.to(device)
 

@@ -1,8 +1,90 @@
 import numpy as np
 import wandb
+import matplotlib.pyplot as plt
+from math import ceil
 
 import config
 
+
+def encode_words(words, space_padding):
+    lyrics = ' '.join(words)
+    lyrics = ' ' * space_padding + lyrics + ' ' * space_padding
+    
+    chars = []
+    for c in lyrics:
+        chars.append(c)
+    return chars
+
+def encode_phowords(phowords, space_padding):
+    phonemes = []
+    for phoword in phowords:
+        phonemes += phoword + [' ']
+    phonemes = phonemes[:-1]
+    phonemes = [' '] * space_padding + phonemes + [' '] * space_padding
+
+    phonemes = []
+    for p in phonemes:
+        phonemes.append(p)
+    return enc_phonemes
+
+def heatmap(data, row_labels, col_labels, ax=None,
+            cbar_kw=None, cbarlabel="", **kwargs):
+    """
+    Create a heatmap from a numpy array and two lists of labels.
+
+    Parameters
+    ----------
+    data
+        A 2D numpy array of shape (M, N).
+    row_labels
+        A list or array of length M with the labels for the rows.
+    col_labels
+        A list or array of length N with the labels for the columns.
+    ax
+        A `matplotlib.axes.Axes` instance to which the heatmap is plotted.  If
+        not provided, use current Axes or create a new one.  Optional.
+    cbar_kw
+        A dictionary with arguments to `matplotlib.Figure.colorbar`.  Optional.
+    cbarlabel
+        The label for the colorbar.  Optional.
+    **kwargs
+        All other arguments are forwarded to `imshow`.
+    """
+
+    if ax is None:
+        ax = plt.gca()
+
+    if cbar_kw is None:
+        cbar_kw = {}
+
+    # Plot the heatmap
+    im = ax.imshow(data, **kwargs)
+
+    # Create colorbar
+    cbar = ax.figure.colorbar(im, ax=ax, **cbar_kw)
+    cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
+
+    # Show all ticks and label them with the respective list entries.
+    ax.set_xticks(np.arange(data.shape[1]), labels=col_labels)
+    ax.set_yticks(np.arange(data.shape[0]), labels=row_labels)
+
+    # Let the horizontal axes labeling appear on top.
+    ax.tick_params(top=True, bottom=False,
+                   labeltop=True, labelbottom=False)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=-30, ha="right",
+             rotation_mode="anchor")
+
+    # Turn spines off and create white grid.
+    ax.spines[:].set_visible(False)
+
+    ax.set_xticks(np.arange(data.shape[1]+1)-.5, minor=True)
+    ax.set_yticks(np.arange(data.shape[0]+1)-.5, minor=True)
+    ax.grid(which="minor", color="w", linestyle='-', linewidth=3)
+    ax.tick_params(which="minor", bottom=False, left=False)
+
+    return im, cbar
 
 def _align(S, song, level='word'):
     # finds monotonic path maximizing the cumulative similarity score
@@ -10,15 +92,14 @@ def _align(S, song, level='word'):
     # NOTE: take pre- and post-silence into account
 
     assert np.all((S >= 0) & (S <= 1))
-
     assert level in ['token', 'word']
 
-    wandb_images = []
-    wandb_images.append(wandb.Image(S, caption='S'))
+    fps = 43.07  # the number of spectrogram frames in a second
+    tps = 10  # plot xticks per second
 
     num_tokens, num_frames = S.shape
 
-    DP = -np.inf * np.ones_like(S)
+    DP = np.zeros_like(S)  # -np.inf * np.ones_like(S)
     parent = - np.ones_like(S, dtype=int)
 
     for i in range(num_tokens):
@@ -34,9 +115,7 @@ def _align(S, song, level='word'):
                 DP[i, j] = m + S[i, j]
                 parent[i, j] = i - 1 if m == DP[i - 1, j - 1] else i
     
-    DP[DP == -np.inf] = 0
-    DP = DP / np.max(DP)
-    wandb_images.append(wandb.Image(DP, caption='DP'))
+    # DP = DP / np.max(DP)
 
     token_alignment = []
     token_start = token_end = num_frames
@@ -50,10 +129,10 @@ def _align(S, song, level='word'):
 
     token_alignment = list(reversed(token_alignment))
 
-    alignment_image = np.zeros_like(DP)
-    for token, time in enumerate(convert_frames_to_seconds(token_alignment)):
-        alignment_image[token, int(time[0]):int(time[1])] = 1
-    wandb_images.append(wandb.Image(alignment_image, caption='token_alignment'))
+    token_alignment_image = np.zeros_like(DP)
+    for token, frames in enumerate(token_alignment):
+        token_alignment_image[token, frames[0]:frames[1]] = 1
+    #wandb_images.append(wandb.Image(alignment_image, caption='token_alignment'))
     
     if level == 'token':
         return token_alignment
@@ -71,14 +150,34 @@ def _align(S, song, level='word'):
     
     assert len(word_alignment) == len(song['gt_alignment'])
 
-    alignment_image = np.zeros(shape=(len(words), S.shape[1], 3))
-    for word, time in enumerate(convert_frames_to_seconds(word_alignment)):
-        alignment_image[word, int(time[0]):int(time[1]), 0] = 1  # red channel
+    words = song['words']  # only for logging
+    word_alignment_image = np.zeros(shape=(len(words), num_frames))
+    for word, frames in enumerate(word_alignment):
+        word_alignment_image[word, frames[0]:frames[1]] = -1
     for word, time in enumerate(song['gt_alignment']):
-        alignment_image[word, int(time[0]):int(time[1]), 1] = 1  # green channel
-    wandb_images.append(wandb.Image(alignment_image, caption='gt_alignment'))
+        frames = (time[0] * fps, time[1] * fps)
+        word_alignment_image[word, frames[0]:frames[1]] = 1
+    #wandb_images.append(wandb.Image(alignment_image, caption='gt_alignment'))
 
-    wandb.log({song['id']: wandb_images})
+    #wandb.log({song['id']: wandb_images})
+
+    def log():
+        if config.use_chars:
+            tokens = encode_words(song['words'], space_padding=config.context + 1)
+        else:
+            tokens = encode_phowords(song['phowords'], space_padding=config.context + 1)
+        time = [i for i in range(num_frames)]
+        
+        S, _ = heatmap(S, tokens, time)
+        DP, _ = heatmap(DP, tokens, time)
+        token_alignment_image, _ = heatmap(token_alignment_image, tokens, time)
+        word_alignment_image, _ = heatmap(word_alignment_image, song['words'], time)
+        wandb.log({'S': S,
+                   'DP': DP,
+                   'token_alignment': token_alignment_image,
+                   'word_alignment': word_alignment_image})
+        
+    log()
 
     return word_alignment
 
