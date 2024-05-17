@@ -63,6 +63,6 @@ if __name__ == '__main__':
     jamendo = get_jamendo_segments()#get_jamendo()
     jamendo = jamendo[:1]
 
-    #wandb.init(project='Decode')
+    wandb.init(project='Decode')
     PCO_score, AAE_score = evaluate(model, device, jamendo)
-    #wandb.finish()
+    wandb.finish()
