@@ -153,7 +153,7 @@ def _align(S, song, level='word'):
     for word, frames in enumerate(word_alignment):
         word_alignment_image[word, frames[0]:frames[1]] = -1
     for word, time in enumerate(song['gt_alignment']):
-        frames = (time[0] * fps, time[1] * fps)
+        frames = (int(time[0] * fps), int(time[1] * fps))
         word_alignment_image[word, frames[0]:frames[1]] = 1
     #wandb_images.append(wandb.Image(alignment_image, caption='gt_alignment'))
 
