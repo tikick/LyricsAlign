@@ -130,7 +130,6 @@ def _align(S, song, level='word'):
     token_alignment_image = np.zeros_like(DP)
     for token, frames in enumerate(token_alignment):
         token_alignment_image[token, frames[0]:frames[1]] = 1
-    #wandb_images.append(wandb.Image(alignment_image, caption='token_alignment'))
     
     if level == 'token':
         return token_alignment
@@ -155,27 +154,22 @@ def _align(S, song, level='word'):
     for word, time in enumerate(song['gt_alignment']):
         frames = (int(time[0] * fps), int(time[1] * fps))
         word_alignment_image[word, frames[0]:frames[1]] = 1
-    #wandb_images.append(wandb.Image(alignment_image, caption='gt_alignment'))
 
-    #wandb.log({song['id']: wandb_images})
-
-    def log():
-        if config.use_chars:
-            tokens = encode_words(song['words'], space_padding=config.context + 1)
-        else:
-            tokens = encode_phowords(song['phowords'], space_padding=config.context + 1)
-        time = [i for i in range(num_frames)]
-        
-        S, _ = heatmap(S, tokens, time)
-        DP, _ = heatmap(DP, tokens, time)
-        token_alignment_image, _ = heatmap(token_alignment_image, tokens, time)
-        word_alignment_image, _ = heatmap(word_alignment_image, song['words'], time)
-        wandb.log({'S': S,
-                   'DP': DP,
-                   'token_alignment': token_alignment_image,
-                   'word_alignment': word_alignment_image})
-        
-    log()
+    # log
+    if config.use_chars:
+        tokens = encode_words(song['words'], space_padding=config.context + 1)
+    else:
+        tokens = encode_phowords(song['phowords'], space_padding=config.context + 1)
+    time = [i for i in range(num_frames)]
+    
+    S, _ = heatmap(S, tokens, time)
+    DP, _ = heatmap(DP, tokens, time)
+    token_alignment_image, _ = heatmap(token_alignment_image, tokens, time)
+    word_alignment_image, _ = heatmap(word_alignment_image, song['words'], time)
+    wandb.log({'S': S,
+                'DP': DP,
+                'token_alignment': token_alignment_image,
+                'word_alignment': word_alignment_image})
 
     return word_alignment
 
