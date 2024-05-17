@@ -49,7 +49,6 @@ def _align(S, song, level='word'):
     token_alignment_image = np.zeros_like(DP)
     for token, frames in enumerate(token_alignment):
         token_alignment_image[token, frames[0]:frames[1]] = 1
-    token_alignment_image[0, 0] = -1  # for aesthetics
     
     if level == 'token':
         return token_alignment
@@ -72,9 +71,12 @@ def _align(S, song, level='word'):
     word_alignment_image = np.zeros(shape=(len(words), num_frames))
     for word, frames in enumerate(word_alignment):
         word_alignment_image[word, frames[0]:frames[1]] = 1
+    
+    # for wandb logging
+    gt_alignment_image = np.zeros(shape=(len(words), num_frames))
     for word, time in enumerate(song['gt_alignment']):
         frames = (int(time[0] * fps), int(time[1] * fps))
-        word_alignment_image[word, frames[0]:frames[1]] = -1
+        gt_alignment_image[word, frames[0]:frames[1]] = 1
 
     # log plots
     if config.use_chars:
@@ -93,10 +95,11 @@ def _align(S, song, level='word'):
     
     r = len(tokens) // len(song['words'])
     fig, axs = plt.subplots(4, 1, height_ratios=[r, r, r, 1], figsize=(14, 14))
-    show(S, axs[0], 'S', tokens, cmap='hot', cbar=True)
-    show(DP, axs[1], 'DP', tokens, cmap='hot', cbar=True)
-    show(token_alignment_image, axs[2], 'token alignment', tokens, cmap='RdBu')
-    show(word_alignment_image, axs[3], 'word alignment', song['words'], cmap='RdBu')
+    show(S, axs[0], 'S', tokens, cmap='copper', cbar=True)
+    show(DP, axs[1], 'DP', tokens, cmap='copper', cbar=True)
+    show(token_alignment_image, axs[2], 'token alignment', tokens, cmap='tab20c')
+    show(word_alignment_image, axs[3], 'word alignment', song['words'], cmap='tab20c')
+    show(gt_alignment_image, 'ground truth word alignment', song['words'], cmap='tab20c')
 
     wandb.log({'plots': plt})
     #plt.show()
