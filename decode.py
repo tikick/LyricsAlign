@@ -70,7 +70,7 @@ def _align(S, song, level='word'):
     words = song['words']
     word_alignment_image = np.zeros(shape=(len(words), num_frames))
     gt_alignment_image = np.zeros(shape=(len(words), num_frames))
-    for i, j in zip(len(words), num_frames):
+    for i, j in zip(range(len(words)), range(num_frames)):
         if (i + j) % 2:  # grid
             word_alignment_image[i, j] = 0.1
             gt_alignment_image[i, j] = 0.1
