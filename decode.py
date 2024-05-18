@@ -92,14 +92,14 @@ def _align(S, song, level='word'):
             ax.figure.colorbar(im, ax=ax)
         ax.set_title(title)
         ax.set_yticks(ticks=np.arange(data.shape[0]), labels=ytick_labels)
-        ax.tick_params(axis='both', labelsize=8)
+        ax.tick_params(axis='both', labelsize=6)
         #ax.set_yticklabels(ytick_labels, fontsize=8)
     
     matrix_cmap = 'hot'
     alignment_cmap = 'Blues'
 
     r = len(tokens) // len(song['words'])
-    fig, axs = plt.subplots(5, 1, height_ratios=[r, r, r, 1, 1], figsize=(12, num_tokens // 2))
+    fig, axs = plt.subplots(5, 1, height_ratios=[r, r, r, 1, 1], figsize=(15, num_tokens // 3))
     show(S, axs[0], 'S', tokens, cmap=matrix_cmap, cbar=True)
     show(DP, axs[1], 'DP', tokens, cmap=matrix_cmap, cbar=True)
     show(token_alignment_image, axs[2], 'token alignment', tokens, cmap=alignment_cmap)
