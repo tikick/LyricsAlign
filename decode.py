@@ -94,7 +94,8 @@ def _align(S, song, level='word'):
         #ax.set_yticklabels(ytick_labels, fontsize=8)
     
     r = len(tokens) // len(song['words'])
-    fig, axs = plt.subplots(5, 1, height_ratios=[r, r, r, 1, 1], figsize=(16, 14))
+    fig, axs = plt.subplots(5, 1, height_ratios=[r, r, r, 1, 1])
+    fig.tight_layout()
     show(S, axs[0], 'S', tokens, cmap='copper', cbar=True)
     show(DP, axs[1], 'DP', tokens, cmap='copper', cbar=True)
     show(token_alignment_image, axs[2], 'token alignment', tokens, cmap='tab20c')
