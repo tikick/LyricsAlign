@@ -6,28 +6,6 @@ train = False
 time_report = None
 
 
-## paths
-base_path = '/itet-stor/tikick/net_scratch/LyricsAlign'#'/Users/timonkick/Documents/GitHub/LyricsAlign'
-
-dali_annotations = os.path.join(base_path, 'DALI_v2.0/annot')
-dali_audio = os.path.join(base_path, 'DALI_v2.0/wav_audio')
-
-checkpoint_dir = os.path.join(base_path, 'checkpoints')
-pickle_dir = os.path.join(base_path, 'pickles')
-
-jamendo_base = os.path.join(base_path, 'jamendolyrics')
-jamendo_metadata = os.path.join(jamendo_base, 'JamendoLyrics.csv')
-jamendo_annotations = os.path.join(jamendo_base, 'annotations/words')
-jamendo_lyrics = os.path.join(jamendo_base, 'lyrics')
-jamendo_audio = os.path.join(jamendo_base, 'mp3')
-
-jamendo_segments_base = os.path.join(base_path, 'jamendo_segments')
-jamendo_segments_metadata = os.path.join(jamendo_segments_base, 'JamendoSegments.csv')
-jamendo_segments_annotations = os.path.join(jamendo_segments_base, 'annotations/words')
-jamendo_segments_lyrics = os.path.join(jamendo_segments_base, 'lyrics')
-jamendo_segments_audio = os.path.join(jamendo_segments_base, 'mp3')
-
-
 ## model hyperparameters
 embedding_dim = 64
 
@@ -59,3 +37,25 @@ fourier_bins = n_fft // 2 + 1
 
 ## alignment
 masked = False
+
+
+## paths
+base_path = '/itet-stor/tikick/net_scratch/LyricsAlign'#'/Users/timonkick/Documents/GitHub/LyricsAlign'
+
+dali_annotations = os.path.join(base_path, 'DALI_v2.0/annot')
+dali_audio = os.path.join(base_path, 'DALI_v2.0/wav_audio')
+
+checkpoint_dir = os.path.join(base_path, 'char_checkpoints' if use_chars else 'phoneme_checkpoints')
+pickle_dir = os.path.join(base_path, 'pickles')
+
+jamendo_base = os.path.join(base_path, 'jamendolyrics')
+jamendo_metadata = os.path.join(jamendo_base, 'JamendoLyrics.csv')
+jamendo_annotations = os.path.join(jamendo_base, 'annotations/words')
+jamendo_lyrics = os.path.join(jamendo_base, 'lyrics')
+jamendo_audio = os.path.join(jamendo_base, 'mp3')
+
+jamendo_segments_base = os.path.join(base_path, 'jamendo_segments')
+jamendo_segments_metadata = os.path.join(jamendo_segments_base, 'JamendoSegments.csv')
+jamendo_segments_annotations = os.path.join(jamendo_segments_base, 'annotations/words')
+jamendo_segments_lyrics = os.path.join(jamendo_segments_base, 'lyrics')
+jamendo_segments_audio = os.path.join(jamendo_segments_base, 'mp3')
