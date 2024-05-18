@@ -93,14 +93,17 @@ def _align(S, song, level='word'):
         ax.tick_params(axis='both', labelsize=8)
         #ax.set_yticklabels(ytick_labels, fontsize=8)
     
+    matrix_cmap = 'hot'
+    alignment_cmap = 'hot'
+
     r = len(tokens) // len(song['words'])
     fig, axs = plt.subplots(5, 1, height_ratios=[r, r, r, 1, 1])
     fig.tight_layout()
-    show(S, axs[0], 'S', tokens, cmap='copper', cbar=True)
-    show(DP, axs[1], 'DP', tokens, cmap='copper', cbar=True)
-    show(token_alignment_image, axs[2], 'token alignment', tokens, cmap='tab20c')
-    show(word_alignment_image, axs[3], 'word alignment', song['words'], cmap='tab20c')
-    show(gt_alignment_image, axs[4], 'ground truth word alignment', song['words'], cmap='tab20c')
+    show(S, axs[0], 'S', tokens, cmap=matrix_cmap, cbar=True)
+    show(DP, axs[1], 'DP', tokens, cmap=matrix_cmap, cbar=True)
+    show(token_alignment_image, axs[2], 'token alignment', tokens, cmap=alignment_cmap)
+    show(word_alignment_image, axs[3], 'word alignment', song['words'], cmap=alignment_cmap)
+    show(gt_alignment_image, axs[4], 'ground truth word alignment', song['words'], cmap=alignment_cmap)
 
     wandb.log({'plots': plt})
     #plt.show()
