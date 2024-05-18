@@ -69,11 +69,13 @@ def _align(S, song, level='word'):
     # for wandb logging
     words = song['words']
     word_alignment_image = np.zeros(shape=(len(words), num_frames))
+    gt_alignment_image = np.zeros(shape=(len(words), num_frames))
+    for i, j in zip(len(words), num_frames):
+        if (i + j) % 2:  # grid
+            word_alignment_image[i, j] = 0.1
+            gt_alignment_image[i, j] = 0.1
     for word, frames in enumerate(word_alignment):
         word_alignment_image[word, frames[0]:frames[1]] = 1
-    
-    # for wandb logging
-    gt_alignment_image = np.zeros(shape=(len(words), num_frames))
     for word, time in enumerate(song['gt_alignment']):
         frames = (int(time[0] * fps), int(time[1] * fps))
         gt_alignment_image[word, frames[0]:frames[1]] = 1
@@ -94,10 +96,10 @@ def _align(S, song, level='word'):
         #ax.set_yticklabels(ytick_labels, fontsize=8)
     
     matrix_cmap = 'hot'
-    alignment_cmap = 'GnBu'
+    alignment_cmap = 'Blues'
 
     r = len(tokens) // len(song['words'])
-    fig, axs = plt.subplots(5, 1, height_ratios=[r, r, r, 1, 1], figsize=(12, 14))
+    fig, axs = plt.subplots(5, 1, height_ratios=[r, r, r, 1, 1], figsize=(12, num_tokens // 2))
     show(S, axs[0], 'S', tokens, cmap=matrix_cmap, cbar=True)
     show(DP, axs[1], 'DP', tokens, cmap=matrix_cmap, cbar=True)
     show(token_alignment_image, axs[2], 'token alignment', tokens, cmap=alignment_cmap)
