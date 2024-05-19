@@ -61,7 +61,7 @@ if __name__ == '__main__':
     fix_seed()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
-    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_5')))
+    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_9')))
     jamendo = get_jamendo_segments()#get_jamendo()
     #jamendo = jamendo[2:3]
 
