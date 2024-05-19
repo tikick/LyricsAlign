@@ -87,7 +87,7 @@ def _align(S, song, level='word'):
     alignment_cmap = 'Blues'
     tokens = encode_words(song['words'], space_padding=1) if config.use_chars else encode_phowords(song['phowords'], space_padding=1)    
     heights = [len(tokens)] * 3 + [len(song['words'])] * 2
-    fig, axs = plt.subplots(5, 1, height_ratios=heights, figsize=(13, (sum(heights) + 90) // 12))
+    fig, axs = plt.subplots(5, 1, height_ratios=heights, figsize=(15, (sum(heights) + 90) // 12))
     show(S, axs[0], 'S', tokens, matrix_cmap)
     show(DP, axs[1], 'DP', tokens, matrix_cmap)
     show(token_alignment_image, axs[2], 'token alignment', tokens, alignment_cmap)
