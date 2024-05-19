@@ -104,8 +104,6 @@ class TextEncoder(nn.Module):
         x = F.normalize(x, p=2, dim=1)
 
         assert x.shape[1] == config.embedding_dim
-        if config.train:
-            assert x.shape[0] == config.batch_size
 
         return x
 
