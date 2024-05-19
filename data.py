@@ -78,7 +78,7 @@ def get_jamendo(lang='English'):  # jamendo is already normalized
                     'phowords': phowords,
                     'lines': lines,
                     'pholines': pholines,
-                    'gt_alignment': gt_alignment
+                    'times': gt_alignment
                     }
             
             songs.append(song)
@@ -110,7 +110,7 @@ def get_jamendo_segments(lang='English'):  # jamendo is already normalized
                     'phowords': phowords,
                     'lines': lines,
                     'pholines': pholines,
-                    'gt_alignment': gt_alignment
+                    'times': gt_alignment
                     }
             
             songs.append(song)
