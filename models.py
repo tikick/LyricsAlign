@@ -119,8 +119,8 @@ class SimilarityModel(nn.Module):
         # if len_pos=None, neg=None then we're in eval, otherwise in train
 
         if config.train:
-            assert len(spec) == len(len_pos) and len(spec) == config.batch_size
-            assert len(spec) <= len(pos) and len(neg) == config.batch_size * config.num_negative_samples
+            assert len(spec) == len(len_pos) and len(spec) <= config.batch_size  # last batch might be smaller
+            assert len(spec) <= len(pos) and len(neg) == len(spec) * config.num_negative_samples
         
         if neg is not None:
             A = self.audio_encoder(spec)
