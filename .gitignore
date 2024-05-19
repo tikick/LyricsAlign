@@ -5,4 +5,6 @@ DALI_v2.0
 playground.ipynb
 pickles
 wandb
+time_report.py
+time_train.py
 time_train.txt
