@@ -70,8 +70,7 @@ def _align(S, song, level='word'):
     gt_word_alignment_image = np.zeros(shape=(len(words), num_frames))
     for i, j in zip(range(len(words)), range(num_frames)):
         if (i + j) % 2:  # grid
-            word_alignment_image[i, j] = 0.3
-            gt_word_alignment_image[i, j] = 0.3
+            word_alignment_image[i, j] = gt_word_alignment_image[i, j] = 0.5
     for word, frames in enumerate(word_alignment):
         word_alignment_image[word, frames[0]:frames[1]] = 1
     fps = 43.07  # the number of spectrogram frames in a second
@@ -80,21 +79,16 @@ def _align(S, song, level='word'):
         gt_word_alignment_image[word, frames[0]:frames[1]] = 1
 
     # log plots
-    if config.use_chars:
-        tokens = encode_words(song['words'], space_padding=1)
-    else:
-        tokens = encode_phowords(song['phowords'], space_padding=1)
-    
     def show(data, ax, title, ytick_labels, cmap):
         im = ax.imshow(data, cmap=cmap, aspect='auto', interpolation='none')
         ax.figure.colorbar(im, ax=ax)
         ax.set_title(title)
         ax.set_yticks(ticks=np.arange(data.shape[0]), labels=ytick_labels)
         ax.tick_params(axis='both', labelsize=6)
-    
+
     matrix_cmap = 'hot'
     alignment_cmap = 'Blues'
-
+    tokens = encode_words(song['words'], space_padding=1) if config.use_chars else encode_phowords(song['phowords'], space_padding=1)    
     heights = [len(tokens)] * 3 + [len(song['words'])] * 2
     fig, axs = plt.subplots(5, 1, height_ratios=heights, figsize=(15, (sum(heights) + 90) // 12))
     show(S, axs[0], 'S', tokens, matrix_cmap)

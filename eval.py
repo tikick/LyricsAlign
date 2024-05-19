@@ -63,7 +63,7 @@ if __name__ == '__main__':
     model = SimilarityModel().to(device)
     #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_9')))
     jamendo = get_jamendo_segments()#get_jamendo()
-    jamendo = jamendo[2:3]
+    #jamendo = jamendo[2:3]
 
     wandb.init(project='Decode')
     PCO_score, AAE_score = evaluate(model, device, jamendo)
