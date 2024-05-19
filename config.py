@@ -10,7 +10,7 @@ time_report = None
 embedding_dim = 64
 
 ##### audio encoder
-num_RCBs = 2
+num_RCBs = 10
 channels = 64
 
 ##### text encoder
