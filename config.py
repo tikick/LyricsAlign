@@ -2,7 +2,7 @@ import os
 
 
 ## debug
-train = False
+train = True
 time_report = None
 
 
