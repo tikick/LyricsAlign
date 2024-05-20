@@ -49,7 +49,7 @@ def get_dali(lang='english'):
 
         songs.append(song)
 
-    print(f'unk_chars = {unk_chars}, total_chars = {total_chars}')
+    print(f'DALI num unknown chars = {unk_chars}, DALI total chars = {total_chars}')
 
     return songs
 
