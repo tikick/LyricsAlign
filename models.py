@@ -96,9 +96,12 @@ class TextEncoder(nn.Module):
         # (batch, context)
         x = self.embedding_layer(x)  # (batch, context, embedding)
 
-        s = x.shape
-        x = x.reshape(s[0], s[1] * s[2])  # (batch, embedding)
-        x = self.dense_layers(x)  # (batch, embedding)
+        if config.context == 0:
+            x = x.squeeze(1)  # (batch, embedding)
+        else:
+            s = x.shape
+            x = x.reshape(s[0], s[1] * s[2])  # (batch, embedding)
+            x = self.dense_layers(x)  # (batch, embedding)
 
         # l2 normalization
         x = F.normalize(x, p=2, dim=1)

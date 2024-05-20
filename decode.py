@@ -90,10 +90,10 @@ def _align(S, song, level, log):
         show(token_alignment_image, axs[2], 'token alignment', tokens, alignment_cmap)
         show(word_alignment_image, axs[3], 'word alignment', song['words'], alignment_cmap)
         show(gt_word_alignment_image, axs[4], 'ground truth word alignment', song['words'], alignment_cmap)
-        
+
         fig.tight_layout()
 
-        wandb.log({'plots': plt})
+        wandb.log({song['id']: plt})
         #plt.show()
 
     return word_alignment

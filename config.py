@@ -19,7 +19,7 @@ use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
 ##### optimizer, data loader and others
-num_epochs = 10
+num_epochs = 5
 lr = 1e-4
 batch_size = 32
 
