@@ -127,9 +127,11 @@ def main():
     for epoch in range(config.num_epochs):
         print('Epoch:', epoch)
 
+        config.train = True
         train_loss = train(model, device, train_loader, lyrics_database, criterion, optimizer)
         wandb.log({'train/train_loss': train_loss, 'train/epoch': epoch})
 
+        config.train = False
         val_loss = validate(model, device, val_loader, lyrics_database, criterion)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 

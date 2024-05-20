@@ -49,7 +49,7 @@ class AudioEncoder(nn.Module):
 
         assert x.shape[1] == config.fourier_bins
         if config.train:
-            assert x.shape[0] == config.batch_size
+            assert x.shape[0] <= config.batch_size  # last batch might be smaller
             assert x.shape[2] == 216  # spectrograms have 216 frames (5 sec audio segments)
 
         x = x.unsqueeze(1)  # (batch, channel, feature, time)
@@ -70,7 +70,7 @@ class AudioEncoder(nn.Module):
 
         assert x.shape[1] == config.embedding_dim
         if config.train:
-            assert x.shape[0] == config.batch_size
+            assert x.shape[0] <= config.batch_size  # last batch might be smaller
             assert x.shape[2] == 216  # spectrograms have 216 frames (5 sec audio segments)
 
         return x
