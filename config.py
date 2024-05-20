@@ -10,7 +10,7 @@ time_report = None
 embedding_dim = 64
 
 ##### audio encoder
-num_RCBs = 10
+num_RCBs = 5
 channels = 64
 
 ##### text encoder
@@ -19,7 +19,7 @@ use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
 ##### optimizer, data loader and others
-num_epochs = 5
+num_epochs = 10
 lr = 1e-4
 batch_size = 32
 
