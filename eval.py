@@ -14,7 +14,7 @@ from utils import fix_seed, count_parameters, load, read_gt_alignment
 from decode import align, _align
 
 
-def evaluate(model, device, jamendo):  #, metric='PCO'):
+def evaluate(model, device, jamendo, log=False):  #, metric='PCO'):
     model.eval()
     PCO_score = 0.
     AAE_score = 0.
@@ -22,8 +22,8 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
     with torch.no_grad():
         for song in jamendo:
             print(song['id'])
-            print(song['words'])
-            print(song['times'])
+            #print(song['words'])
+            #print(song['times'])
             spectrogram, positives = jamendo_collate(song)
             spectrogram, positives = spectrogram.to(device), positives.to(device)
 
@@ -31,7 +31,7 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
             S = S.cpu().numpy()
             print('S.shape:', S.shape)
 
-            alignment = align(S, song)
+            alignment = align(S, song, level='word', log=log)
             PCO_score += percentage_of_correct_onsets(alignment, song['times'])
             AAE_score += average_absolute_error(alignment, song['times'])
         
@@ -63,9 +63,9 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
     #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_5')))
-    jamendo = get_jamendo()#get_jamendo_segments()#get_jamendo()
+    jamendo = get_jamendo_segments()#get_jamendo()
     #jamendo = jamendo[2:3]
 
     wandb.init(project='Decode')
-    PCO_score, AAE_score = evaluate(model, device, jamendo)
+    PCO_score, AAE_score = evaluate(model, device, jamendo, log=True)
     wandb.finish()

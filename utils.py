@@ -155,10 +155,10 @@ def gen_jamend_segment():
     import csv
 
     sr = 44100
-    audio_file = 'Tom_Orlando_-_The_One__feat._Tina_G_.mp3'
+    audio_file = 'Color_Out_-_Falling_Star.mp3'
 
-    start = 40
-    end = 46
+    start = 59
+    end = 82
 
     audio = load(os.path.join(config.jamendo_audio, audio_file), sr=sr)
     audio_segment = audio[start * sr:end * sr]
@@ -188,3 +188,8 @@ def gen_jamend_segment():
 
     with open(config.jamendo_segments_metadata, 'a') as f:
         f.write(f'\n_,{audio_segment_file},_,_,_,_,English,_,_,_')
+
+
+if __name__ == '__main__':
+    print('Running utils.py')
+    gen_jamend_segment()

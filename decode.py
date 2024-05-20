@@ -6,7 +6,7 @@ import matplotlib as mpl
 import config
 
 
-def _align(S, song, level='word'):
+def _align(S, song, level, log):
     # finds monotonic path maximizing the cumulative similarity score
 
     # NOTE: take pre- and post-silence into account
@@ -43,10 +43,10 @@ def _align(S, song, level='word'):
 
     token_alignment = list(reversed(token_alignment))
 
-    # for wandb logging
-    token_alignment_image = np.zeros_like(DP)
-    for token, frames in enumerate(token_alignment):
-        token_alignment_image[token, frames[0]:frames[1]] = 1
+    if log:
+        token_alignment_image = np.zeros_like(DP)
+        for token, frames in enumerate(token_alignment):
+            token_alignment_image[token, frames[0]:frames[1]] = 1
     
     if level == 'token':
         return token_alignment
@@ -64,50 +64,52 @@ def _align(S, song, level='word'):
     
     assert len(word_alignment) == len(song['times'])
 
-    # for wandb logging
-    words = song['words']
-    word_alignment_image = np.zeros(shape=(len(words), num_frames))
-    gt_word_alignment_image = np.zeros(shape=(len(words), num_frames))
-    for word, frames in enumerate(word_alignment):
-        word_alignment_image[word, frames[0]:frames[1]] = 1
-    fps = 43.07  # the number of spectrogram frames in a second
-    for word, time in enumerate(song['times']):
-        frames = (int(time[0] * fps), int(time[1] * fps))
-        gt_word_alignment_image[word, frames[0]:frames[1]] = 1
+    if log:
+        words = song['words']
+        word_alignment_image = np.zeros(shape=(len(words), num_frames))
+        gt_word_alignment_image = np.zeros(shape=(len(words), num_frames))
+        for word, frames in enumerate(word_alignment):
+            word_alignment_image[word, frames[0]:frames[1]] = 1
+        fps = 43.07  # the number of spectrogram frames in a second
+        for word, time in enumerate(song['times']):
+            frames = (int(time[0] * fps), int(time[1] * fps))
+            gt_word_alignment_image[word, frames[0]:frames[1]] = 1
 
     # log plots
-    def show(data, ax, title, ytick_labels, cmap):
-        im = ax.imshow(data, cmap=cmap, aspect='auto', interpolation='none')
-        ax.figure.colorbar(im, ax=ax)
-        ax.set_title(title)
-        ax.set_yticks(ticks=np.arange(data.shape[0]), labels=ytick_labels)
-        ax.tick_params(axis='both', labelsize=6)
+    if log:
+        matrix_cmap = 'hot'
+        alignment_cmap = 'Blues'
+        tokens = encode_words(song['words'], space_padding=1) if config.use_chars else encode_phowords(song['phowords'], space_padding=1)    
+        heights = [len(tokens)] * 3 + [len(song['words'])] * 2
+        fig, axs = plt.subplots(5, 1, height_ratios=heights, 
+                                figsize=(min(num_frames // 14, 100), min((sum(heights) + 90) // 12, 100)))
+        show(S, axs[0], 'S', tokens, matrix_cmap)
+        show(DP, axs[1], 'DP', tokens, matrix_cmap)
+        show(token_alignment_image, axs[2], 'token alignment', tokens, alignment_cmap)
+        show(word_alignment_image, axs[3], 'word alignment', song['words'], alignment_cmap)
+        show(gt_word_alignment_image, axs[4], 'ground truth word alignment', song['words'], alignment_cmap)
+        fig.tight_layout()
 
-    matrix_cmap = 'hot'
-    alignment_cmap = 'Blues'
-    tokens = encode_words(song['words'], space_padding=1) if config.use_chars else encode_phowords(song['phowords'], space_padding=1)    
-    heights = [len(tokens)] * 3 + [len(song['words'])] * 2
-    fig, axs = plt.subplots(5, 1, height_ratios=heights, 
-                            figsize=(min(num_frames // 14, 100), min((sum(heights) + 90) // 12, 100)))
-    show(S, axs[0], 'S', tokens, matrix_cmap)
-    show(DP, axs[1], 'DP', tokens, matrix_cmap)
-    show(token_alignment_image, axs[2], 'token alignment', tokens, alignment_cmap)
-    show(word_alignment_image, axs[3], 'word alignment', song['words'], alignment_cmap)
-    show(gt_word_alignment_image, axs[4], 'ground truth word alignment', song['words'], alignment_cmap)
-    fig.tight_layout()
-
-    wandb.log({'plots': plt})
-    #plt.show()
+        wandb.log({'plots': plt})
+        #plt.show()
 
     return word_alignment
 
 
-def align(S, song, level='word'):
-    if config.masked:
-        token_alignment = _align(S, song, level='token')
-        mask = compute_line_mask(S, song, token_alignment)
-        S = S * mask
-    alignment = _align(S, song, level)
+def show(data, ax, title, ytick_labels, cmap):
+    im = ax.imshow(data, cmap=cmap, aspect='auto', interpolation='none')
+    ax.figure.colorbar(im, ax=ax)
+    ax.set_title(title)
+    ax.set_yticks(ticks=np.arange(data.shape[0]), labels=ytick_labels)
+    ax.tick_params(axis='both', labelsize=6)
+
+
+def align(S, song, level='word', log=False):
+    #if config.masked:
+    #    token_alignment = _align(S, song, level='token')
+    #    mask = compute_line_mask(S, song, token_alignment)
+    #    S = S * mask
+    alignment = _align(S, song, level, log)
     return convert_frames_to_seconds(alignment)
     
 
@@ -154,7 +156,7 @@ def convert_frames_to_seconds(alignment):
     return [(start / fps, end / fps) for (start, end) in alignment]
 
 
-# only for logging plots purposes
+# get yticklabels for plots
 def encode_words(words, space_padding):
     lyrics = ' '.join(words)
     lyrics = ' ' * space_padding + lyrics + ' ' * space_padding

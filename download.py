@@ -37,4 +37,5 @@ def download_dali_audio():
 
 
 if __name__ == '__main__':
+    print('Running download.py')
     download_dali_audio()

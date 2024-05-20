@@ -115,7 +115,7 @@ def main():
            'masked': config.masked,
            'dali_size': len(dali)}
     
-    wandb.init(project='Lyrics Alignment', config=cfg)
+    wandb.init(project='Train-Decode', config=cfg)
 
     print(cfg)
 
@@ -136,7 +136,7 @@ def main():
         val_loss = validate(model, device, val_loader, lyrics_database, criterion)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
-        _, _ = evaluate(model, device, jamendo_segments)
+        _, _ = evaluate(model, device, jamendo_segments, log=True)
         PCO_score, AAE_score = evaluate(model, device, jamendo)
         wandb.log({'metric/PCO_score': PCO_score, 'metric/epoch': epoch})
         wandb.log({'metric/AAE_score': AAE_score, 'metric/epoch': epoch})
