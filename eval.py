@@ -31,7 +31,7 @@ def evaluate(model, device, jamendo):  #, metric='PCO'):
             S = S.cpu().numpy()
             print('S.shape:', S.shape)
 
-            alignment = _align(S, song)  # was: align(S, song)
+            alignment = align(S, song)
             PCO_score += percentage_of_correct_onsets(alignment, song['times'])
             AAE_score += average_absolute_error(alignment, song['times'])
         
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     fix_seed()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
-    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_5')))
+    #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, 'checkpoint_5')))
     jamendo = get_jamendo()#get_jamendo_segments()#get_jamendo()
     #jamendo = jamendo[2:3]
 
