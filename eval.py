@@ -58,6 +58,7 @@ def percentage_of_correct_onsets(alignment, gt_alignment, tol=0.3):
 if __name__ == '__main__':
     print('Running eval.py')
 
+    config.train = False
     fix_seed()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
