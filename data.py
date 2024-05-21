@@ -206,39 +206,40 @@ class DaliDataset(Dataset):
 
 class LyricsDatabase:
     def __init__(self, dataset):
+        
+        # do not store! depends on mutable config fields, e.g., use_chars, context
+        #pickle_file = os.path.join(config.pickle_dir, 'char_dali_neg_probs.pkl' if config.use_chars else 'phoneme_dali_neg_probs.pkl')
 
-        pickle_file = os.path.join(config.pickle_dir, 'char_dali_neg_probs.pkl' if config.use_chars else 'phoneme_dali_neg_probs.pkl')
+        #if not os.path.exists(pickle_file):
+            #if not os.path.exists(config.pickle_dir):
+                #os.makedirs(config.pickle_dir)
 
-        if not os.path.exists(pickle_file):
-            if not os.path.exists(config.pickle_dir):
-                os.makedirs(config.pickle_dir)
+        print('Computing negative sampling probabilities')
 
-            print('Computing negative sampling probabilities')
+        assert config.context <= 1
+        self.frequencies = np.zeros((pow(config.vocab_size, 2 * config.context + 1),), dtype=int)
 
-            assert config.context <= 1
-            frequencies = np.zeros((pow(config.vocab_size, 2 * config.context + 1),), dtype=int)
+        for song in tqdm(dataset):
 
-            for song in tqdm(dataset):
+            if config.use_chars:
+                tokens = encode_words(song['words'], space_padding=config.context)
+            else:
+                tokens = encode_phowords(song['phowords'], space_padding=config.context)
 
-                if config.use_chars:
-                    tokens = encode_words(song['words'], space_padding=config.context)
-                else:
-                    tokens = encode_phowords(song['phowords'], space_padding=config.context)
+            # extract context for each token
+            tokens_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
 
-                # extract context for each token
-                tokens_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
-
-                for contextual_token in tokens_with_context:
-                    idx = self._contextual_token2idx(contextual_token)
-                    frequencies[idx] += 1
+            for contextual_token in tokens_with_context:
+                idx = self._contextual_token2idx(contextual_token)
+                self.frequencies[idx] += 1
             
             # write frequencies onto pickle file
-            with open(pickle_file, 'wb') as f:
-                pickle.dump(frequencies, f)
+            #with open(pickle_file, 'wb') as f:
+            #    pickle.dump(frequencies, f)
 
         # load frequencies from pickle file
-        with open(pickle_file, 'rb') as f:
-            self.frequencies = pickle.load(f)
+        #with open(pickle_file, 'rb') as f:
+        #    self.frequencies = pickle.load(f)
 
     def sample(self, num_samples, pos, len_pos):
         # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
@@ -250,12 +251,12 @@ class LyricsDatabase:
             j, k = cumsum[i], cumsum[i + 1]
 
             # set frequencies of positive samples to 0
-            original_freq = [] #self.frequencies.copy() #[]
+            original_freq = self.frequencies.copy() #[]
             for l in range(j, k):
                 contextual_token = pos[l]
                 idx = self._contextual_token2idx(contextual_token)
-                original_freq.append(self.frequencies[idx])
-                assert self.frequencies[idx] > 0, f'{str(contextual_token)} with idx={idx} has frequency {self.frequencies[idx]}'
+                #original_freq.append(self.frequencies[idx])
+                assert self.frequencies[idx] > 0, f'{str(contextual_token)} with idx={idx} has frequency {self.frequencies[idx]}, i={i}, l={l}'
                 self.frequencies[idx] = 0
             
             # sample negatives
@@ -264,11 +265,11 @@ class LyricsDatabase:
             contextual_tokens += [self._idx2contextual_token(idx) for idx in indices]
 
             # restore original frequencies
-            #self.frequencies = original_freq.copy()
-            for l in range(j, k):
-                contextual_token = pos[l]
-                idx = self._contextual_token2idx(contextual_token)
-                self.frequencies[idx] = original_freq[l - j]
+            self.frequencies = original_freq.copy()
+            #for l in range(j, k):
+            #    contextual_token = pos[l]
+            #    idx = self._contextual_token2idx(contextual_token)
+            #    self.frequencies[idx] = original_freq[l - j]
 
         return contextual_tokens
 
