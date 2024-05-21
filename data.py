@@ -227,7 +227,7 @@ class LyricsDatabase:
                 idx = self._contextual_token2idx(contextual_token)
                 self.frequencies[idx] += 1
         
-        print(f'frequencies[403] = {self.frequencies[403]}')
+        print(f'init frequencies[403] = {self.frequencies[403]}')
 
 
     def sample(self, num_samples, pos, len_pos):
@@ -237,6 +237,7 @@ class LyricsDatabase:
         cumsum = np.cumsum([0] + len_pos)
 
         for i in range(len(len_pos)):
+            print(f'frequencies[403] = {self.frequencies[403]}')
             j, k = cumsum[i], cumsum[i + 1]
 
             # set frequencies of positive samples to 0
@@ -245,7 +246,7 @@ class LyricsDatabase:
                 contextual_token = pos[l]
                 idx = self._contextual_token2idx(contextual_token)
                 #original_freq.append(self.frequencies[idx])
-                assert self.frequencies[idx] > 0, f'{str(contextual_token)} with idx={idx} has frequency {self.frequencies[idx]}, i={i}, l={l}'
+                assert self.frequencies[idx] > 0, f'frequencies[403] = {self.frequencies[403]}'#f'{str(contextual_token)} with idx={idx} has frequency {self.frequencies[idx]}, i={i}, l={l}'
                 self.frequencies[idx] = 0
             
             # sample negatives
