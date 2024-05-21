@@ -147,7 +147,7 @@ def wav2spec(waveform: np.ndarray) -> np.ndarray:
 
 
 
-def gen_jamend_segment():
+def gen_jamendo_segment():
     from utils import load, read_gt_alignment
     import config
     import soundfile as sf
@@ -192,4 +192,4 @@ def gen_jamend_segment():
 
 if __name__ == '__main__':
     print('Running utils.py')
-    gen_jamend_segment()
+    gen_jamendo_segment()
