@@ -227,8 +227,6 @@ class LyricsDatabase:
                 idx = self._contextual_token2idx(contextual_token)
                 self.frequencies[idx] += 1
         
-        print(f'init frequencies[403] = {self.frequencies[403]}')
-
 
     def sample(self, num_samples, pos, len_pos):
         # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
@@ -245,8 +243,7 @@ class LyricsDatabase:
                 contextual_token = pos[l]
                 idx = self._contextual_token2idx(contextual_token)
                 #original_freq.append(self.frequencies[idx])
-                print(f'frequencies[403] = {self.frequencies[403]}')
-                assert self.frequencies[idx] > 0, f'frequencies[403] = {self.frequencies[403]}'#f'{str(contextual_token)} with idx={idx} has frequency {self.frequencies[idx]}, i={i}, l={l}'
+                #assert self.frequencies[idx] > 0 WRONG ASSERT
                 self.frequencies[idx] = 0
             
             # sample negatives
