@@ -58,20 +58,22 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(val_loader)):
             spectrograms, positives, len_positives = batch
-            positive_tokens = positives.tolist()
             negatives = lyrics_database.sample(config.num_negative_samples, positives, len_positives)
             negatives = torch.IntTensor(negatives)
-            negative_tokens = negatives.tolist()
             spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
 
             PA, NA = model(spectrograms, positives, len_positives, negatives)
 
             loss = criterion(PA, NA)
-
             val_loss += loss.item()
 
             # log first batch
             if idx == 0:
+                PA = PA.cpu().numpy()
+                NA = NA.cpu().numpy()
+                positive_tokens = positives.cpu().tolist()
+                negative_tokens = negatives.cpu().tolist()
+
                 m = len(positive_tokens[0]) // 2
                 f = int2char if config.use_chars else int2phoneme
                 positive_tokens = [f[pos_token[m]] for pos_token in positive_tokens]
