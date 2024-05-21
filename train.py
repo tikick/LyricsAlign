@@ -72,6 +72,23 @@ def validate(model, device, val_loader, lyrics_database, criterion):
 def main():
     fix_seed()
 
+    cfg = {'embedding_dim': config.embedding_dim,
+           'num_RCBs': config.num_RCBs,
+           'channels': config.channels,
+           'context': config.context,
+           'use_chars': config.use_chars,
+           'num_epochs': config.num_epochs,
+           'lr': config.lr,
+           'batch_size': config.batch_size,
+           'num_negative_samples': config.num_negative_samples,
+           'val_size': config.val_size,
+           'masked': config.masked,
+           'dali_size': len(dali)}
+    
+    wandb.init(project='Train-Decode', config=cfg)
+
+    print(cfg)
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # print('Device:', device)
 
@@ -101,23 +118,6 @@ def main():
 
     optimizer = optim.Adam(model.parameters(), config.lr)
     criterion = contrastive_loss
-
-    cfg = {'embedding_dim': config.embedding_dim,
-           'num_RCBs': config.num_RCBs,
-           'channels': config.channels,
-           'context': config.context,
-           'use_chars': config.use_chars,
-           'num_epochs': config.num_epochs,
-           'lr': config.lr,
-           'batch_size': config.batch_size,
-           'num_negative_samples': config.num_negative_samples,
-           'val_size': config.val_size,
-           'masked': config.masked,
-           'dali_size': len(dali)}
-    
-    wandb.init(project='Train-Decode', config=cfg)
-
-    print(cfg)
 
     if not os.path.isdir(config.checkpoint_dir):
         os.makedirs(config.checkpoint_dir)
