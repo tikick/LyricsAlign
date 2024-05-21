@@ -207,7 +207,8 @@ class DaliDataset(Dataset):
 class LyricsDatabase:
     def __init__(self, dataset):
 
-        pickle_file = os.path.join(config.pickle_dir, 'dali_neg_probs.pkl')
+        pickle_file = os.path.join(config.pickle_dir,
+                                   'dali_neg_probs-' + 'char' if config.use_chars else 'phoneme' + '.pkl')
 
         if not os.path.exists(pickle_file):
             if not os.path.exists(config.pickle_dir):

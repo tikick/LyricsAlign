@@ -130,7 +130,7 @@ def main():
 
     #train_data = DaliDataset(dali_train, 'train')
     val_data = DaliDataset(dali_val, 'val')
-   # print('Num training samples:', len(train_data))
+    #print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
 
     #train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
