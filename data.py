@@ -207,8 +207,7 @@ class DaliDataset(Dataset):
 class LyricsDatabase:
     def __init__(self, dataset):
 
-        pickle_file = os.path.join(config.pickle_dir,
-                                   'dali_neg_probs-' + 'char' if config.use_chars else 'phoneme' + '.pkl')
+        pickle_file = os.path.join(config.pickle_dir, 'char_dali_neg_probs.pkl' if config.use_chars else 'phoneme_dali_neg_probs.pkl')
 
         if not os.path.exists(pickle_file):
             if not os.path.exists(config.pickle_dir):
@@ -256,7 +255,7 @@ class LyricsDatabase:
                 contextual_token = pos[l]
                 idx = self._contextual_token2idx(contextual_token)
                 #original_freq.append(self.frequencies[idx])
-                assert self.frequencies[idx] > 0
+                assert self.frequencies[idx] > 0, f'{str(contextual_token)} with idx={idx} has frequency {self.frequencies[idx]}'
                 self.frequencies[idx] = 0
             
             # sample negatives
