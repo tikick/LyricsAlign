@@ -142,10 +142,10 @@ def collate(data, eval=False):
             tokens = encode_phowords(phowords, space_padding=padding)
 
         # extract context for each token
-        token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
-        contextual_tokens += token_with_context
-        assert len(token_with_context) > 0
-        len_tokens.append(len(token_with_context))
+        tokens_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
+        contextual_tokens += tokens_with_context
+        assert len(tokens_with_context) > 0
+        len_tokens.append(len(tokens_with_context))
 
     # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
     spectrograms = torch.Tensor(np.array(spectrograms))
@@ -226,9 +226,9 @@ class LyricsDatabase:
                     tokens = encode_phowords(song['phowords'], space_padding=config.context)
 
                 # extract context for each token
-                token_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
+                tokens_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
 
-                for contextual_token in token_with_context:
+                for contextual_token in tokens_with_context:
                     idx = self._contextual_token2idx(contextual_token)
                     frequencies[idx] += 1
             
@@ -250,11 +250,11 @@ class LyricsDatabase:
             j, k = cumsum[i], cumsum[i + 1]
 
             # set frequencies of positive samples to 0
-            original_freq = self.frequencies.copy() #[]
+            original_freq = [] #self.frequencies.copy() #[]
             for l in range(j, k):
                 contextual_token = pos[l]
                 idx = self._contextual_token2idx(contextual_token)
-                #original_freq.append(self.frequencies[idx])
+                original_freq.append(self.frequencies[idx])
                 assert self.frequencies[idx] > 0, f'{str(contextual_token)} with idx={idx} has frequency {self.frequencies[idx]}'
                 self.frequencies[idx] = 0
             
@@ -264,11 +264,11 @@ class LyricsDatabase:
             contextual_tokens += [self._idx2contextual_token(idx) for idx in indices]
 
             # restore original frequencies
-            self.frequencies = original_freq.copy()
-            #for l in range(j, k):
-            #    contextual_token = pos[l]
-            #    idx = self._contextual_token2idx(contextual_token)
-            #    self.frequencies[idx] = original_freq[l - j]
+            #self.frequencies = original_freq.copy()
+            for l in range(j, k):
+                contextual_token = pos[l]
+                idx = self._contextual_token2idx(contextual_token)
+                self.frequencies[idx] = original_freq[l - j]
 
         return contextual_tokens
 
