@@ -14,9 +14,11 @@ import os
 
 phoneme_dict = [' ', 'AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH']
 phoneme2int = {phoneme_dict[i]: i for i in range(len(phoneme_dict))}
+int2phoneme = {i: phoneme_dict[i] for i in range(len(phoneme_dict))}
 
 char_dict = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', "'"]
 char2int = {char_dict[i]: i for i in range(len(char_dict))}
+int2char = {i: char_dict[i] for i in range(len(char_dict))}
 
 g2p = G2p()
 

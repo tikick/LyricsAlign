@@ -1,7 +1,6 @@
 import numpy as np
 import wandb
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 
 import config
 
@@ -77,16 +76,14 @@ def _align(S, song, level, log):
 
     # log plots
     if log:
-        matrix_cmap = 'hot'
-        alignment_cmap = 'Blues'
-
-        tokens = encode_words(song['words'], space_padding=1) if config.use_chars else encode_phowords(song['phowords'], space_padding=1)    
+        tokens = chars(song['words'], space_padding=1) if config.use_chars else phonemes(song['phowords'], space_padding=1)    
         heights = [len(tokens)] * 3 + [len(song['words'])] * 2
         fig, axs = plt.subplots(5, 1, height_ratios=heights, 
                                 figsize=(min(num_frames // 14, 100), min((sum(heights) + 90) // 12, 100)))
         
-        show(S, axs[0], 'S', tokens, matrix_cmap)
-        show(DP, axs[1], 'DP', tokens, matrix_cmap)
+        show(S, axs[0], 'S', tokens)
+        show(DP, axs[1], 'DP', tokens)
+        alignment_cmap = 'Blues'
         show(token_alignment_image, axs[2], 'token alignment', tokens, alignment_cmap)
         show(word_alignment_image, axs[3], 'word alignment', song['words'], alignment_cmap)
         show(gt_word_alignment_image, axs[4], 'ground truth word alignment', song['words'], alignment_cmap)
@@ -99,7 +96,7 @@ def _align(S, song, level, log):
     return word_alignment
 
 
-def show(data, ax, title, ytick_labels, cmap):
+def show(data, ax, title, ytick_labels, cmap='hot'):
     im = ax.imshow(data, cmap=cmap, aspect='auto', interpolation='none')
     ax.figure.colorbar(im, ax=ax)
     ax.set_title(title)
@@ -160,11 +157,11 @@ def convert_frames_to_seconds(alignment):
 
 
 # get yticklabels for plots
-def encode_words(words, space_padding):
+def chars(words, space_padding):
     lyrics = ' '.join(words)
     lyrics = ' ' * space_padding + lyrics + ' ' * space_padding
     return [c for c in lyrics]
-def encode_phowords(phowords, space_padding):
+def phonemes(phowords, space_padding):
     phonemes = []
     for phoword in phowords:
         phonemes += phoword + [' ']

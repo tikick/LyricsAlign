@@ -250,11 +250,12 @@ class LyricsDatabase:
             j, k = cumsum[i], cumsum[i + 1]
 
             # set frequencies of positive samples to 0
-            original_freq = []
+            original_freq = self.frequencies.copy() #[]
             for l in range(j, k):
                 contextual_token = pos[l]
                 idx = self._contextual_token2idx(contextual_token)
-                original_freq.append(self.frequencies[idx])
+                #original_freq.append(self.frequencies[idx])
+                assert self.frequencies[idx] > 0
                 self.frequencies[idx] = 0
             
             # sample negatives
@@ -263,10 +264,11 @@ class LyricsDatabase:
             contextual_tokens += [self._idx2contextual_token(idx) for idx in indices]
 
             # restore original frequencies
-            for l in range(j, k):
-                contextual_token = pos[l]
-                idx = self._contextual_token2idx(contextual_token)
-                self.frequencies[idx] = original_freq[l - j]
+            self.frequencies = original_freq.copy()
+            #for l in range(j, k):
+            #    contextual_token = pos[l]
+            #    idx = self._contextual_token2idx(contextual_token)
+            #    self.frequencies[idx] = original_freq[l - j]
 
         return contextual_tokens
 

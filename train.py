@@ -8,12 +8,14 @@ from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 import wandb
+import matplotlib.pyplot as plt
 
 import config
-from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate, get_jamendo_segments
+from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, get_jamendo_segments
 from models import SimilarityModel, contrastive_loss
-from utils import fix_seed, count_parameters
+from utils import fix_seed, count_parameters, int2char, int2phoneme
 from eval import evaluate
+from decode import show
 
 
 def train(model, device, train_loader, lyrics_database, criterion, optimizer):
@@ -48,16 +50,18 @@ def train(model, device, train_loader, lyrics_database, criterion, optimizer):
     return train_loss / num_batches
 
 
-def validate(model, device, val_loader, lyrics_database, criterion):
+def validate(model, device, val_loader, lyrics_database, criterion, epoch):
     model.eval()
     num_batches = len(val_loader.dataset) // config.batch_size
     val_loss = 0.
 
     with torch.no_grad():
-        for batch in tqdm(val_loader):
+        for idx, batch in enumerate(tqdm(val_loader)):
             spectrograms, positives, len_positives = batch
+            positive_tokens = positives.tolist()
             negatives = lyrics_database.sample(config.num_negative_samples, positives, len_positives)
             negatives = torch.IntTensor(negatives)
+            negative_tokens = negatives.tolist()
             spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
 
             PA, NA = model(spectrograms, positives, len_positives, negatives)
@@ -65,6 +69,27 @@ def validate(model, device, val_loader, lyrics_database, criterion):
             loss = criterion(PA, NA)
 
             val_loss += loss.item()
+
+            # log first batch
+            if idx == 0:
+                m = len(positive_tokens[0]) // 2
+                f = int2char if config.use_chars else int2phoneme
+                positive_tokens = [f(pos_token[m]) for pos_token in positive_tokens]
+                negative_tokens = [f(neg_token[m]) for neg_token in negative_tokens]
+
+                cumsum = np.cumsum([0] + len_positives)
+                for i in range(len(spectrograms)):
+                    fig, axs = plt.subplots(len(spectrograms), 1, figsize=(14, 28))
+
+                    j, k = cumsum[i], cumsum[i + 1]
+                    show(PA[i], axs[0], 'positive scores', positive_tokens[j:k])
+                    j = i * config.num_negative_samples
+                    k = j + 50  # don't show all 1000 negative tokens
+                    show(NA[i], axs[1], 'negative scores', negative_tokens[j:k])
+
+                    fig.tight_layout()
+
+                    wandb.log({'DALI rand batch, epoch' + str(epoch): plt})
 
     return val_loss / num_batches
 
@@ -103,12 +128,12 @@ def main():
     print('Size of DALI:', len(dali))
     dali_train, dali_val = train_test_split(dali, test_size=config.val_size, random_state=97)
 
-    train_data = DaliDataset(dali_train, 'train')
+    #train_data = DaliDataset(dali_train, 'train')
     val_data = DaliDataset(dali_val, 'val')
-    print('Num training samples:', len(train_data))
+   # print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
 
-    train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
+    #train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
     val_loader = DataLoader(dataset=val_data, batch_size=config.batch_size, shuffle=False, collate_fn=collate)
     
     lyrics_database = LyricsDatabase(dali)
@@ -124,7 +149,18 @@ def main():
 
     best_loss = np.Inf
 
-    # while num_worse_epochs < 20:  # stop after 20 epochs without improvement
+    # log before training
+    epoch = -1
+    val_loss = validate(model, device, val_loader, lyrics_database, criterion, epoch)
+    wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
+
+    _, _ = evaluate(model, device, jamendo_segments, log=True)
+    PCO_score, AAE_score = evaluate(model, device, jamendo)
+    wandb.log({'metric/PCO_score': PCO_score, 'metric/epoch': epoch})
+    wandb.log({'metric/AAE_score': AAE_score, 'metric/epoch': epoch})
+
+    return
+
     for epoch in range(config.num_epochs):
         print('Epoch:', epoch)
 
@@ -133,7 +169,7 @@ def main():
         wandb.log({'train/train_loss': train_loss, 'train/epoch': epoch})
 
         config.train = False
-        val_loss = validate(model, device, val_loader, lyrics_database, criterion)
+        val_loss = validate(model, device, val_loader, lyrics_database, criterion, epoch)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
         _, _ = evaluate(model, device, jamendo_segments, log=True)
