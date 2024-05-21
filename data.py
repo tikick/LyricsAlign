@@ -206,13 +206,7 @@ class DaliDataset(Dataset):
 
 class LyricsDatabase:
     def __init__(self, dataset):
-        
-        # do not store! depends on mutable config fields, e.g., use_chars, context
-        #pickle_file = os.path.join(config.pickle_dir, 'char_dali_neg_probs.pkl' if config.use_chars else 'phoneme_dali_neg_probs.pkl')
-
-        #if not os.path.exists(pickle_file):
-            #if not os.path.exists(config.pickle_dir):
-                #os.makedirs(config.pickle_dir)
+        # do not store frequencies in a file, they depend on mutable config fields, e.g., use_chars, context
 
         print('Computing negative sampling probabilities')
 
@@ -232,14 +226,9 @@ class LyricsDatabase:
             for contextual_token in tokens_with_context:
                 idx = self._contextual_token2idx(contextual_token)
                 self.frequencies[idx] += 1
-            
-            # write frequencies onto pickle file
-            #with open(pickle_file, 'wb') as f:
-            #    pickle.dump(frequencies, f)
+        
+        print(f'frequencies[403] = {self.frequencies[403]}')
 
-        # load frequencies from pickle file
-        #with open(pickle_file, 'rb') as f:
-        #    self.frequencies = pickle.load(f)
 
     def sample(self, num_samples, pos, len_pos):
         # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
