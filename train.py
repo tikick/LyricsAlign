@@ -81,7 +81,7 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
 
                 cumsum = np.cumsum([0] + len_positives)
                 for i in range(len(spectrograms)):
-                    fig, axs = plt.subplots(len(spectrograms), 1, figsize=(14, 28))
+                    fig, axs = plt.subplots(2, 1, figsize=(14, 28))
 
                     j, k = cumsum[i], cumsum[i + 1]
                     show(PA[j:k], axs[0], 'positive scores', positive_tokens[j:k])  # PA[i]
@@ -91,7 +91,7 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
 
                     fig.tight_layout()
 
-                    wandb.log({'DALI rand batch, epoch' + str(epoch): plt})
+                    wandb.log({'DALI rand batch, epoch ' + str(epoch): plt})
 
     return val_loss / num_batches
 
