@@ -71,17 +71,19 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
             if idx == 0:
                 PA = PA.cpu().numpy()
                 NA = NA.cpu().numpy()
+                #PA = 0.5 * (PA + 1)
+                #NA = 0.5 * (NA + 1)
                 positive_tokens = positives.cpu().tolist()
                 negative_tokens = negatives.cpu().tolist()
 
                 m = len(positive_tokens[0]) // 2
                 f = int2char if config.use_chars else int2phoneme
                 positive_tokens = [f[pos_token[m]] for pos_token in positive_tokens]
-                negative_tokens = [f[neg_token[m]] for neg_token in negative_tokens]
+                negative_tokens = [[f[neg_token[i]] for i in range(len(negative_tokens[0]))] for neg_token in negative_tokens]
 
                 cumsum = np.cumsum([0] + len_positives)
                 for i in range(len(spectrograms)):
-                    fig, axs = plt.subplots(2, 1, figsize=(14, 18))
+                    fig, axs = plt.subplots(2, 1, height_ratios=[len(positive_tokens), len(negative_tokens)], figsize=(16, 16))
 
                     j, k = cumsum[i], cumsum[i + 1]
                     show(PA[j:k], axs[0], 'positive scores', positive_tokens[j:k])  # PA[i]
