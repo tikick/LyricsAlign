@@ -137,9 +137,9 @@ class SimilarityModel(nn.Module):
 
             for i in range(len(A)):
                 j, k = cumsum[i], cumsum[i + 1]
-                PA[j:k] = torch.matmul(P[j:k], A[i])  # (samples, time)
+                PA[j:k] = torch.matmul(P[j:k], A[i])  # (tokens, time)
                 j, k = i * config.num_negative_samples, (i + 1) * config.num_negative_samples
-                NA[j:k] = torch.matmul(N[j:k], A[i])  # (samples, time)
+                NA[j:k] = torch.matmul(N[j:k], A[i])  # (tokens, time)
 
             return PA, NA
         

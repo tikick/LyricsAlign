@@ -84,10 +84,10 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
                     fig, axs = plt.subplots(len(spectrograms), 1, figsize=(14, 28))
 
                     j, k = cumsum[i], cumsum[i + 1]
-                    show(PA[i], axs[0], 'positive scores', positive_tokens[j:k])
+                    show(PA[j:k], axs[0], 'positive scores', positive_tokens[j:k])  # PA[i]
                     j = i * config.num_negative_samples
                     k = j + 50  # don't show all 1000 negative tokens
-                    show(NA[i], axs[1], 'negative scores', negative_tokens[j:k])
+                    show(NA[j:k], axs[1], 'negative scores', negative_tokens[j:k])  # NA[i]
 
                     fig.tight_layout()
 
