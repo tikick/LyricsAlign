@@ -128,16 +128,15 @@ def main():
         # dali = dali_train = dali_val = []  # no need to load dali, files already exist
     # else:
     dali = get_dali()
-    #dali = dali[:500]  # use smaller dataset for testing
     print('Size of DALI:', len(dali))
     dali_train, dali_val = train_test_split(dali, test_size=config.val_size, random_state=97)
 
-    #train_data = DaliDataset(dali_train, 'train')
+    train_data = DaliDataset(dali_train, 'train')
     val_data = DaliDataset(dali_val, 'val')
-    #print('Num training samples:', len(train_data))
+    print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
 
-    #train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
+    train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
     val_loader = DataLoader(dataset=val_data, batch_size=config.batch_size, shuffle=False, collate_fn=collate)
     
     lyrics_database = LyricsDatabase(dali)
@@ -162,8 +161,6 @@ def main():
     PCO_score, AAE_score = evaluate(model, device, jamendo)
     wandb.log({'metric/PCO_score': PCO_score, 'metric/epoch': epoch})
     wandb.log({'metric/AAE_score': AAE_score, 'metric/epoch': epoch})
-
-    return
 
     for epoch in range(config.num_epochs):
         print('Epoch:', epoch)
