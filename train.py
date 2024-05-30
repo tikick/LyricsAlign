@@ -83,7 +83,7 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
 
                 cumsum = np.cumsum([0] + len_positives)
                 for i in range(16):  #len(spectrograms)
-                    fig, axs = plt.subplots(2, 1, height_ratios=[len(positive_tokens), 50], figsize=(16, 16))
+                    fig, axs = plt.subplots(2, 1, height_ratios=[len(positive_tokens), 50], figsize=(16, 20))
 
                     j, k = cumsum[i], cumsum[i + 1]
                     show(PA[j:k], axs[0], 'positive scores', positive_tokens[j:k])  # PA[i]
@@ -111,8 +111,8 @@ def main():
            'batch_size': config.batch_size,
            'num_negative_samples': config.num_negative_samples,
            'val_size': config.val_size,
-           'masked': config.masked}
-           #'dali_size': len(dali)}
+           'masked': config.masked,
+           'dali_size': len(dali)}
     
     wandb.init(project='Train-Decode', config=cfg)
 

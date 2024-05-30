@@ -14,7 +14,7 @@ num_RCBs = 5
 channels = 64
 
 ##### text encoder
-context = 1  # !!! if changed, pickle files need to be rewritten
+context = 1
 use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
