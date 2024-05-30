@@ -182,7 +182,7 @@ def main():
         wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
         wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
 
-        print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_score}, AAE: {AAE_score}')
+        print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_jamendo}, AAE: {AAE_jamendo}')
         
         if val_loss < best_loss:
             print('Model improved on validation set')
