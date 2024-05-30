@@ -90,7 +90,7 @@ def _align(S, song, level, log):
 
         fig.tight_layout()
 
-        wandb.log({song['id']: plt})
+        wandb.log({'media/' + song['id']: plt})
         #plt.show()
 
     return word_alignment

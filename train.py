@@ -93,7 +93,7 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
 
                     fig.tight_layout()
 
-                    wandb.log({'DALI rand batch, epoch ' + str(epoch): plt})
+                    wandb.log({'media/DALI_rand_batch_epoch_' + str(epoch): plt})
 
     return val_loss / num_batches
 
@@ -157,10 +157,12 @@ def main():
     val_loss = validate(model, device, val_loader, lyrics_database, criterion, epoch)
     wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
-    _, _ = evaluate(model, device, jamendo_segments, log=True)
-    PCO_score, AAE_score = evaluate(model, device, jamendo)
-    wandb.log({'metric/PCO_score': PCO_score, 'metric/epoch': epoch})
-    wandb.log({'metric/AAE_score': AAE_score, 'metric/epoch': epoch})
+    PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=True)
+    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
+    wandb.log({'metric/PCO_jamendo_segments': PCO_jamendo_segments, 'metric/epoch': epoch})
+    wandb.log({'metric/AAE_jamendo_segments': AAE_jamendo_segments, 'metric/epoch': epoch})
+    wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
+    wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
 
     for epoch in range(config.num_epochs):
         print('Epoch:', epoch)
@@ -173,10 +175,12 @@ def main():
         val_loss = validate(model, device, val_loader, lyrics_database, criterion, epoch)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
-        _, _ = evaluate(model, device, jamendo_segments, log=True)
-        PCO_score, AAE_score = evaluate(model, device, jamendo)
-        wandb.log({'metric/PCO_score': PCO_score, 'metric/epoch': epoch})
-        wandb.log({'metric/AAE_score': AAE_score, 'metric/epoch': epoch})
+        PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=True)
+        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
+        wandb.log({'metric/PCO_jamendo_segments': PCO_jamendo_segments, 'metric/epoch': epoch})
+        wandb.log({'metric/AAE_jamendo_segments': AAE_jamendo_segments, 'metric/epoch': epoch})
+        wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
+        wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_score}, AAE: {AAE_score}')
         
