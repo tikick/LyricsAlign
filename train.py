@@ -119,7 +119,13 @@ def main():
            #'dali_size': len(dali)}
     
     wandb.init(project='Train-Decode', config=cfg)
+
     start_time_run = datetime.now().strftime('%m-%d,%H:%M')
+    run_checkpoint_dir = os.path.join(config.checkpoint_dir, 'run(' + start_time_run + ')')
+    if not os.path.isdir(config.checkpoint_dir):
+        os.makedirs(config.checkpoint_dir)
+    if not os.path.isdir(run_checkpoint_dir):
+        os.makedirs(run_checkpoint_dir)
 
     print(cfg)
 
@@ -151,9 +157,6 @@ def main():
 
     optimizer = optim.Adam(model.parameters(), config.lr)
     criterion = contrastive_loss
-
-    if not os.path.isdir(config.checkpoint_dir):
-        os.makedirs(config.checkpoint_dir)
 
     best_loss = np.Inf
 
@@ -194,8 +197,7 @@ def main():
             best_loss = val_loss
 
         # save checkpoint
-        checkpoint_path = os.path.join(config.checkpoint_dir, start_time_run, str(epoch))
-        torch.save(model.state_dict(), checkpoint_path)
+        torch.save(model.state_dict(), os.path.join(run_checkpoint_dir, str(epoch)))
 
     wandb.finish()
 
