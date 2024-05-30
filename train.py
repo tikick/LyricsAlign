@@ -79,7 +79,7 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
                 m = len(positive_tokens[0]) // 2
                 f = int2char if config.use_chars else int2phoneme
                 positive_tokens = [f[pos_token[m]] for pos_token in positive_tokens]
-                negative_tokens = [[f[neg_token[i]] for i in range(len(negative_tokens[0]))] for neg_token in negative_tokens]
+                negative_tokens = [[f[neg_token[i]] for i in range(len(neg_token))] for neg_token in negative_tokens]
 
                 cumsum = np.cumsum([0] + len_positives)
                 for i in range(len(spectrograms)):
