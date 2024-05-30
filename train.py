@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 import wandb
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 import config
 from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, get_jamendo_segments
@@ -115,6 +116,7 @@ def main():
            #'dali_size': len(dali)}
     
     wandb.init(project='Train-Decode', config=cfg)
+    start_time_run = datetime.now().strftime('%m-%d,%H:%M')
 
     print(cfg)
 
@@ -188,9 +190,9 @@ def main():
             print('Model improved on validation set')
             best_loss = val_loss
 
-            # save checkpoint
-            checkpoint_path = os.path.join(config.checkpoint_dir, 'checkpoint_' + str(epoch))
-            torch.save(model.state_dict(), checkpoint_path)
+        # save checkpoint
+        checkpoint_path = os.path.join(config.checkpoint_dir, start_time_run, str(epoch))
+        torch.save(model.state_dict(), checkpoint_path)
 
     wandb.finish()
 
