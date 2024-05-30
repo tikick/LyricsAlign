@@ -111,8 +111,8 @@ def main():
            'batch_size': config.batch_size,
            'num_negative_samples': config.num_negative_samples,
            'val_size': config.val_size,
-           'masked': config.masked,
-           'dali_size': len(dali)}
+           'masked': config.masked}
+           #'dali_size': len(dali)}
     
     wandb.init(project='Train-Decode', config=cfg)
 
