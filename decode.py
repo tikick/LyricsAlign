@@ -92,6 +92,7 @@ def _align(S, song, level, log):
 
         wandb.log({'media/' + song['id']: plt})
         #plt.show()
+        plt.close()
 
     return word_alignment
 
