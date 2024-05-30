@@ -82,7 +82,7 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
                 negative_tokens = [[f[neg_token[i]] for i in range(len(neg_token))] for neg_token in negative_tokens]
 
                 cumsum = np.cumsum([0] + len_positives)
-                for i in range(len(spectrograms)):
+                for i in range(16):  #len(spectrograms)
                     fig, axs = plt.subplots(2, 1, height_ratios=[len(positive_tokens), 50], figsize=(16, 16))
 
                     j, k = cumsum[i], cumsum[i + 1]
