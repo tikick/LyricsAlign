@@ -84,7 +84,9 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
 
                 cumsum = np.cumsum([0] + len_positives)
                 for i in range(len(spectrograms)):
-                    fig, axs = plt.subplots(2, 1, height_ratios=[len_positives[i], 50], figsize=(16, 20))
+                    heights = [len_positives[i], 50]
+                    fig, axs = plt.subplots(2, 1, height_ratios=heights, 
+                                            figsize=(15, min((sum(heights) + 20 * len(heights)) // 12, 100)))
 
                     j, k = cumsum[i], cumsum[i + 1]
                     show(PA[j:k], axs[0], 'positive scores', positive_tokens[j:k])  # PA[i]

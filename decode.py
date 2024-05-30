@@ -79,7 +79,7 @@ def _align(S, song, level, log):
         tokens = chars(song['words'], space_padding=1) if config.use_chars else phonemes(song['phowords'], space_padding=1)    
         heights = [len(tokens)] * 3 + [len(song['words'])] * 2
         fig, axs = plt.subplots(5, 1, height_ratios=heights, 
-                                figsize=(min(num_frames // 14, 100), min((sum(heights) + 90) // 12, 100)))
+                                figsize=(min(num_frames // 14, 100), min((sum(heights) + 20 * len(heights)) // 12, 100)))
         
         show(S, axs[0], 'S', tokens)
         show(DP, axs[1], 'DP', tokens)
