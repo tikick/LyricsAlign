@@ -228,7 +228,7 @@ class LyricsDatabase:
                 self.frequencies[idx] += 1
         
 
-    def sample(self, num_samples, pos, len_pos):
+    def slow_sample(self, num_samples, pos, len_pos):
         # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
 
         contextual_tokens = []
@@ -242,8 +242,6 @@ class LyricsDatabase:
             for l in range(j, k):
                 contextual_token = pos[l]
                 idx = self._contextual_token2idx(contextual_token)
-                #original_freq.append(self.frequencies[idx])
-                #assert self.frequencies[idx] > 0 WRONG ASSERT
                 self.frequencies[idx] = 0
             
             # sample negatives
@@ -253,10 +251,36 @@ class LyricsDatabase:
 
             # restore original frequencies
             self.frequencies = original_freq.copy()
-            #for l in range(j, k):
-            #    contextual_token = pos[l]
-            #    idx = self._contextual_token2idx(contextual_token)
-            #    self.frequencies[idx] = original_freq[l - j]
+
+        return contextual_tokens
+    
+    def sample(self, num_samples, pos, len_pos):
+        # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
+
+        contextual_tokens = []
+        cumsum = np.cumsum([0] + len_pos)
+
+        for i in range(len(len_pos)):
+            j, k = cumsum[i], cumsum[i + 1]
+
+            # set frequency of positives to 0
+            original_idx_freq_pairs = []
+            for l in range(j, k):
+                contextual_token = pos[l]
+                idx = self._contextual_token2idx(contextual_token)
+                original_idx_freq_pairs.append((idx, self.frequencies[idx]))
+                self.frequencies[idx] = 0
+
+            # sample negatives
+            prob = self.frequencies / np.sum(self.frequencies)
+            indices = np.random.choice(len(prob), size=num_samples, p=prob)
+            contextual_tokens += [self._idx2contextual_token(idx) for idx in indices]
+
+            # restore original frequencies
+            for l in reversed(range(j, k)):  
+                # reversed necessary, without, second appearence of same token overwrites true freq with 0 (second appearence gets 0 freq in original_idx_freq_pairs)
+                idx, freq = original_idx_freq_pairs[l - j]
+                self.frequencies[idx] = freq
 
         return contextual_tokens
 
