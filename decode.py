@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import config
 
 
-def _align(S, song, level, log):
+def _align(S, song, level, log, epoch):
     # finds monotonic path maximizing the cumulative similarity score
 
     # NOTE: take pre- and post-silence into account
@@ -90,7 +90,7 @@ def _align(S, song, level, log):
 
         fig.tight_layout()
 
-        wandb.log({'media/' + song['id']: plt})
+        wandb.log({'media/' + song['id']: plt, 'media/epoch': epoch})
         #plt.show()
         plt.close()
 
@@ -105,12 +105,12 @@ def show(data, ax, title, ytick_labels, cmap='hot'):
     ax.tick_params(axis='both', labelsize=6)
 
 
-def align(S, song, level='word', log=False):
+def align(S, song, level, log, epoch):
     #if config.masked:
     #    token_alignment = _align(S, song, level='token')
     #    mask = compute_line_mask(S, song, token_alignment)
     #    S = S * mask
-    alignment = _align(S, song, level, log)
+    alignment = _align(S, song, level, log, epoch)
     return convert_frames_to_seconds(alignment)
     
 

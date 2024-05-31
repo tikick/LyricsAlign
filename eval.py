@@ -14,7 +14,7 @@ from utils import fix_seed, count_parameters, load, read_gt_alignment
 from decode import align, _align
 
 
-def evaluate(model, device, jamendo, log=False):  #, metric='PCO'):
+def evaluate(model, device, jamendo, log, epoch):  #, metric='PCO'):
     model.eval()
     PCO_score = 0.
     AAE_score = 0.
@@ -31,7 +31,7 @@ def evaluate(model, device, jamendo, log=False):  #, metric='PCO'):
             S = S.cpu().numpy()
             #print('S.shape:', S.shape)
 
-            alignment = align(S, song, level='word', log=log)
+            alignment = align(S, song, level='word', log=log, epoch=epoch)
             PCO_score += percentage_of_correct_onsets(alignment, song['times'])
             AAE_score += average_absolute_error(alignment, song['times'])
         

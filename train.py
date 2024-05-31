@@ -83,7 +83,7 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
                 negative_tokens = [[f[neg_token[i]] for i in range(len(neg_token))] for neg_token in negative_tokens]
 
                 cumsum = np.cumsum([0] + len_positives)
-                for i in range(len(spectrograms)):
+                for i in range(8):
                     heights = [len_positives[i], 50]
                     fig, axs = plt.subplots(2, 1, height_ratios=heights, 
                                             figsize=(15, min((sum(heights) + 20 * len(heights)) // 12, 100)))
@@ -96,7 +96,7 @@ def validate(model, device, val_loader, lyrics_database, criterion, epoch):
 
                     fig.tight_layout()
 
-                    wandb.log({'media/DALI_rand_batch_epoch_' + str(epoch): plt})
+                    wandb.log({'media/DALI_sample_' + str(i): plt, 'media/epoch': epoch})
                     plt.close()
 
     return val_loss / num_batches
@@ -118,14 +118,14 @@ def main():
            'masked': config.masked}
            #'dali_size': len(dali)}
     
-    wandb.init(project='Train-Decode', config=cfg)
+    wandb.init(project='Tests', config=cfg)
 
     start_time_run = datetime.now().strftime('%m-%d,%H:%M')
     run_checkpoint_dir = os.path.join(config.checkpoint_dir, 'run(' + start_time_run + ')')
     if not os.path.isdir(config.checkpoint_dir):
         os.makedirs(config.checkpoint_dir)
-    if not os.path.isdir(run_checkpoint_dir):
-        os.makedirs(run_checkpoint_dir)
+    #if not os.path.isdir(run_checkpoint_dir):
+    #    os.makedirs(run_checkpoint_dir)
 
     print(cfg)
 
@@ -142,12 +142,12 @@ def main():
     print('Size of DALI:', len(dali))
     dali_train, dali_val = train_test_split(dali, test_size=config.val_size, random_state=97)
 
-    train_data = DaliDataset(dali_train, 'train')
+    #train_data = DaliDataset(dali_train, 'train')
     val_data = DaliDataset(dali_val, 'val')
-    print('Num training samples:', len(train_data))
+    #print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
 
-    train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
+    #train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
     val_loader = DataLoader(dataset=val_data, batch_size=config.batch_size, shuffle=False, collate_fn=collate)
     
     lyrics_database = LyricsDatabase(dali)
@@ -165,12 +165,25 @@ def main():
     val_loss = validate(model, device, val_loader, lyrics_database, criterion, epoch)
     wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
-    PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=True)
-    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
+    PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=True, epoch=epoch)
+    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
     wandb.log({'metric/PCO_jamendo_segments': PCO_jamendo_segments, 'metric/epoch': epoch})
     wandb.log({'metric/AAE_jamendo_segments': AAE_jamendo_segments, 'metric/epoch': epoch})
     wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
     wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
+
+    epoch = 0
+    val_loss = validate(model, device, val_loader, lyrics_database, criterion, epoch)
+    wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
+
+    PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=True, epoch=epoch)
+    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
+    wandb.log({'metric/PCO_jamendo_segments': PCO_jamendo_segments, 'metric/epoch': epoch})
+    wandb.log({'metric/AAE_jamendo_segments': AAE_jamendo_segments, 'metric/epoch': epoch})
+    wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
+    wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
+
+    return
 
     for epoch in range(config.num_epochs):
         print('Epoch:', epoch)
@@ -183,8 +196,8 @@ def main():
         val_loss = validate(model, device, val_loader, lyrics_database, criterion, epoch)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
-        PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=True)
-        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
+        PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=True, epoch=epoch)
+        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
         wandb.log({'metric/PCO_jamendo_segments': PCO_jamendo_segments, 'metric/epoch': epoch})
         wandb.log({'metric/AAE_jamendo_segments': AAE_jamendo_segments, 'metric/epoch': epoch})
         wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
