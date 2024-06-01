@@ -228,8 +228,11 @@ class LyricsDatabase:
             if config.context == 1:
                 words = song['words'] if config.use_chars else song['phowords']
                 encode = encode_chars if config.use_chars else encode_phonemes
-                for word in words:
-                    l, r = word[0], word[-1]
+                for w in words:
+                    if (len(w) == 0):
+                        print(song['id'])
+                        print(words)
+                    l, r = w[0], w[-1]
                     tokens_with_context.append(encode([' ', ' ', l]))
                     tokens_with_context.append(encode([r, ' ', ' ']))
 
