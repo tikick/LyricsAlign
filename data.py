@@ -230,8 +230,8 @@ class LyricsDatabase:
                 encode = encode_chars if config.use_chars else encode_phonemes
                 for word in words:
                     l, r = word[0], word[-1]
-                    tokens_with_context += encode([' ', ' ', l])
-                    tokens_with_context += encode([r, ' ', ' '])
+                    tokens_with_context.append(encode([' ', ' ', l]))
+                    tokens_with_context.append(encode([r, ' ', ' ']))
 
             for contextual_token in tokens_with_context:
                 idx = self._contextual_token2idx(contextual_token)
