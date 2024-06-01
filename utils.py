@@ -89,6 +89,20 @@ def normalize_dali_annot(raw_words, raw_times, cut=False):
     return words, times, unk_chars, total_chars
 
 
+def encode_chars(chars):
+    enc_chars = []
+    for c in chars:
+        idx = char2int[c]
+        enc_chars.append(idx)
+    return enc_chars
+
+def encode_phonemes(phonemes):
+    enc_phonemes = []
+    for p in phonemes:
+        idx = phoneme2int[p]
+        enc_phonemes.append(idx)
+    return enc_phonemes
+
 def encode_words(words, space_padding):
     lyrics = ' '.join(words)
     lyrics = ' ' * space_padding + lyrics + ' ' * space_padding

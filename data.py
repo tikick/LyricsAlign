@@ -13,7 +13,8 @@ import csv
 from sklearn.model_selection import train_test_split
 
 import config
-from utils import encode_words, encode_phowords, load, wav2spec, words2phowords, lines2pholines, read_gt_alignment, normalize_dali_annot
+from utils import encode_words, encode_phowords, encode_chars, encode_phonemes, words2phowords, lines2pholines, \
+    load, wav2spec, read_gt_alignment, normalize_dali_annot
 
 
 def get_dali(lang='english'):
@@ -125,7 +126,7 @@ def jamendo_collate(song):
     return spectrogram, contextual_tokens
 
 
-def collate(data, eval=False):  # was: eval=False, let's try having a silence padding also in dali
+def collate(data, eval=True):  # was: eval=False, let's try having a silence padding also in dali
     spectrograms = []
     contextual_tokens = []
     len_tokens = []
@@ -222,6 +223,15 @@ class LyricsDatabase:
 
             # extract context for each token
             tokens_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
+
+            # add silence token from words' start/end, TEMPORARY WITH CONTEXT = 1
+            if config.context == 1:
+                words = song['words'] if config.use_chars else song['phowords']
+                encode = encode_chars if config.use_chars else encode_phonemes
+                for word in words:
+                    l, r = word[0], word[-1]
+                    tokens_with_context += encode([' ', ' ', l])
+                    tokens_with_context += encode([r, ' ', ' '])
 
             for contextual_token in tokens_with_context:
                 idx = self._contextual_token2idx(contextual_token)
