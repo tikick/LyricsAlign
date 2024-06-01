@@ -125,7 +125,7 @@ def jamendo_collate(song):
     return spectrogram, contextual_tokens
 
 
-def collate(data, eval=False):
+def collate(data, eval=True):  # was: eval=False, let's try having a silence space also in dali
     spectrograms = []
     contextual_tokens = []
     len_tokens = []

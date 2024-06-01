@@ -204,4 +204,7 @@ def main():
 
 if __name__ == '__main__':
     print('Running train.py')
+    #start_time_run = datetime.now().strftime('%m-%d,%H:%M')
+    #run_checkpoint_dir = os.path.join(config.checkpoint_dir, 'run(' + start_time_run + ')')
+    #print(run_checkpoint_dir)
     main()
