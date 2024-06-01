@@ -39,7 +39,7 @@ channels = 64
 
 ##### text encoder
 context = 1
-use_chars = False  # if false uses phonemes
+use_chars = True  # if false uses phonemes
 vocab_size = 28 if use_chars else 40
 
 ##### optimizer, data loader and others
