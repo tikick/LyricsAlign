@@ -55,7 +55,7 @@ def get_dali(lang='english'):
     return songs
 
 
-def get_jamendo(lang='English'):  # jamendo is already normalized
+def get_jamendo(lang='English'):  # jamendo is already normalized (perhaps call word.strip("'") as we do in dali)
     songs = []
 
     with open(config.jamendo_metadata, 'r') as f:

@@ -158,10 +158,10 @@ def main():
     optimizer = optim.Adam(model.parameters(), config.lr)
     criterion = contrastive_loss
 
-    best_loss = np.Inf
-
     # log before training
     epoch = -1
+
+    config.train = False
     val_loss = validate(model, device, val_loader, lyrics_database, criterion, epoch)
     wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
@@ -179,6 +179,9 @@ def main():
         train_loss = train(model, device, train_loader, lyrics_database, criterion, optimizer)
         wandb.log({'train/train_loss': train_loss, 'train/epoch': epoch})
 
+        # save checkpoint
+        torch.save(model.state_dict(), os.path.join(run_checkpoint_dir, str(epoch)))
+
         config.train = False
         val_loss = validate(model, device, val_loader, lyrics_database, criterion, epoch)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
@@ -191,13 +194,6 @@ def main():
         wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_jamendo}, AAE: {AAE_jamendo}')
-        
-        if val_loss < best_loss:
-            print('Model improved on validation set')
-            best_loss = val_loss
-
-        # save checkpoint
-        torch.save(model.state_dict(), os.path.join(run_checkpoint_dir, str(epoch)))
 
     wandb.finish()
 
