@@ -126,7 +126,7 @@ def jamendo_collate(song):
     return spectrogram, contextual_tokens
 
 
-def collate(data, eval=True):  # was: eval=False, let's try having a silence padding also in dali
+def collate(data, eval=False):
     spectrograms = []
     contextual_tokens = []
     len_tokens = []
@@ -225,16 +225,16 @@ class LyricsDatabase:
             tokens_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
 
             # add silence token from words' start/end, TEMPORARY WITH CONTEXT = 1
-            if config.context == 1:
-                words = song['words'] if config.use_chars else song['phowords']
-                encode = encode_chars if config.use_chars else encode_phonemes
-                for w in words:
-                    if (len(w) == 0):
-                        print(song['id'])
-                        print(words)
-                    l, r = w[0], w[-1]
-                    tokens_with_context.append(encode([' ', ' ', l]))
-                    tokens_with_context.append(encode([r, ' ', ' ']))
+            #if config.context == 1:
+            #    words = song['words'] if config.use_chars else song['phowords']
+            #    encode = encode_chars if config.use_chars else encode_phonemes
+            #    for w in words:
+            #        if (len(w) == 0):
+            #            print(song['id'])
+            #            print(words)
+            #        l, r = w[0], w[-1]
+            #        tokens_with_context.append(encode([' ', ' ', l]))
+            #        tokens_with_context.append(encode([r, ' ', ' ']))
 
             for contextual_token in tokens_with_context:
                 idx = self._contextual_token2idx(contextual_token)
