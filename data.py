@@ -241,7 +241,7 @@ class LyricsDatabase:
                 self.frequencies[idx] += 1
         
 
-    def slow_sample(self, num_samples, pos, len_pos):
+    def sample(self, num_samples, pos, len_pos):
         # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
 
         contextual_tokens = []
@@ -251,23 +251,22 @@ class LyricsDatabase:
             j, k = cumsum[i], cumsum[i + 1]
 
             # set frequencies of positive samples to 0
-            original_freq = self.frequencies.copy() #[]
+            mutable_frequencies = self.frequencies.copy()
             for l in range(j, k):
                 contextual_token = pos[l]
                 idx = self._contextual_token2idx(contextual_token)
-                self.frequencies[idx] = 0
+                mutable_frequencies[idx] = 0
             
             # sample negatives
-            prob = self.frequencies / np.sum(self.frequencies)
+            prob = mutable_frequencies / np.sum(mutable_frequencies)
             indices = np.random.choice(len(prob), size=num_samples, p=prob)
             contextual_tokens += [self._idx2contextual_token(idx) for idx in indices]
 
             # restore original frequencies
-            self.frequencies = original_freq.copy()
 
         return contextual_tokens
     
-    def sample(self, num_samples, pos, len_pos):
+    def fast_sample(self, num_samples, pos, len_pos):
         # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
 
         contextual_tokens = []
