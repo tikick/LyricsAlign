@@ -121,7 +121,7 @@ def main():
     wandb.init(project='Train-Decode', config=cfg)
 
     start_time_run = datetime.now().strftime('%m-%d,%H:%M')
-    run_checkpoint_dir = os.path.join(config.checkpoint_dir, 'run(' + start_time_run + ')')
+    run_checkpoint_dir = os.path.join(config.checkpoint_dir, start_time_run)
     if not os.path.isdir(config.checkpoint_dir):
         os.makedirs(config.checkpoint_dir)
     if not os.path.isdir(run_checkpoint_dir):
@@ -172,7 +172,9 @@ def main():
     wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
     wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
 
-    for epoch in range(config.num_epochs):
+    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '05-31,19:48', '6')))
+    epoch = 7
+    while epoch < 20:#config.num_epochs:
         print('Epoch:', epoch)
 
         config.train = True
@@ -194,6 +196,8 @@ def main():
         wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_jamendo}, AAE: {AAE_jamendo}')
+
+        epoch += 1
 
     wandb.finish()
 
