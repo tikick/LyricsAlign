@@ -45,7 +45,7 @@ vocab_size = 28 if use_chars else 40
 ##### optimizer, data loader and others
 num_epochs = 20
 lr = 1e-4
-batch_size = 64
+batch_size = 32
 
 
 ## dataset, samples and spectrograms
