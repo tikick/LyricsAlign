@@ -244,10 +244,10 @@ class LyricsDatabase:
     def sample(self, num_samples, pos, len_pos):
         # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
         
-        prob = self.frequencies / np.sum(self.frequencies)
-        indices = np.random.choice(len(prob), size=num_samples * len(len_pos), p=prob)
-        contextual_tokens += [self._idx2contextual_token(idx) for idx in indices]
-        return contextual_tokens
+        #prob = self.frequencies / np.sum(self.frequencies)
+        #indices = np.random.choice(len(prob), size=num_samples * len(len_pos), p=prob)
+        #contextual_tokens += [self._idx2contextual_token(idx) for idx in indices]
+        #return contextual_tokens
 
         contextual_tokens = []
         cumsum = np.cumsum([0] + len_pos)

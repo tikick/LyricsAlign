@@ -174,7 +174,7 @@ def main():
 
     #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '05-31,19:48', '6')))
     epoch = 0#7
-    while epoch < 10:#config.num_epochs:
+    while epoch < config.num_epochs:
         print('Epoch:', epoch)
 
         config.train = True
