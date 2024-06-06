@@ -154,6 +154,8 @@ def main():
 
     jamendo = get_jamendo()
     jamendo_segments = get_jamendo_segments()
+    dali_val_20 = dali_val[:20]
+    dali_train_20 = dali_train[:20]
 
     optimizer = optim.Adam(model.parameters(), config.lr)
     criterion = contrastive_loss
@@ -167,10 +169,16 @@ def main():
 
     PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=True, epoch=epoch)
     PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
+    PCO_dali_val_20, AAE_dali_val_20 = evaluate(model, device, dali_val_20, log=False, epoch=-1)
+    PCO_dali_train_20, AAE_dali_train_20 = evaluate(model, device, dali_train_20, log=False, epoch=-1)
     wandb.log({'metric/PCO_jamendo_segments': PCO_jamendo_segments, 'metric/epoch': epoch})
     wandb.log({'metric/AAE_jamendo_segments': AAE_jamendo_segments, 'metric/epoch': epoch})
     wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
     wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
+    wandb.log({'metric/PCO_dali_val_20': PCO_dali_val_20, 'metric/epoch': epoch})
+    wandb.log({'metric/AAE_dali_val_20': AAE_dali_val_20, 'metric/epoch': epoch})
+    wandb.log({'metric/PCO_dali_train_20': PCO_dali_train_20, 'metric/epoch': epoch})
+    wandb.log({'metric/AAE_dali_train_20': AAE_dali_train_20, 'metric/epoch': epoch})
 
     #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '05-31,19:48', '6')))
     epoch = 0#7
@@ -190,10 +198,16 @@ def main():
 
         PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=True, epoch=epoch)
         PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
+        PCO_dali_val_20, AAE_dali_val_20 = evaluate(model, device, dali_val_20, log=False, epoch=-1)
+        PCO_dali_train_20, AAE_dali_train_20 = evaluate(model, device, dali_train_20, log=False, epoch=-1)
         wandb.log({'metric/PCO_jamendo_segments': PCO_jamendo_segments, 'metric/epoch': epoch})
         wandb.log({'metric/AAE_jamendo_segments': AAE_jamendo_segments, 'metric/epoch': epoch})
         wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
         wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
+        wandb.log({'metric/PCO_dali_val_20': PCO_dali_val_20, 'metric/epoch': epoch})
+        wandb.log({'metric/AAE_dali_val_20': AAE_dali_val_20, 'metric/epoch': epoch})
+        wandb.log({'metric/PCO_dali_train_20': PCO_dali_train_20, 'metric/epoch': epoch})
+        wandb.log({'metric/AAE_dali_train_20': AAE_dali_train_20, 'metric/epoch': epoch})
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_jamendo}, AAE: {AAE_jamendo}')
 
@@ -204,7 +218,4 @@ def main():
 
 if __name__ == '__main__':
     print('Running train.py')
-    #start_time_run = datetime.now().strftime('%m-%d,%H:%M')
-    #run_checkpoint_dir = os.path.join(config.checkpoint_dir, 'run(' + start_time_run + ')')
-    #print(run_checkpoint_dir)
     main()
