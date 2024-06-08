@@ -62,14 +62,18 @@ if __name__ == '__main__':
     fix_seed()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
-    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-04,11:02', '11')))
     jamendo = get_jamendo()
     jamendo_segments = get_jamendo_segments()
 
-    PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=False, epoch=-1)
-    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
+    for i in range(12):
+        model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-04,11:02', str(i))))
 
-    print('metric/PCO_jamendo_segments', PCO_jamendo_segments)
-    print('metric/AAE_jamendo_segments', AAE_jamendo_segments)
-    print('metric/PCO_jamendo', PCO_jamendo)
-    print('metric/AAE_jamendo', AAE_jamendo)
+        PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=False, epoch=-1)
+        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
+
+        print('Epoch', i)
+        print('metric/PCO_jamendo_segments', PCO_jamendo_segments)
+        print('metric/AAE_jamendo_segments', AAE_jamendo_segments)
+        print('metric/PCO_jamendo', PCO_jamendo)
+        print('metric/AAE_jamendo', AAE_jamendo)
+        print('\n---------------------\n')
