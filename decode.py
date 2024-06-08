@@ -20,17 +20,17 @@ def vertical_align(S, song, level, log, epoch):
     for i in range(num_tokens):
         for j in range(i, num_frames):
             if i == 0 and j == 0:
-                DP[i, j] = S[i, j]
+                #DP[i, j] = S[i, j]
                 parent[i, j] = -1
             elif i == 0:
-                DP[i, j] = DP[i, j - 1] + S[i, j]
+                #DP[i, j] = DP[i, j - 1] + S[i, j]
                 parent[i, j] = 0
             elif j == 0:
                 DP[i, j] = DP[i - 1, j] + S[i, j]
                 parent[i, j] = 1
             else:
-                m = max(DP[i, j - 1], DP[i - 1, j])
-                DP[i, j] = m + S[i, j]
+                m = max(DP[i, j - 1], DP[i - 1, j] + S[i, j])
+                DP[i, j] = m# + S[i, j]
                 parent[i, j] = 0 if m == DP[i, j - 1] else 1
     
     token_alignment = []
