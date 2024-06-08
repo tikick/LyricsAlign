@@ -5,6 +5,64 @@ import matplotlib.pyplot as plt
 import config
 
 
+def vertical_align(S, song, level, log, epoch):
+    # finds monotonic path maximizing the cumulative similarity score
+
+    # NOTE: take pre- and post-silence into account
+
+    assert np.all((S >= 0) & (S <= 1))
+    assert level in ['token', 'word']
+
+    num_tokens, num_frames = S.shape
+
+    DP = np.zeros_like(S)  # -np.inf * np.ones_like(S)
+    parent = - np.ones_like(S, dtype=int)  # 1 = up, 0 = left
+    for i in range(num_tokens):
+        for j in range(i, num_frames):
+            if i == 0 and j == 0:
+                DP[i, j] = S[i, j]
+                parent[i, j] = -1
+            elif i == 0:
+                DP[i, j] = DP[i, j - 1] + S[i, j]
+                parent[i, j] = 0
+            elif j == 0:
+                DP[i, j] = DP[i - 1, j] + S[i, j]
+                parent[i, j] = 1
+            else:
+                m = max(DP[i, j - 1], DP[i - 1, j])
+                DP[i, j] = m + S[i, j]
+                parent[i, j] = 0 if m == DP[i, j - 1] else 1
+    
+    token_alignment = []
+    token_start = token_end = num_frames - 1  # token_end inclusive
+    for token in reversed(range(num_tokens)):
+        assert token_start > 0
+        while parent[token, token_start] == 0:  # while parent is left
+            token_start -= 1
+        token_alignment.append((token_start, token_end))
+        token_end = token_start
+
+    token_alignment = list(reversed(token_alignment))
+    
+    if level == 'token':
+        return token_alignment
+    
+    words = song['words'] if config.use_chars else song['phowords']
+    word_alignment = []
+    first_word_token = last_word_token = 1
+    for word in words:
+        num_word_tokens = len(word)
+        last_word_token = first_word_token + num_word_tokens - 1
+        word_start = token_alignment[first_word_token][0]
+        word_end = token_alignment[last_word_token][1]
+        word_alignment.append((word_start, word_end))
+        first_word_token = last_word_token + 2  # +1 space between words
+    
+    assert len(word_alignment) == len(song['times'])
+
+    return word_alignment
+
+
 def _align(S, song, level, log, epoch):
     # finds monotonic path maximizing the cumulative similarity score
 
@@ -110,7 +168,7 @@ def align(S, song, level, log, epoch):
     #    token_alignment = _align(S, song, level='token')
     #    mask = compute_line_mask(S, song, token_alignment)
     #    S = S * mask
-    alignment = _align(S, song, level, log, epoch)
+    alignment = vertical_align(S, song, level, log, epoch)  # was: _align
     return convert_frames_to_seconds(alignment)
     
 

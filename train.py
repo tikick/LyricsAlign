@@ -118,6 +118,7 @@ def main():
            'masked': config.masked}
            #'dali_size': len(dali)}
     
+    print(cfg)
     wandb.init(project='Train-Decode', config=cfg)
 
     start_time_run = datetime.now().strftime('%m-%d,%H:%M')
@@ -126,8 +127,6 @@ def main():
         os.makedirs(config.checkpoint_dir)
     if not os.path.isdir(run_checkpoint_dir):
         os.makedirs(run_checkpoint_dir)
-
-    print(cfg)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # print('Device:', device)
