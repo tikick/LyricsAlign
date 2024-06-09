@@ -65,15 +65,15 @@ if __name__ == '__main__':
     jamendo = get_jamendo()
     jamendo_segments = get_jamendo_segments()
 
-    for i in range(12):
-        model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-04,11:02', str(i))))
+    #for i in range(12):
+    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-03,14:29', str(15))))
 
-        PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=False, epoch=-1)
-        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
+    PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=False, epoch=-1)
+    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
 
-        print('Epoch', i)
-        print('metric/PCO_jamendo_segments', PCO_jamendo_segments)
-        print('metric/AAE_jamendo_segments', AAE_jamendo_segments)
-        print('metric/PCO_jamendo', PCO_jamendo)
-        print('metric/AAE_jamendo', AAE_jamendo)
-        print('\n---------------------\n')
+    #print('Epoch', i)
+    print('metric/PCO_jamendo_segments', PCO_jamendo_segments)
+    print('metric/AAE_jamendo_segments', AAE_jamendo_segments)
+    print('metric/PCO_jamendo', PCO_jamendo)
+    print('metric/AAE_jamendo', AAE_jamendo)
+    #print('\n---------------------\n')
