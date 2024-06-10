@@ -105,12 +105,12 @@ def encode_words(words):
     assert len(tokens) > 0
     return tokens
 
-def encode_phowords(phowords, space_padding):
+def encode_phowords(phowords):
     phonemes = []
     for phoword in phowords:
         phonemes += phoword + [' ']
     phonemes = phonemes[:-1]
-    phonemes = [' '] * space_padding + phonemes + [' '] * space_padding
+    phonemes = [' '] * config.context + phonemes + [' '] * config.context
 
     enc_phonemes = []
     for p in phonemes:
