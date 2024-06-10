@@ -6,38 +6,35 @@ import config
 
 
 def vertical_align(S, song, level, log, epoch):
-    # finds monotonic path maximizing the cumulative similarity score
-
-    # NOTE: take pre- and post-silence into account
+    # finds monotonic path maximizing the cumulative similarity score, without horizontal score accumulation
 
     assert np.all((S >= 0) & (S <= 1))
     assert level in ['token', 'word']
 
     num_tokens, num_frames = S.shape
 
-    DP = np.zeros_like(S)  # -np.inf * np.ones_like(S)
-    parent = - np.ones_like(S, dtype=int)  # 1 = up, 0 = left
+    DP = np.zeros_like(S)
+    parent = np.empty_like(S, dtype=bool)  # True = left, False = up
     for i in range(num_tokens):
         for j in range(i, num_frames):
             if i == 0 and j == 0:
-                #DP[i, j] = S[i, j]
-                parent[i, j] = -1
-            elif i == 0:
-                #DP[i, j] = DP[i, j - 1] + S[i, j]
-                parent[i, j] = 0
+                DP[i, j] = S[i, j]
+                parent[i, j] = False
             elif j == 0:
                 DP[i, j] = DP[i - 1, j] + S[i, j]
-                parent[i, j] = 1
+                parent[i, j] = False
+            elif i == 0:
+                DP[i, j] = max(DP[i, j - 1], S[i, j])
+                parent[i, j] = (DP[i, j] == DP[i, j - 1])
             else:
-                m = max(DP[i, j - 1], DP[i - 1, j] + S[i, j])
-                DP[i, j] = m# + S[i, j]
-                parent[i, j] = 0 if m == DP[i, j - 1] else 1
+                DP[i, j] = max(DP[i, j - 1], DP[i - 1, j] + S[i, j])
+                parent[i, j] = (DP[i, j] == DP[i, j - 1])
     
     token_alignment = []
     token_start = token_end = num_frames - 1  # token_end inclusive
     for token in reversed(range(num_tokens)):
         assert token_start > 0
-        while parent[token, token_start] == 0:  # while parent is left
+        while parent[token, token_start]:  # while parent is left
             token_start -= 1
         token_alignment.append((token_start, token_end))
         token_end = token_start
@@ -49,7 +46,7 @@ def vertical_align(S, song, level, log, epoch):
     
     words = song['words'] if config.use_chars else song['phowords']
     word_alignment = []
-    first_word_token = last_word_token = 1
+    first_word_token = last_word_token = 0
     for word in words:
         num_word_tokens = len(word)
         last_word_token = first_word_token + num_word_tokens - 1
@@ -66,7 +63,7 @@ def vertical_align(S, song, level, log, epoch):
 def _align(S, song, level, log, epoch):
     # finds monotonic path maximizing the cumulative similarity score
 
-    # NOTE: take pre- and post-silence into account
+    # NOTE: take pre- and post-silence into account  # REMOVED SILENCE PADDING IN data.py
 
     assert np.all((S >= 0) & (S <= 1))
     assert level in ['token', 'word']
@@ -164,16 +161,16 @@ def show(data, ax, title, ytick_labels, cmap='hot'):
 
 
 def align(S, song, level, log, epoch):
-    #if config.masked:
-    #    token_alignment = _align(S, song, level='token')
-    #    mask = compute_line_mask(S, song, token_alignment)
-    #    S = S * mask
+    if config.masked:
+        token_alignment = vertical_align(S, song, level='token', log=False, epoch=-1)
+        mask = compute_line_mask(S, song, token_alignment)
+        S = S * mask
     alignment = vertical_align(S, song, level, log, epoch)  # was: _align
     return convert_frames_to_seconds(alignment)
     
 
 def compute_line_mask(S, song, token_alignment):
-    # take pre- and post-silence into account
+    # all spaces get 0 !!!
     
     token_duration = 9 if config.use_chars else 17  # duration in frames (0.2 * fps and 0.4 * fps)
     tol_window_length = 108  # 2.5 * fps
@@ -182,29 +179,29 @@ def compute_line_mask(S, song, token_alignment):
     num_tokens, num_frames = S.shape
 
     lines = song['lines'] if config.use_chars else song['pholines']
-    first_line_token = last_line_token = 1
+    first_line_token = past_last_line_token = 0
     for line in lines:
         num_line_tokens = len(line)
-        last_line_token = first_line_token + num_line_tokens - 1
+        past_last_line_token = first_line_token + num_line_tokens
         middle_token = first_line_token + num_line_tokens // 2
         line_center = token_alignment[middle_token][0]
         line_start = max(line_center - (num_line_tokens - 1) * token_duration // 2, 0)
         line_end = min(line_center + (num_line_tokens + 1) * token_duration // 2 + 1, num_frames)  # +1 to make non-inclusive
 
-        mask[first_line_token:last_line_token, line_start:line_end] = 1
+        mask[first_line_token:past_last_line_token, line_start:line_end] = 1
         # add linear tolerance window
         # left tolerance window
         window_start = max(line_start - tol_window_length, 0)
         window_end = line_start
-        mask[first_line_token:last_line_token, window_start:window_end] = \
+        mask[first_line_token:past_last_line_token, window_start:window_end] = \
             np.linspace(0, 1, tol_window_length)[tol_window_length - (window_end - window_start):]
         # right tolerance window
         window_start = line_end
         window_end = min(line_end + tol_window_length, num_frames)
-        mask[first_line_token:last_line_token, window_start:window_end] = \
+        mask[first_line_token:past_last_line_token, window_start:window_end] = \
             np.linspace(1, 0, tol_window_length)[:window_end - window_start]
 
-        first_line_token = last_line_token + 2  # +1 space between lines
+        first_line_token = past_last_line_token + 1  # +1 space between lines
     
     return mask
 

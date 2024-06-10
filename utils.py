@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 from prettytable import PrettyTable
-import config
 import torchaudio
 import warnings
 import librosa
@@ -9,7 +8,8 @@ from torch import nn
 import string
 from g2p_en import G2p
 import csv
-import os
+
+import config
 
 
 phoneme_dict = [' ', 'AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH']
@@ -23,12 +23,12 @@ int2char = {i: char_dict[i] for i in range(len(char_dict))}
 g2p = G2p()
 
 
-def fix_seed(seed=97):
+def fix_seeds(seed=97):
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
 
-def count_parameters(model):
+def display_module_parameters(model):
     table = PrettyTable(['Modules', 'Parameters'])
     total_num_params = 0
     for name, params in model.named_parameters():
@@ -39,7 +39,6 @@ def count_parameters(model):
         total_num_params += num_params
     print(table)
     print(f'Total Trainable Params: {total_num_params}')
-    return total_num_params
 
 
 def words2phowords(words):
@@ -71,49 +70,40 @@ def lines2pholines(lines):
     return pholines
 
 
-def normalize_dali_annot(raw_words, raw_times, cut=False):
-    # if cut=True removes the whole word, else strips the unknown chars from the word
-    # stripping away punctuation and only then cutting might be better
+def normalize_dali(raw_words, raw_times, cut=False):
+    # if cut=True removes the whole word (first stripping punctuation and only then cutting might be better),
+    # else strips the unknown chars from the word
     words = []
     times = []
-    unk_chars = 0
-    total_chars = 0
     for raw_word, raw_time in zip(raw_words, raw_times):
-        total_chars += len(raw_word)
-        word = ''.join(filter(lambda c: c in char_dict[1:], raw_word.lower()))
+        word = raw_word.lower()
+        word = ''.join([c for c in word if c in char_dict[1:]])
         word = word.strip("'")  # e.g. filter('89) = ', not a word
         if len(word) == 0 or \
-           len(word) < len(raw_word) and (cut or len(word) > 15):  # len(word) > 15: raw_word is likely multiple words separated by special chars, e.g. -
+           len(word) < len(raw_word) and (cut or len(word) >= 16):  # len(word) >= 16: raw_word is likely multiple words separated by special char, e.g. -
             continue
         words.append(word)
         times.append(raw_time)
-        unk_chars += len(raw_word) - len(word)
-    return words, times, unk_chars, total_chars
+    return words, times
+
+def normalize_jamendo(raw_lines):
+    lines = [l for l in raw_lines if len(l) > 0]  # remove empty lines between paragraphs
+    lines = [' '.join([word.strip("'") for word in line.split()]) for line in lines]
+    return lines
 
 
-def encode_chars(chars):
-    enc_chars = []
-    for c in chars:
-        idx = char2int[c]
-        enc_chars.append(idx)
-    return enc_chars
-
-def encode_phonemes(phonemes):
-    enc_phonemes = []
-    for p in phonemes:
-        idx = phoneme2int[p]
-        enc_phonemes.append(idx)
-    return enc_phonemes
-
-def encode_words(words, space_padding):
+def encode_words(words):
     lyrics = ' '.join(words)
-    lyrics = ' ' * space_padding + lyrics + ' ' * space_padding
+    lyrics = ' ' * config.context + lyrics + ' ' * config.context
     
     enc_chars = []
     for c in lyrics:
         idx = char2int[c]
         enc_chars.append(idx)
-    return enc_chars
+
+    tokens = [enc_chars[i:i + (1 + 2 * config.context)] for i in range(len(enc_chars) - 2 * config.context)]  # token: enc_char and context
+    assert len(tokens) > 0
+    return tokens
 
 def encode_phowords(phowords, space_padding):
     phonemes = []
@@ -126,16 +116,19 @@ def encode_phowords(phowords, space_padding):
     for p in phonemes:
         idx = phoneme2int[p]
         enc_phonemes.append(idx)
-    return enc_phonemes
+
+    tokens = [enc_phonemes[i:i + (1 + 2 * config.context)] for i in range(len(enc_phonemes) - 2 * config.context)]  # token: enc_phoneme and context
+    assert len(tokens) > 0
+    return tokens
 
 
-def read_gt_alignment(gt_file):
-    gt_alignment = []
-    with open(gt_file, 'r') as f:
+def read_jamendo_times(times_file):
+    times = []
+    with open(times_file, 'r') as f:
         reader = csv.DictReader(f, delimiter=',')
         for row in reader:
-            gt_alignment.append((float(row['word_start']), float(row['word_end'])))
-    return gt_alignment
+            times.append((float(row['word_start']), float(row['word_end'])))
+    return times
 
 
 def load(path: str, sr: int) -> np.ndarray:

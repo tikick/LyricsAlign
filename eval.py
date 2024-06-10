@@ -1,20 +1,15 @@
-import numpy as np
 import os
 import torch
-import torch.optim as optim
-from torch.utils.data import DataLoader
-from sklearn.model_selection import train_test_split
-from tqdm import tqdm
 import wandb
 
 import config
-from data import get_dali, get_jamendo, DaliDataset, LyricsDatabase, collate, jamendo_collate, get_jamendo_segments
-from models import SimilarityModel, contrastive_loss
-from utils import fix_seed, count_parameters, load, read_gt_alignment
-from decode import align, _align
+from data import get_jamendo, get_jamendoshorts, jamendo_collate
+from models import SimilarityModel
+from utils import fix_seeds
+from decode import align
 
 
-def evaluate(model, device, jamendo, log, epoch):  #, metric='PCO'):
+def evaluate(model, device, jamendo, log, epoch):
     model.eval()
     PCO_score = 0.
     AAE_score = 0.
@@ -58,22 +53,20 @@ def percentage_of_correct_onsets(alignment, gt_alignment, tol=0.3):
 if __name__ == '__main__':
     print('Running eval.py')
 
-    config.train = False
-    fix_seed()
+    fix_seeds()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
     jamendo = get_jamendo()
-    jamendo_segments = get_jamendo_segments()
+    jamendoshorts = get_jamendoshorts()
 
-    #for i in range(12):
-    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-03,14:29', str(15))))
+    #for epoch in range(12):
+    epoch = 15
+    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-03,14:29', str(epoch))))
 
-    PCO_jamendo_segments, AAE_jamendo_segments = evaluate(model, device, jamendo_segments, log=False, epoch=-1)
+    #evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
     PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
 
-    #print('Epoch', i)
-    print('metric/PCO_jamendo_segments', PCO_jamendo_segments)
-    print('metric/AAE_jamendo_segments', AAE_jamendo_segments)
+    #print('Epoch', epoch)
     print('metric/PCO_jamendo', PCO_jamendo)
     print('metric/AAE_jamendo', AAE_jamendo)
     #print('\n---------------------\n')

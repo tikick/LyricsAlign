@@ -2,22 +2,24 @@
 
 import DALI as dali_code
 import bisect
-import numpy as np
 import os
 from tqdm import tqdm
 import pickle
+import csv
 from math import floor
+import numpy as np
 import torch
 from torch.utils.data import Dataset
-import csv
 from sklearn.model_selection import train_test_split
 
 import config
-from utils import encode_words, encode_phowords, encode_chars, encode_phonemes, words2phowords, lines2pholines, \
-    load, wav2spec, read_gt_alignment, normalize_dali_annot
+from utils import encode_words, encode_phowords, words2phowords, lines2pholines, \
+    load, wav2spec, read_jamendo_times, normalize_dali, normalize_jamendo
 
 
 def get_dali(lang='english'):
+    # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
+
     dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[],
         keep=[])
         #keep=['0a3cd469757e470389178d44808273ab', '0a81772ae3a7404f9ef09ecd1f94db07', '0dea06fa7ca04eb88b17e8d83993adc3', '1ae34dc139ea43669501fb9cef85cbd0', '1afbb77f88dc44e9bedc07b54341be9c', '1b9c139f491c41f5b0776eefd21c122d'])
@@ -25,8 +27,6 @@ def get_dali(lang='english'):
     songs = []
 
     audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
-    unk_chars = 0
-    total_chars = 0  # measure DALI noise
     for file in audio_files:
         annot = dali_data[file[:-4]].annotations['annot']
         metadata = dali_data[file[:-4]].info['metadata']
@@ -36,26 +36,21 @@ def get_dali(lang='english'):
         
         words = [d['text'] for d in annot['words']]
         times = [d['time'] for d in annot['words']]
-        words, times, _unk_chars, _total_chars = normalize_dali_annot(words, times)#, cut=config.dali_cut_words_with_unknown_chars)
+        words, times = normalize_dali(words, times)
         phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
-        unk_chars += _unk_chars
-        total_chars += _total_chars
 
         song = {'id': file[:-4],
                 'audio_path': os.path.join(config.dali_audio, file),
                 'words': words,
                 'phowords': phowords,
-                'times': times
-                }
+                'times': times}
 
         songs.append(song)
-
-    print(f'DALI num unknown chars = {unk_chars}, DALI total chars = {total_chars}')
 
     return songs
 
 
-def get_jamendo(lang='English'):  # jamendo is already normalized (perhaps call word.strip("'") as we do in dali)
+def get_jamendo(lang='English'):
     songs = []
 
     with open(config.jamendo_metadata, 'r') as f:
@@ -67,11 +62,11 @@ def get_jamendo(lang='English'):  # jamendo is already normalized (perhaps call 
             audio_file = row['Filepath']
             with open(os.path.join(config.jamendo_lyrics, audio_file[:-4] + '.txt'), 'r') as f:
                 lines = f.read().splitlines()
-            lines = [l for l in lines if len(l) > 0]  # remove empty lines between paragraphs
+            lines = normalize_jamendo(lines)
             words = ' '.join(lines).split()
             phowords = words2phowords(words)
             pholines = lines2pholines(lines)
-            gt_alignment = read_gt_alignment(os.path.join(config.jamendo_annotations, audio_file[:-4] + '.csv'))
+            times = read_jamendo_times(os.path.join(config.jamendo_annotations, audio_file[:-4] + '.csv'))
             
             song = {'id': audio_file[:-4],
                     'audio_path': os.path.join(config.jamendo_audio, audio_file),
@@ -79,39 +74,38 @@ def get_jamendo(lang='English'):  # jamendo is already normalized (perhaps call 
                     'phowords': phowords,
                     'lines': lines,
                     'pholines': pholines,
-                    'times': gt_alignment
-                    }
+                    'times': times}
             
             songs.append(song)
     
     return songs
 
 
-def get_jamendo_segments(lang='English'):  # jamendo is already normalized
+def get_jamendoshorts(lang='English'):
     songs = []
 
-    with open(config.jamendo_segments_metadata, 'r') as f:
+    with open(config.jamendoshorts_metadata, 'r') as f:
         reader = csv.DictReader(f, delimiter=',')
         for row in reader:
             if row['Language'] != lang:
                 continue
 
             audio_file = row['Filepath']
-            with open(os.path.join(config.jamendo_segments_lyrics, audio_file[:-4] + '.txt'), 'r') as f:
+            with open(os.path.join(config.jamendoshorts_lyrics, audio_file[:-4] + '.txt'), 'r') as f:
                 lines = f.read().splitlines()
-            lines = [l for l in lines if len(l) > 0]  # remove empty lines between paragraphs
+            lines = normalize_jamendo(lines)
             words = ' '.join(lines).split()
             phowords = words2phowords(words)
             pholines = lines2pholines(lines)
-            gt_alignment = read_gt_alignment(os.path.join(config.jamendo_segments_annotations, audio_file[:-4] + '.csv'))
+            times = read_jamendo_times(os.path.join(config.jamendoshorts_annotations, audio_file[:-4] + '.csv'))
             
             song = {'id': audio_file[:-4],
-                    'audio_path': os.path.join(config.jamendo_segments_audio, audio_file),
+                    'audio_path': os.path.join(config.jamendoshorts_audio, audio_file),
                     'words': words,
                     'phowords': phowords,
                     'lines': lines,
                     'pholines': pholines,
-                    'times': gt_alignment
+                    'times': times
                     }
             
             songs.append(song)
@@ -122,37 +116,31 @@ def get_jamendo_segments(lang='English'):  # jamendo is already normalized
 def jamendo_collate(song):
     waveform = load(song['audio_path'], sr=config.sr)
     spec = wav2spec(waveform)
-    spectrogram, contextual_tokens, _ = collate(data=[(spec, song['words'], song['phowords'])], eval=True)
-    return spectrogram, contextual_tokens
+    spectrogram, all_tokens, _ = collate(data=[(spec, song['words'], song['phowords'])])
+    return spectrogram, all_tokens
 
 
-def collate(data, eval=False):
+def collate(data):
     spectrograms = []
-    contextual_tokens = []
-    len_tokens = []
+    all_tokens = []
+    tokens_per_spectrogram = []
 
     for spec, words, phowords in data:
         spectrograms.append(spec)
 
-        padding = config.context
-        if eval:
-            padding += 1  # +1 silence padding for alignment
         if config.use_chars:
-            tokens = encode_words(words, space_padding=padding)
+            tokens = encode_words(words)
         else:
-            tokens = encode_phowords(phowords, space_padding=padding)
+            tokens = encode_phowords(phowords)
 
-        # extract context for each token
-        tokens_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
-        contextual_tokens += tokens_with_context
-        assert len(tokens_with_context) > 0
-        len_tokens.append(len(tokens_with_context))
+        tokens_per_spectrogram.append(len(tokens))
+        all_tokens += tokens
 
     # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
     spectrograms = torch.Tensor(np.array(spectrograms))
-    contextual_tokens = torch.IntTensor(contextual_tokens)
+    all_tokens = torch.IntTensor(all_tokens)
 
-    return spectrograms, contextual_tokens, len_tokens
+    return spectrograms, all_tokens, tokens_per_spectrogram
 
 
 class DaliDataset(Dataset):
@@ -205,14 +193,14 @@ class DaliDataset(Dataset):
         return len(self.samples)
 
 
-class LyricsDatabase:
+class NegativeSampler:
     def __init__(self, dataset):
         # do not store frequencies in a file, they depend on mutable config fields, e.g., use_chars, context
 
         print('Computing negative sampling probabilities')
 
         assert config.context <= 1
-        self.frequencies = np.zeros((pow(config.vocab_size, 2 * config.context + 1),), dtype=int)
+        self.frequencies = np.zeros((pow(config.vocab_size, 1 + 2 * config.context),), dtype=int)
 
         for song in tqdm(dataset):
 
@@ -221,78 +209,55 @@ class LyricsDatabase:
             else:
                 tokens = encode_phowords(song['phowords'], space_padding=config.context)
 
-            # extract context for each token
-            tokens_with_context = [tokens[i:i + 2 * config.context + 1] for i in range(len(tokens) - 2 * config.context)]
-
-            # add silence token from words' start/end, TEMPORARY WITH CONTEXT = 1
-            #if config.context == 1:
-            #    words = song['words'] if config.use_chars else song['phowords']
-            #    encode = encode_chars if config.use_chars else encode_phonemes
-            #    for w in words:
-            #        if (len(w) == 0):
-            #            print(song['id'])
-            #            print(words)
-            #        l, r = w[0], w[-1]
-            #        tokens_with_context.append(encode([' ', ' ', l]))
-            #        tokens_with_context.append(encode([r, ' ', ' ']))
-
-            for contextual_token in tokens_with_context:
-                idx = self._contextual_token2idx(contextual_token)
+            for token in tokens:
+                idx = self._token2idx(token)
                 self.frequencies[idx] += 1
         
 
-    def sample(self, num_samples, pos, len_pos):
-        # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
-        
-        #assert len(len_pos) <= config.batch_size
-        #prob = self.frequencies / np.sum(self.frequencies)
-        #indices = np.random.choice(len(prob), size=num_samples * len(len_pos), p=prob)
-        #contextual_tokens = [self._idx2contextual_token(idx) for idx in indices]
-        #return contextual_tokens
+    def sample(self, num_samples, positives, positives_per_scpetrogram):
+        # to avoid sampling positives set their frequencies to 0
 
-        contextual_tokens = []
-        cumsum = np.cumsum([0] + len_pos)
+        negatives = []
+        cumsum = np.cumsum([0] + positives_per_scpetrogram)
 
-        for i in range(len(len_pos)):
+        for i in range(len(positives_per_scpetrogram)):
             j, k = cumsum[i], cumsum[i + 1]
 
-            # set frequencies of positive samples to 0
+            # set frequencies of positives to 0
             mutable_frequencies = self.frequencies.copy()
             for l in range(j, k):
-                contextual_token = pos[l]
-                idx = self._contextual_token2idx(contextual_token)
+                token = positives[l]
+                idx = self._token2idx(token)
                 mutable_frequencies[idx] = 0
             
             # sample negatives
             prob = mutable_frequencies / np.sum(mutable_frequencies)
             indices = np.random.choice(len(prob), size=num_samples, p=prob)
-            contextual_tokens += [self._idx2contextual_token(idx) for idx in indices]
+            negatives += [self._idx2token(idx) for idx in indices]
 
-            # restore original frequencies
-
-        return contextual_tokens
+        return negatives
     
-    def fast_sample(self, num_samples, pos, len_pos):
-        # to avoid sampling positives, set frequency of positives to 0, sample negatives, and restore the original frequencies
+    def fast_sample(self, num_samples, positives, positives_per_scpetrogram):
+        # to avoid sampling positives set their frequencies to 0
+        
+        negatives = []
+        cumsum = np.cumsum([0] + positives_per_scpetrogram)
 
-        contextual_tokens = []
-        cumsum = np.cumsum([0] + len_pos)
-
-        for i in range(len(len_pos)):
+        for i in range(len(positives_per_scpetrogram)):
             j, k = cumsum[i], cumsum[i + 1]
 
-            # set frequency of positives to 0
+            # set frequencies of positives to 0
             original_idx_freq_pairs = []
             for l in range(j, k):
-                contextual_token = pos[l]
-                idx = self._contextual_token2idx(contextual_token)
+                token = positives[l]
+                idx = self._token2idx(token)
                 original_idx_freq_pairs.append((idx, self.frequencies[idx]))
                 self.frequencies[idx] = 0
 
             # sample negatives
             prob = self.frequencies / np.sum(self.frequencies)
             indices = np.random.choice(len(prob), size=num_samples, p=prob)
-            contextual_tokens += [self._idx2contextual_token(idx) for idx in indices]
+            negatives += [self._idx2token(idx) for idx in indices]
 
             # restore original frequencies
             for l in reversed(range(j, k)):  
@@ -300,24 +265,24 @@ class LyricsDatabase:
                 idx, freq = original_idx_freq_pairs[l - j]
                 self.frequencies[idx] = freq
 
-        return contextual_tokens
+        return negatives
 
     @staticmethod
-    def _contextual_token2idx(contextual_token):
+    def _token2idx(token):
         idx = 0
-        for t in contextual_token:
+        for t in token:
             idx *= config.vocab_size
             idx += t
         return idx
 
     @staticmethod
-    def _idx2contextual_token(idx):
-        contextual_token = []
+    def _idx2token(idx):
+        token = []
         for _ in range(1 + 2 * config.context):
-            contextual_token.append(idx % config.vocab_size)
+            token.append(idx % config.vocab_size)
             idx = idx // config.vocab_size
-        contextual_token = list(reversed(contextual_token))
-        return contextual_token
+        token = list(reversed(token))
+        return token
     
 
 
