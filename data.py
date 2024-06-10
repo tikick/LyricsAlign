@@ -297,5 +297,3 @@ if __name__ == '__main__':
     val_data = DaliDataset(dali_val, 'val')
     print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
-    
-    lyrics_database = LyricsDatabase(dali)
