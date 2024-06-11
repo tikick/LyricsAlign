@@ -120,12 +120,12 @@ class RandomDataset(Dataset):
 def main():
     fix_seeds()
 
-    device = torch.device('cuda:' + ','.join([str(id) for id in config.gpu_ids]) if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Device:', device)
 
     model = SimilarityModel()
     # display_module_parameters(model)
-    model = nn.DataParallel(model, device_ids=config.gpu_ids)
+    model = nn.DataParallel(model)
     model.to(device)
 
     negative_sampler = NegativeSampler([{'words': ['this', 'is', 'me']}, {'words': ['hello']}, {'words': ['hi', "it's", 'me']}, 
