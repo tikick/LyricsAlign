@@ -125,7 +125,7 @@ def main():
 
     model = SimilarityModel()
     # display_module_parameters(model)
-    model = nn.DataParallel(model)
+    #model = nn.DataParallel(model)
     model.to(device)
 
     negative_sampler = NegativeSampler([{'words': ['this', 'is', 'me']}, {'words': ['hello']}, {'words': ['hi', "it's", 'me']}, 
