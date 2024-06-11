@@ -33,7 +33,7 @@ channels = 64
 
 ### text encoder
 context = 1
-use_chars = False  # if false uses phonemes
+use_chars = True  # if false uses phonemes
 vocab_size = 28 if use_chars else 40  # len(char_dict) if use_chars else len(phoneme_dict)
 
 ### audio and text encoder
@@ -43,6 +43,7 @@ embedding_dim = 64
 num_epochs = 20
 lr = 0.001
 batch_size = 64
+gpu_ids = [0, 1]
 num_negative_samples = 1_000
 
 
