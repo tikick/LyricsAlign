@@ -108,7 +108,7 @@ from models import AudioEncoder
 class RandomDataset(Dataset):
 
     def __init__(self):
-        self.words_list = [['this', 'is', 'me'], ['hello'], ['hi', "it's", 'me'], ['jen', 'sais', 'pas', 'de', 'tous'], ['last', 'one']]
+        self.words_list = [['this', 'is', 'me'], ['hello'], ['hi', "it's", 'me'], ['jen', 'sais', 'pas', 'de', 'tous'], ['last', 'one']] * 2
         self.phowords_list = [words2phowords(words) for words in self.words_list]
         self.spec_list = [wav2spec(np.random.randn(2222)) for _ in range(len(self.words_list))]
 
