@@ -3,7 +3,7 @@
 import os
 import numpy as np
 import torch
-from torch import nn, optim
+from torch import optim
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
@@ -100,48 +100,8 @@ def validate(model, device, val_loader, negative_sampler, criterion, epoch):
     return val_loss / num_batches
 
 
-from torch.utils.data import Dataset, DataLoader
-from utils import words2phowords, wav2spec
-import numpy as np
-
-class RandomDataset(Dataset):
-
-    def __init__(self):
-        self.words_list = [['this', 'is', 'me'], ['hello'], ['hi', "it's", 'me'], ['jen', 'sais', 'pas', 'de', 'tous'], ['last', 'one']]
-        self.phowords_list = [words2phowords(words) for words in self.words_list]
-        self.spec_list = [wav2spec(np.random.randn(2222)) for _ in range(len(self.words_list))]
-
-    def __getitem__(self, index):  # (spec, words, phowords)
-        return (self.spec_list[index], self.words_list[index], self.phowords_list[index])
-
-    def __len__(self):
-        return len(self.words_list)
-
 def main():
     fix_seeds()
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Device:', device)
-
-    model = SimilarityModel().to(device)
-    # display_module_parameters(model)
-    #model = nn.DataParallel(model)
-
-    negative_sampler = NegativeSampler([{'words': ['this', 'is', 'me']}, {'words': ['hello']}, {'words': ['hi', "it's", 'me']}, 
-                                        {'words': ['jen', 'sais', 'pas', 'de', 'tous']}, {'words': ['last', 'one']}])
-
-    batch_size = 4
-    rand_loader = DataLoader(dataset=RandomDataset(), batch_size=batch_size, shuffle=False, collate_fn=collate)
-    for batch in rand_loader:
-        spectrograms, positives, positives_per_spectrogram = batch
-        negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
-        negatives = torch.IntTensor(negatives)
-        spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
-        print("Outside: input size", spectrograms.shape, positives.shape, negatives.shape)
-        PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
-        print("Outside: output_size", PA.shape, NA.shape)
-
-    return
 
     cfg = {'num_RCBs': config.num_RCBs,
            'channels': config.channels,
@@ -163,15 +123,11 @@ def main():
     run_checkpoint_dir = os.path.join(config.checkpoint_dir, run_start_time)
     os.makedirs(run_checkpoint_dir)
 
-    device = torch.device('cuda:' + ','.join(config.gpu_ids) if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Device:', device)
 
-    model = SimilarityModel()
+    model = SimilarityModel().to(device)
     # display_module_parameters(model)
-    model = nn.DataParallel(model, device_ids=config.gpu_ids)
-    model.to(device)
-
-
 
     # if train and val files already exist:
         # dali = dali_train = dali_val = []  # no need to load dali, files already exist
