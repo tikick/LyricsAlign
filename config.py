@@ -28,7 +28,7 @@ jamendoshorts_audio = os.path.join(jamendoshorts_base, 'mp3')
 # hyperparameters
 
 ### audio encoder
-num_RCBs = 10
+num_RCBs = 5
 channels = 64
 
 ### text encoder
@@ -42,7 +42,7 @@ embedding_dim = 64
 ### others:
 num_epochs = 20
 lr = 0.001
-batch_size = 64
+batch_size = 512
 num_negative_samples = 1_000
 
 
