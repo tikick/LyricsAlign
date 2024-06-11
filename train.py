@@ -123,10 +123,9 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Device:', device)
 
-    model = SimilarityModel()
+    model = SimilarityModel().to(device)
     # display_module_parameters(model)
-    model = nn.DataParallel(model)
-    model.to(device)
+    #model = nn.DataParallel(model)
 
     negative_sampler = NegativeSampler([{'words': ['this', 'is', 'me']}, {'words': ['hello']}, {'words': ['hi', "it's", 'me']}, 
                                         {'words': ['jen', 'sais', 'pas', 'de', 'tous']}, {'words': ['last', 'one']}])
