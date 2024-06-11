@@ -150,6 +150,14 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Device:', device)
 
+    batch_size = 4
+
+    input_size = 5
+    output_size = 2
+
+    batch_size = 30
+    data_size = 100
+
     model = Model(input_size, output_size) #nn.DataParallel(AudioEncoder()) #SimilarityModel()
     model = nn.DataParallel(model)
     # display_module_parameters(model)
@@ -159,13 +167,6 @@ def main():
     negative_sampler = NegativeSampler([{'words': ['this', 'is', 'me']}, {'words': ['hello']}, {'words': ['hi', "it's", 'me']}, 
                                         {'words': ['jen', 'sais', 'pas', 'de', 'tous']}, {'words': ['last', 'one']}])
 
-    batch_size = 4
-
-    input_size = 5
-    output_size = 2
-
-    batch_size = 30
-    data_size = 100
     #rand_loader = DataLoader(dataset=RandomDataset(), batch_size=batch_size, shuffle=False, collate_fn=collate)
     rand_loader = DataLoader(dataset=RandomDataset(input_size, data_size), batch_size=batch_size, shuffle=True)
     for batch in rand_loader:
