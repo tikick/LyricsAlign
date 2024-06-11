@@ -109,7 +109,7 @@ class RandomDataset(Dataset):
     def __init__(self):
         self.words_list = [['this', 'is', 'me'], ['hello'], ['hi', "it's", 'me'], ['jen', 'sais', 'pas', 'de', 'tous'], ['last', 'one']]
         self.phowords_list = [words2phowords(words) for words in self.words_list]
-        self.spec_list = [wav2spec(np.random.randn(1000)) for _ in range(len(self.words_list))]
+        self.spec_list = [wav2spec(np.random.randn(2222)) for _ in range(len(self.words_list))]
 
     def __getitem__(self, index):  # (spec, words, phowords)
         return (self.spec_list[index], self.words_list[index], self.phowords_list[index])
@@ -125,14 +125,14 @@ def main():
 
     model = SimilarityModel()
     # display_module_parameters(model)
-    model = nn.DataParallel(model)
+    #model = nn.DataParallel(model)
     model.to(device)
 
     negative_sampler = NegativeSampler([{'words': ['this', 'is', 'me']}, {'words': ['hello']}, {'words': ['hi', "it's", 'me']}, 
                                         {'words': ['jen', 'sais', 'pas', 'de', 'tous']}, {'words': ['last', 'one']}])
 
     batch_size = 4
-    rand_loader = DataLoader(dataset=RandomDataset(), batch_size=batch_size, shuffle=True, collate_fn=collate)
+    rand_loader = DataLoader(dataset=RandomDataset(), batch_size=batch_size, shuffle=False, collate_fn=collate)
     for batch in rand_loader:
         spectrograms, positives, positives_per_spectrogram = batch
         negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
