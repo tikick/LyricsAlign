@@ -147,7 +147,7 @@ class Model(nn.Module):
 def main():
     fix_seeds()
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda')# if torch.cuda.is_available() else 'cpu')
     print('Device:', device)
 
     batch_size = 4
