@@ -103,12 +103,11 @@ def validate(model, device, val_loader, negative_sampler, criterion, epoch):
 from torch.utils.data import Dataset, DataLoader
 from utils import words2phowords, wav2spec
 import numpy as np
-from models import AudioEncoder
 
-class MyRandomDataset(Dataset):
+class RandomDataset(Dataset):
 
     def __init__(self):
-        self.words_list = [['this', 'is', 'me'], ['hello'], ['hi', "it's", 'me'], ['jen', 'sais', 'pas', 'de', 'tous'], ['last', 'one']] * 2
+        self.words_list = [['this', 'is', 'me'], ['hello'], ['hi', "it's", 'me'], ['jen', 'sais', 'pas', 'de', 'tous'], ['last', 'one']]
         self.phowords_list = [words2phowords(words) for words in self.words_list]
         self.spec_list = [wav2spec(np.random.randn(2222)) for _ in range(len(self.words_list))]
 
@@ -117,71 +116,31 @@ class MyRandomDataset(Dataset):
 
     def __len__(self):
         return len(self.words_list)
-    
-class RandomDataset(Dataset):
-
-    def __init__(self, size, length):
-        self.len = length
-        self.data = torch.randn(length, size)
-
-    def __getitem__(self, index):
-        return self.data[index]
-
-    def __len__(self):
-        return self.len
-    
-class Model(nn.Module):
-    # Our model
-
-    def __init__(self, input_size, output_size):
-        super(Model, self).__init__()
-        self.fc = nn.Linear(input_size, output_size)
-
-    def forward(self, input):
-        output = self.fc(input)
-        print("\tIn Model: input size", input.size(),
-              "output size", output.size())
-
-        return output
 
 def main():
     fix_seeds()
 
-    device = torch.device('cuda')# if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Device:', device)
 
-    batch_size = 4
-
-    input_size = 5
-    output_size = 2
-
-    batch_size = 30
-    data_size = 100
-
-    model = Model(input_size, output_size) #nn.DataParallel(AudioEncoder()) #SimilarityModel()
-    model = nn.DataParallel(model)
+    model = SimilarityModel()
     # display_module_parameters(model)
-    #model = nn.DataParallel(model)
+    model = nn.DataParallel(model)
     model.to(device)
 
     negative_sampler = NegativeSampler([{'words': ['this', 'is', 'me']}, {'words': ['hello']}, {'words': ['hi', "it's", 'me']}, 
                                         {'words': ['jen', 'sais', 'pas', 'de', 'tous']}, {'words': ['last', 'one']}])
 
-    #rand_loader = DataLoader(dataset=RandomDataset(), batch_size=batch_size, shuffle=False, collate_fn=collate)
-    rand_loader = DataLoader(dataset=RandomDataset(input_size, data_size), batch_size=batch_size, shuffle=True)
+    batch_size = 4
+    rand_loader = DataLoader(dataset=RandomDataset(), batch_size=batch_size, shuffle=False, collate_fn=collate)
     for batch in rand_loader:
-        input = batch.to(device)
-        output = model(input)
-        print("Outside: input size", input.size(),
-            "output_size", output.size())
-        #spectrograms, positives, positives_per_spectrogram = batch
-        #negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
-        #negatives = torch.IntTensor(negatives)
-        #spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
-        #print("Outside: input size", spectrograms.shape, positives.shape, negatives.shape)
-        #out = model(spectrograms)
-        #PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
-        #print("Outside: output_size", out.shape)
+        spectrograms, positives, positives_per_spectrogram = batch
+        negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
+        negatives = torch.IntTensor(negatives)
+        spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
+        print("Outside: input size", spectrograms.shape, positives.shape, negatives.shape)
+        PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
+        print("Outside: output_size", PA.shape, NA.shape)
 
     return
 

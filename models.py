@@ -111,8 +111,8 @@ class SimilarityModel(nn.Module):
 
     def __init__(self):
         super(SimilarityModel, self).__init__()
-        self.audio_encoder = nn.DataParallel(AudioEncoder())
-        self.text_encoder = nn.DataParallel(TextEncoder())
+        self.audio_encoder = AudioEncoder()
+        self.text_encoder = TextEncoder()
 
     def forward(self, spectrograms, positives, positives_per_spectrogram=None, negatives=None):
         
