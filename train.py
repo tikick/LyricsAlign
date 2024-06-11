@@ -117,13 +117,10 @@ class RandomDataset(Dataset):
     def __len__(self):
         return len(self.words_list)
 
-batch_size = 4
-rand_loader = DataLoader(dataset=RandomDataset(), batch_size=batch_size, shuffle=True, collate_fn=collate)
-
 def main():
     fix_seeds()
 
-    device = torch.device('cuda:' + ','.join(config.gpu_ids) if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda:' + ','.join([str(id) for id in config.gpu_ids]) if torch.cuda.is_available() else 'cpu')
     print('Device:', device)
 
     model = SimilarityModel()
@@ -134,6 +131,8 @@ def main():
     negative_sampler = NegativeSampler([{'words': ['this', 'is', 'me']}, {'words': ['hello']}, {'words': ['hi', "it's", 'me']}, 
                                         {'words': ['jen', 'sais', 'pas', 'de', 'tous']}, {'words': ['last', 'one']}])
 
+    batch_size = 4
+    rand_loader = DataLoader(dataset=RandomDataset(), batch_size=batch_size, shuffle=True, collate_fn=collate)
     for batch in rand_loader:
         spectrograms, positives, positives_per_spectrogram = batch
         negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)

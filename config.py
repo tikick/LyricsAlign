@@ -43,7 +43,7 @@ embedding_dim = 64
 num_epochs = 20
 lr = 0.001
 batch_size = 64
-gpu_ids = [0, 1]
+gpu_ids = [1, 3]
 num_negative_samples = 1_000
 
 
