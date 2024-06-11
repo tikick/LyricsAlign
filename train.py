@@ -103,6 +103,7 @@ def validate(model, device, val_loader, negative_sampler, criterion, epoch):
 from torch.utils.data import Dataset, DataLoader
 from utils import words2phowords, wav2spec
 import numpy as np
+from models import AudioEncoder
 
 class RandomDataset(Dataset):
 
@@ -123,7 +124,7 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Device:', device)
 
-    model = SimilarityModel()
+    model = nn.DataParallel(AudioEncoder()) #SimilarityModel()
     # display_module_parameters(model)
     #model = nn.DataParallel(model)
     model.to(device)
@@ -139,8 +140,9 @@ def main():
         negatives = torch.IntTensor(negatives)
         spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
         print("Outside: input size", spectrograms.shape, positives.shape, negatives.shape)
-        PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
-        print("Outside: output_size", PA.shape, NA.shape)
+        out = model(spectrograms)
+        #PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
+        print("Outside: output_size", out.shape)
 
     return
 
