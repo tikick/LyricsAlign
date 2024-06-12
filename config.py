@@ -23,6 +23,9 @@ jamendoshorts_annotations = os.path.join(jamendoshorts_base, 'annotations/words'
 jamendoshorts_lyrics = os.path.join(jamendoshorts_base, 'lyrics')
 jamendoshorts_audio = os.path.join(jamendoshorts_base, 'mp3')
 
+georg_base = os.path.join(base_path, 'Georg')
+georg_annotations = os.path.join(georg_base, 'ttv')
+georg_audio = os.path.join(georg_base, 'data/pytube')
 
 
 # hyperparameters

@@ -6,6 +6,7 @@ import os
 from tqdm import tqdm
 import pickle
 import csv
+import pandas as pd
 from math import floor
 import numpy as np
 import torch
@@ -111,6 +112,42 @@ def get_jamendoshorts(lang='English'):
             songs.append(song)
     
     return songs
+
+
+def get_georg():
+    songs = []
+
+    for i in range(20):  # for folders from 0 to 19
+        parq_file = os.path.join(config.georg_annotations, str(i), 'alignment.parq')
+
+        df = pd.read_parquet(parq_file, engine='pyarrow')
+        for _, row in df.iterrows():
+
+            token_starts = row['alignment']['starts']
+            token_ends = row['alignment']['ends']
+            tokens_per_word = list(row['alignment']['tokens_per_word'])
+            token_offsets = np.cumsum([0] + tokens_per_word)
+            assert token_offsets[-1] == len(token_starts)
+            token_offsets = token_offsets[:-1]
+
+            word_starts = []
+            word_ends = []
+            for token_offset in token_offsets:
+                word_starts.append(token_starts[token_offset])
+                word_ends.append(token_ends[token_offset])
+
+            times = list(zip(word_starts, word_ends))
+            words = row['alignment']['words']
+            words, times = normalize_georg(...)
+            phowords = words2phowords(words)
+            
+            song = {'id': row['ytid'],
+                    'audio_path': os.path.join(config.georg_audio, row['ytid'] + '.mp3'),
+                    'words': words,
+                    'phowords': phowords,
+                    'times': times}
+            
+            songs.append(song)
 
 
 def jamendo_collate(song):
