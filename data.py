@@ -138,7 +138,7 @@ def get_georg():
 
             times = list(zip(word_starts, word_ends))
             words = row['alignment']['words']
-            words, times = normalize_georg(...)
+            #words, times = normalize_georg(...)
             phowords = words2phowords(words)
             
             song = {'id': row['ytid'],
