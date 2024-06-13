@@ -2,6 +2,8 @@ librosa
 resampy
 soundfile
 tqdm
+pandas
+pyarrow
 numpy
 scikit-learn
 torch
