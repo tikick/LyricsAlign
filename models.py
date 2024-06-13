@@ -45,7 +45,7 @@ class AudioEncoder(nn.Module):
         self.conv1d = nn.Conv1d(in_channels=config.channels, out_channels=config.embedding_dim, kernel_size=config.fourier_bins)
 
     def forward(self, x):
-        print("\tIn AudioEncoder: input size", x.shape)
+        #print("\tIn AudioEncoder: input size", x.shape)
         # x.shape: (batch, feature, time)
 
         assert x.shape[1] == config.fourier_bins
@@ -67,7 +67,7 @@ class AudioEncoder(nn.Module):
         x = F.normalize(x, p=2, dim=1)
 
         assert x.shape[1] == config.embedding_dim
-        print("\tIn AudioEncoder: output size", x.shape)
+        #print("\tIn AudioEncoder: output size", x.shape)
         return x
 
 
@@ -85,7 +85,7 @@ class TextEncoder(nn.Module):
         )
 
     def forward(self, x):
-        print("\tIn TextEncoder: input size", x.shape)
+        #print("\tIn TextEncoder: input size", x.shape)
         # x.shape: (batch, context)
 
         assert x.shape[1] == 1 + 2 * config.context
@@ -103,7 +103,7 @@ class TextEncoder(nn.Module):
         x = F.normalize(x, p=2, dim=1)
 
         assert x.shape[1] == config.embedding_dim
-        print("\tIn TextEncoder: output size", x.shape)
+        #print("\tIn TextEncoder: output size", x.shape)
         return x
 
 
