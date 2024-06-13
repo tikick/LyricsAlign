@@ -40,6 +40,11 @@ def vertical_align(S, song, level, log, epoch):
         token_end = token_start
 
     token_alignment = list(reversed(token_alignment))
+
+    if log:
+        token_alignment_image = np.zeros_like(S)
+        for token, frames in enumerate(token_alignment):
+            token_alignment_image[token, frames[0]:frames[1]] = 1
     
     if level == 'token':
         return token_alignment
@@ -56,6 +61,37 @@ def vertical_align(S, song, level, log, epoch):
         first_word_token = last_word_token + 2  # +1 space between words
     
     assert len(word_alignment) == len(song['times'])
+
+    if log:
+        words = song['words']
+        word_alignment_image = np.zeros(shape=(len(words), num_frames))
+        gt_word_alignment_image = np.zeros(shape=(len(words), num_frames))
+        for word, frames in enumerate(word_alignment):
+            word_alignment_image[word, frames[0]:frames[1]] = 1
+        fps = 43.07  # the number of spectrogram frames in a second
+        for word, time in enumerate(song['times']):
+            frames = (int(time[0] * fps), int(time[1] * fps))
+            gt_word_alignment_image[word, frames[0]:frames[1]] = 1
+
+    # log plots
+    if log:
+        tokens = chars(song['words']) if config.use_chars else phonemes(song['phowords'])    
+        heights = [len(tokens)] * 3 + [len(song['words'])] * 2
+        fig, axs = plt.subplots(5, 1, height_ratios=heights, 
+                                figsize=(min(num_frames // 14, 100), min((sum(heights) + 20 * len(heights)) // 12, 100)))
+        
+        show(DP, axs[0], 'DP', tokens)
+        show(S, axs[1], 'S', tokens)
+        alignment_cmap = 'Blues'
+        show(token_alignment_image, axs[2], 'token alignment', tokens, alignment_cmap)
+        show(word_alignment_image, axs[3], 'word alignment', song['words'], alignment_cmap)
+        show(gt_word_alignment_image, axs[4], 'ground truth word alignment', song['words'], alignment_cmap)
+
+        fig.tight_layout()
+
+        wandb.log({'media/' + song['id']: plt, 'media/epoch': epoch})
+        #plt.show()
+        plt.close()
 
     return word_alignment
 
@@ -213,16 +249,14 @@ def convert_frames_to_seconds(alignment):
 
 
 # get yticklabels for plots
-def chars(words, space_padding):
+def chars(words):
     lyrics = ' '.join(words)
-    lyrics = ' ' * space_padding + lyrics + ' ' * space_padding
     return [c for c in lyrics]
-def phonemes(phowords, space_padding):
+def phonemes(phowords):
     phonemes = []
     for phoword in phowords:
         phonemes += phoword + [' ']
     phonemes = phonemes[:-1]
-    phonemes = [' '] * space_padding + phonemes + [' '] * space_padding
     return phonemes
 
 
