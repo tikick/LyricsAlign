@@ -118,13 +118,20 @@ def get_jamendoshorts(lang='English'):
 def get_georg():
     songs = []
 
+    num_unk_chars = 0
+    num_total_chars = 0
+    alignment_nones = 0
+    
     for i in range(20):  # for folders from 0 to 19
-        print('folder', i)
+        #print('folder', i)
         parq_file = os.path.join(config.georg_annotations, str(i), 'alignment.parq')
 
         df = pd.read_parquet(parq_file, engine='pyarrow')
         for index, row in df.iterrows():
-            print('\tindex', index)
+            #print('\tindex', index)
+            if row['alignment'] is None:
+                alignment_nones += 1
+                continue
 
             audio_path = os.path.join(config.georg_audio, row['ytid'] + '.mp3')
             if not os.path.exists(audio_path):
@@ -147,8 +154,6 @@ def get_georg():
             words = row['alignment']['words']
             #words, times = normalize_georg(words, times)
             #############################
-            num_unk_chars = 0
-            num_total_chars = 0
             raw_words = words
             raw_times = times
             words = []
@@ -164,7 +169,6 @@ def get_georg():
                     continue
                 words.append(word)
                 times.append(raw_time)
-            print(f'Georg: num_unk_chars = {num_unk_chars}, num_total_chars = {num_total_chars}')
             #############################
 
             phowords = words2phowords(words)
@@ -176,6 +180,10 @@ def get_georg():
                     'times': times}
             
             songs.append(song)
+    
+    print(f'Georg: num_unk_chars = {num_unk_chars}, num_total_chars = {num_total_chars}, alignment_nones = {alignment_nones}')
+
+    return songs
 
 
 def jamendo_collate(song):
