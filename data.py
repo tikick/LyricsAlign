@@ -365,9 +365,9 @@ if __name__ == '__main__':
     
     georg = get_georg()
     print('Size of Georg:', len(georg))
-    train, val = train_test_split(georg, test_size=config.val_size, random_state=97)
+    #train, val = train_test_split(georg, test_size=config.val_size, random_state=97)
 
-    train_data = LA_Dataset(train, 'train')
-    val_data = LA_Dataset(val, 'val')
-    print('Num training samples:', len(train_data))
-    print('Num validation samples:', len(val_data))
+    #train_data = LA_Dataset(train, 'train')
+    #val_data = LA_Dataset(val, 'val')
+    #print('Num training samples:', len(train_data))
+    #print('Num validation samples:', len(val_data))
