@@ -114,6 +114,7 @@ def main():
            'num_negative_samples': config.num_negative_samples,
            'masked': config.masked,
            'use_dali': config.use_dali,
+           'words_slack': config.words_slack,
            'val_size': config.val_size}
     
     print(cfg)

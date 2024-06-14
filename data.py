@@ -123,6 +123,10 @@ def get_georg():
         df = pd.read_parquet(parq_file, engine='pyarrow')
         for _, row in df.iterrows():
 
+            audio_path = os.path.join(config.georg_audio, row['ytid'] + '.mp3')
+            if not os.path.exists(audio_path):
+                continue
+
             token_starts = row['alignment']['starts']
             token_ends = row['alignment']['ends']
             tokens_per_word = list(row['alignment']['tokens_per_word'])
@@ -142,7 +146,7 @@ def get_georg():
             phowords = words2phowords(words)
             
             song = {'id': row['ytid'],
-                    'audio_path': os.path.join(config.georg_audio, row['ytid'] + '.mp3'),
+                    'audio_path': audio_path,
                     'words': words,
                     'phowords': phowords,
                     'times': times}
@@ -205,9 +209,9 @@ class LA_Dataset(Dataset):
                     sample_end = sample_start + config.segment_length
                     assert sample_end <= len(waveform)
 
-                    # find the lyrics within (start, end)
-                    idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
-                    idx_past_last_word = bisect.bisect_right(end_times, sample_end / config.sr)
+                    # find the lyrics within (start, end) (+- slack)
+                    idx_first_word = bisect.bisect_left(start_times, (sample_start / config.sr) + config.words_slack)
+                    idx_past_last_word = bisect.bisect_right(end_times, (sample_end / config.sr) - config.words_slack)
 
                     if idx_first_word >= idx_past_last_word:  # no words (fully contained) in this sample, skip
                         continue
@@ -327,11 +331,11 @@ class NegativeSampler:
 if __name__ == '__main__':
     print('Running data.py')
     
-    dali = get_dali()
-    print('Size of DALI:', len(dali))
-    dali_train, dali_val = train_test_split(dali, test_size=config.val_size, random_state=97)
+    georg = get_georg()
+    print('Size of Georg:', len(georg))
+    train, val = train_test_split(georg, test_size=config.val_size, random_state=97)
 
-    train_data = DaliDataset(dali_train, 'train')
-    val_data = DaliDataset(dali_val, 'val')
+    train_data = LA_Dataset(train, 'train')
+    val_data = LA_Dataset(val, 'val')
     print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
