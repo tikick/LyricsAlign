@@ -15,11 +15,12 @@ from sklearn.model_selection import train_test_split
 
 import config
 from utils import encode_words, encode_phowords, words2phowords, lines2pholines, \
-    load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo
+    load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo, char_dict
 
 
 def get_dali(lang='english'):
     # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
+    # above stat did not consider words completely removed, not up to date
 
     dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[],
         keep=[])
@@ -142,7 +143,28 @@ def get_georg():
 
             times = list(zip(word_starts, word_ends))
             words = row['alignment']['words']
-            words, times = normalize_georg(words, times)
+            #words, times = normalize_georg(words, times)
+            #############################
+            num_unk_chars = 0
+            num_total_chars = 0
+            raw_words = words
+            raw_times = times
+            words = []
+            times = []
+            for raw_word, raw_time in zip(raw_words, raw_times):
+                num_total_chars += len(raw_word)
+                word = raw_word.lower()
+                word = ''.join([c for c in word if c in char_dict[1:]])
+                num_unk_chars += len(raw_word) - len(word)
+                word = word.strip("'")  # e.g. filter('89) = ', not a word
+                if len(word) == 0 or \
+                len(word) < len(raw_word) and (len(word) >= 16):  # len(word) >= 16: raw_word is likely multiple words separated by special char, e.g. -
+                    continue
+                words.append(word)
+                times.append(raw_time)
+            print(f'Georg: num_unk_chars = {num_unk_chars}, num_total_chars = {num_total_chars}')
+            #############################
+
             phowords = words2phowords(words)
             
             song = {'id': row['ytid'],
@@ -188,14 +210,14 @@ class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
         super(LA_Dataset, self).__init__()
         dataset_name = 'dali' if config.use_dali else 'georg'
-
-        pickle_file = os.path.join(config.pickle_dir, f'{dataset_name}_{partition}.pkl')
+        file_name = f'{dataset_name}_{partition}_slack_{config.words_slack}'
+        pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')
 
         if not os.path.exists(pickle_file):
             if not os.path.exists(config.pickle_dir):
                 os.makedirs(config.pickle_dir)
 
-            print(f'Creating {dataset_name}_{partition} samples')
+            print(f'Creating {file_name} samples')
             samples = []
             for song in tqdm(dataset):
                 waveform = load(song['audio_path'], sr=config.sr)
@@ -221,11 +243,11 @@ class LA_Dataset(Dataset):
                     samples.append(sample)
 
             with open(pickle_file, 'wb') as f:
-                print(f'Writing {dataset_name}_{partition} samples')
+                print(f'Writing {file_name} samples')
                 pickle.dump(samples, f)
 
         with open(pickle_file, 'rb') as f:
-            print(f'Loading {dataset_name}_{partition} samples')
+            print(f'Loading {file_name} samples')
             self.samples = pickle.load(f)
 
     def __getitem__(self, index):
