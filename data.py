@@ -116,21 +116,16 @@ def get_jamendoshorts(lang='English'):
 
 
 def get_georg():
+    # num_unk_chars = 39330, num_total_chars = 19920586, alignment_nones = 755
     songs = []
-
-    num_unk_chars = 0
-    num_total_chars = 0
-    alignment_nones = 0
     
     for i in range(20):  # for folders from 0 to 19
-        #print('folder', i)
         parq_file = os.path.join(config.georg_annotations, str(i), 'alignment.parq')
 
         df = pd.read_parquet(parq_file, engine='pyarrow')
-        for index, row in df.iterrows():
-            #print('\tindex', index)
+        for _, row in df.iterrows():
+
             if row['alignment'] is None:
-                alignment_nones += 1
                 continue
 
             audio_path = os.path.join(config.georg_audio, row['ytid'] + '.mp3')
@@ -152,25 +147,7 @@ def get_georg():
 
             times = list(zip(word_starts, word_ends))
             words = row['alignment']['words']
-            #words, times = normalize_georg(words, times)
-            #############################
-            raw_words = words
-            raw_times = times
-            words = []
-            times = []
-            for raw_word, raw_time in zip(raw_words, raw_times):
-                num_total_chars += len(raw_word)
-                word = raw_word.lower()
-                word = ''.join([c for c in word if c in char_dict[1:]])
-                num_unk_chars += len(raw_word) - len(word)
-                word = word.strip("'")  # e.g. filter('89) = ', not a word
-                if len(word) == 0 or \
-                len(word) < len(raw_word) and (len(word) >= 16):  # len(word) >= 16: raw_word is likely multiple words separated by special char, e.g. -
-                    continue
-                words.append(word)
-                times.append(raw_time)
-            #############################
-
+            words, times = normalize_georg(words, times)
             phowords = words2phowords(words)
             
             song = {'id': row['ytid'],
@@ -181,8 +158,6 @@ def get_georg():
             
             songs.append(song)
     
-    print(f'Georg: num_unk_chars = {num_unk_chars}, num_total_chars = {num_total_chars}, alignment_nones = {alignment_nones}')
-
     return songs
 
 
@@ -365,9 +340,9 @@ if __name__ == '__main__':
     
     georg = get_georg()
     print('Size of Georg:', len(georg))
-    #train, val = train_test_split(georg, test_size=config.val_size, random_state=97)
+    train, val = train_test_split(georg, test_size=config.val_size, random_state=97)
 
-    #train_data = LA_Dataset(train, 'train')
-    #val_data = LA_Dataset(val, 'val')
-    #print('Num training samples:', len(train_data))
-    #print('Num validation samples:', len(val_data))
+    train_data = LA_Dataset(train, 'train')
+    val_data = LA_Dataset(val, 'val')
+    print('Num training samples:', len(train_data))
+    print('Num validation samples:', len(val_data))
