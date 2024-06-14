@@ -139,10 +139,10 @@ def main():
     else:
         dataset = get_georg()
         print('Size of Georg:', len(dataset))
-    train, val = train_test_split(dataset, test_size=config.val_size, random_state=97)
+    train_split, val_split = train_test_split(dataset, test_size=config.val_size, random_state=97)
 
-    train_data = LA_Dataset(train, 'train')
-    val_data = LA_Dataset(val, 'val')
+    train_data = LA_Dataset(train_split, 'train')
+    val_data = LA_Dataset(val_split, 'val')
     print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
 
@@ -153,8 +153,8 @@ def main():
 
     jamendo = get_jamendo()
     jamendoshorts = get_jamendoshorts()
-    train_20 = train[:20]
-    val_20 = val[:20]
+    train_20 = train_split[:20]
+    val_20 = val_split[:20]
 
     optimizer = optim.Adam(model.parameters(), config.lr)
     criterion = contrastive_loss
