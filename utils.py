@@ -86,6 +86,9 @@ def normalize_dali(raw_words, raw_times, cut=False):
         times.append(raw_time)
     return words, times
 
+def normalize_georg(raw_words, raw_times, cut=False):
+    return normalize_dali(raw_words, raw_times, cut=cut)
+
 def normalize_jamendo(raw_lines):
     lines = [l for l in raw_lines if len(l) > 0]  # remove empty lines between paragraphs
     lines = [' '.join([word.strip("'") for word in line.split()]) for line in lines]

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 import config
-from data import get_dali, get_jamendo, get_jamendoshorts, DaliDataset, NegativeSampler, collate
+from data import get_dali, get_georg, get_jamendo, get_jamendoshorts, LA_Dataset, NegativeSampler, collate
 from models import SimilarityModel, contrastive_loss
 from utils import fix_seeds, display_module_parameters, int2char, int2phoneme
 from eval import evaluate
@@ -94,7 +94,7 @@ def validate(model, device, val_loader, negative_sampler, criterion, epoch):
 
                     fig.tight_layout()
 
-                    wandb.log({'media/DALI_sample_' + str(i): plt, 'media/epoch': epoch})
+                    wandb.log({'media/val_sample_' + str(i): plt, 'media/epoch': epoch})
                     plt.close()
 
     return val_loss / num_batches
@@ -113,8 +113,8 @@ def main():
            'batch_size': config.batch_size,
            'num_negative_samples': config.num_negative_samples,
            'masked': config.masked,
+           'use_dali': config.use_dali,
            'val_size': config.val_size}
-           #'dali_size': len(dali)}
     
     print(cfg)
     wandb.init(project='Train-Decode', config=cfg)
@@ -132,24 +132,28 @@ def main():
     # if train and val files already exist:
         # dali = dali_train = dali_val = []  # no need to load dali, files already exist
     # else:
-    dali = get_dali()
-    print('Size of DALI:', len(dali))
-    dali_train, dali_val = train_test_split(dali, test_size=config.val_size, random_state=97)
+    if config.use_dali:
+        dataset = get_dali()
+        print('Size of DALI:', len(dataset))
+    else:
+        dataset = get_georg()
+        print('Size of Georg:', len(dataset))
+    train, val = train_test_split(dataset, test_size=config.val_size, random_state=97)
 
-    train_data = DaliDataset(dali_train, 'train')
-    val_data = DaliDataset(dali_val, 'val')
+    train_data = LA_Dataset(train, 'train')
+    val_data = LA_Dataset(val, 'val')
     print('Num training samples:', len(train_data))
     print('Num validation samples:', len(val_data))
 
     train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
     val_loader = DataLoader(dataset=val_data, batch_size=config.batch_size, shuffle=False, collate_fn=collate)
     
-    negative_sampler = NegativeSampler(dali)
+    negative_sampler = NegativeSampler(dataset)
 
     jamendo = get_jamendo()
     jamendoshorts = get_jamendoshorts()
-    dali_val_20 = dali_val[:20]
-    dali_train_20 = dali_train[:20]
+    train_20 = train[:20]
+    val_20 = val[:20]
 
     optimizer = optim.Adam(model.parameters(), config.lr)
     criterion = contrastive_loss
@@ -165,12 +169,12 @@ def main():
     wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
     wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
     if not config.masked:
-        PCO_dali_val_20, AAE_dali_val_20 = evaluate(model, device, dali_val_20, log=False, epoch=-1)
-        PCO_dali_train_20, AAE_dali_train_20 = evaluate(model, device, dali_train_20, log=False, epoch=-1)
-        wandb.log({'metric/PCO_dali_val_20': PCO_dali_val_20, 'metric/epoch': epoch})
-        wandb.log({'metric/AAE_dali_val_20': AAE_dali_val_20, 'metric/epoch': epoch})
-        wandb.log({'metric/PCO_dali_train_20': PCO_dali_train_20, 'metric/epoch': epoch})
-        wandb.log({'metric/AAE_dali_train_20': AAE_dali_train_20, 'metric/epoch': epoch})
+        PCO_val_20, AAE_val_20 = evaluate(model, device, val_20, log=False, epoch=-1)
+        PCO_train_20, AAE_train_20 = evaluate(model, device, train_20, log=False, epoch=-1)
+        wandb.log({'metric/PCO_val_20': PCO_val_20, 'metric/epoch': epoch})
+        wandb.log({'metric/AAE_val_20': AAE_val_20, 'metric/epoch': epoch})
+        wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
+        wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
 
     #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '05-31,19:48', '6')))
     epoch = 0#7
@@ -191,12 +195,12 @@ def main():
         wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
         wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
         if not config.masked:
-            PCO_dali_val_20, AAE_dali_val_20 = evaluate(model, device, dali_val_20, log=False, epoch=-1)
-            PCO_dali_train_20, AAE_dali_train_20 = evaluate(model, device, dali_train_20, log=False, epoch=-1)
-            wandb.log({'metric/PCO_dali_val_20': PCO_dali_val_20, 'metric/epoch': epoch})
-            wandb.log({'metric/AAE_dali_val_20': AAE_dali_val_20, 'metric/epoch': epoch})
-            wandb.log({'metric/PCO_dali_train_20': PCO_dali_train_20, 'metric/epoch': epoch})
-            wandb.log({'metric/AAE_dali_train_20': AAE_dali_train_20, 'metric/epoch': epoch})
+            PCO_val_20, AAE_val_20 = evaluate(model, device, val_20, log=False, epoch=-1)
+            PCO_train_20, AAE_train_20 = evaluate(model, device, train_20, log=False, epoch=-1)
+            wandb.log({'metric/PCO_val_20': PCO_val_20, 'metric/epoch': epoch})
+            wandb.log({'metric/AAE_val_20': AAE_val_20, 'metric/epoch': epoch})
+            wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
+            wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_jamendo}, AAE: {AAE_jamendo}')
 

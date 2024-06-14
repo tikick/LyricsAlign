@@ -49,16 +49,19 @@ batch_size = 8
 num_negative_samples = 1_000
 
 
-
 # alignment
 masked = False
 
+
+# dataset
+use_dali = True  # if false uses georg
 
 
 # WARNING: if you change the following parameters remember to delete the sample files or the new samples will not be computed
 
 # dataset
 val_size = 0.1
+words_slack = 0  # words identified within audio segment have a word_slack slack to the true audio segment boundary.
 
 # waveform
 sr = 11025  # waveform sampling rate

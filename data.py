@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 
 import config
 from utils import encode_words, encode_phowords, words2phowords, lines2pholines, \
-    load, wav2spec, read_jamendo_times, normalize_dali, normalize_jamendo
+    load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo
 
 
 def get_dali(lang='english'):
@@ -128,17 +128,17 @@ def get_georg():
             tokens_per_word = list(row['alignment']['tokens_per_word'])
             token_offsets = np.cumsum([0] + tokens_per_word)
             assert token_offsets[-1] == len(token_starts)
-            token_offsets = token_offsets[:-1]
 
             word_starts = []
             word_ends = []
-            for token_offset in token_offsets:
+            for token_offset in token_offsets[:-1]:
                 word_starts.append(token_starts[token_offset])
-                word_ends.append(token_ends[token_offset])
+            for token_offset in token_offsets[1:]:
+                word_ends.append(token_ends[token_offset - 1])
 
             times = list(zip(word_starts, word_ends))
             words = row['alignment']['words']
-            #words, times = normalize_georg(...)
+            words, times = normalize_georg(words, times)
             phowords = words2phowords(words)
             
             song = {'id': row['ytid'],
@@ -180,17 +180,18 @@ def collate(data):
     return spectrograms, all_tokens, tokens_per_spectrogram
 
 
-class DaliDataset(Dataset):
+class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
-        super(DaliDataset, self).__init__()
+        super(LA_Dataset, self).__init__()
+        dataset_name = 'dali' if config.use_dali else 'georg'
 
-        pickle_file = os.path.join(config.pickle_dir, 'dali_' + partition + '.pkl')
+        pickle_file = os.path.join(config.pickle_dir, f'{dataset_name}_{partition}.pkl')
 
         if not os.path.exists(pickle_file):
             if not os.path.exists(config.pickle_dir):
                 os.makedirs(config.pickle_dir)
 
-            print(f'Creating {partition} samples')
+            print(f'Creating {dataset_name}_{partition} samples')
             samples = []
             for song in tqdm(dataset):
                 waveform = load(song['audio_path'], sr=config.sr)
@@ -206,21 +207,21 @@ class DaliDataset(Dataset):
 
                     # find the lyrics within (start, end)
                     idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
-                    idx_last_word = bisect.bisect_right(end_times, sample_end / config.sr) - 1
+                    idx_past_last_word = bisect.bisect_right(end_times, sample_end / config.sr)
 
-                    if idx_first_word > idx_last_word:  # no words (fully contained) in this sample, skip
+                    if idx_first_word >= idx_past_last_word:  # no words (fully contained) in this sample, skip
                         continue
 
                     spec = wav2spec(waveform[sample_start:sample_end])     
-                    sample = (spec, song['words'][idx_first_word:idx_last_word + 1], song['phowords'][idx_first_word:idx_last_word + 1])
+                    sample = (spec, song['words'][idx_first_word:idx_past_last_word], song['phowords'][idx_first_word:idx_past_last_word])
                     samples.append(sample)
 
             with open(pickle_file, 'wb') as f:
-                print(f'Writing {partition} samples')
+                print(f'Writing {dataset_name}_{partition} samples')
                 pickle.dump(samples, f)
 
         with open(pickle_file, 'rb') as f:
-            print(f'Loading {partition} samples')
+            print(f'Loading {dataset_name}_{partition} samples')
             self.samples = pickle.load(f)
 
     def __getitem__(self, index):
