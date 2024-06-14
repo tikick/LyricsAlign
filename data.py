@@ -119,10 +119,12 @@ def get_georg():
     songs = []
 
     for i in range(20):  # for folders from 0 to 19
+        print('folder', i)
         parq_file = os.path.join(config.georg_annotations, str(i), 'alignment.parq')
 
         df = pd.read_parquet(parq_file, engine='pyarrow')
-        for _, row in df.iterrows():
+        for index, row in df.iterrows():
+            print('\tindex', index)
 
             audio_path = os.path.join(config.georg_audio, row['ytid'] + '.mp3')
             if not os.path.exists(audio_path):
