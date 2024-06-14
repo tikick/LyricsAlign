@@ -54,7 +54,7 @@ masked = False
 
 
 # dataset
-use_dali = True  # if false uses georg
+use_dali = False  # if false uses georg
 
 
 # WARNING: if you change the following parameters remember to delete the sample files or the new samples will not be computed
