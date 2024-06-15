@@ -50,7 +50,7 @@ num_negative_samples = 1_000
 
 
 # alignment
-masked = False
+masked = True
 
 
 # dataset
