@@ -44,7 +44,7 @@ embedding_dim = 64
 
 ### others:
 num_epochs = 10
-lr = 0.001
+lr = 0.00001
 batch_size = 32
 num_negative_samples = 1_000
 
