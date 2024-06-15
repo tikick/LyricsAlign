@@ -44,17 +44,17 @@ embedding_dim = 64
 
 ### others:
 num_epochs = 10
-lr = 0.0001
+lr = 0.001
 batch_size = 32
 num_negative_samples = 1_000
 
 
 # alignment
-masked = True
+masked = False
 
 
 # dataset
-use_dali = False  # if false uses georg
+use_dali = True  # if false uses georg
 
 
 # WARNING: if you change the following parameters remember to delete the sample files or the new samples will not be computed
