@@ -82,7 +82,7 @@ def validate(model, device, val_loader, negative_sampler, criterion, epoch):
                 negatives = [[f[neg[i]] for i in range(len(neg))] for neg in negatives]
 
                 cumsum = np.cumsum([0] + positives_per_spectrogram)
-                for i in range(8):
+                for i in range(min(8, config.batch_size)):
                     heights = [positives_per_spectrogram[i], 50]
                     fig, axs = plt.subplots(2, 1, height_ratios=heights, figsize=(15, min((sum(heights) + 20 * len(heights)) // 12, 100)))
 
