@@ -35,8 +35,8 @@ num_RCBs = 10
 channels = 64
 
 ### text encoder
-context = 1
-use_chars = True  # if false uses phonemes
+context = 0
+use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40  # len(char_dict) if use_chars else len(phoneme_dict)
 
 ### audio and text encoder
