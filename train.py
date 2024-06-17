@@ -178,8 +178,8 @@ def main():
             wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
             wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
 
-    epoch = 9
-    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-12,18:50', str(epoch))))
+    epoch = 1
+    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-15,12:08', str(epoch))))
     epoch += 1
     while epoch < config.num_epochs:
         print('Epoch:', epoch)
