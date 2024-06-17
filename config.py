@@ -49,6 +49,10 @@ batch_size = 32
 num_negative_samples = 1_000
 
 
+# loss
+alpha = 0.25
+
+
 # alignment
 masked = False
 
