@@ -169,20 +169,21 @@ def main():
     #val_loss = validate(model, device, val_loader, negative_sampler, criterion, epoch)
     #wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
-    evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
-    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
-    wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
-    wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
-    if not config.masked:
-        PCO_val_20, AAE_val_20 = evaluate(model, device, val_20, log=False, epoch=-1)
-        PCO_train_20, AAE_train_20 = evaluate(model, device, train_20, log=False, epoch=-1)
-        wandb.log({'metric/PCO_val_20': PCO_val_20, 'metric/epoch': epoch})
-        wandb.log({'metric/AAE_val_20': AAE_val_20, 'metric/epoch': epoch})
-        wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
-        wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
+    if False:
+        evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
+        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
+        wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
+        wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
+        if not config.masked:
+            PCO_val_20, AAE_val_20 = evaluate(model, device, val_20, log=False, epoch=-1)
+            PCO_train_20, AAE_train_20 = evaluate(model, device, train_20, log=False, epoch=-1)
+            wandb.log({'metric/PCO_val_20': PCO_val_20, 'metric/epoch': epoch})
+            wandb.log({'metric/AAE_val_20': AAE_val_20, 'metric/epoch': epoch})
+            wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
+            wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
 
-    #epoch = 0#1
-    #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-15,12:08', str(epoch))))
+    epoch = 3
+    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-17,12:30', str(epoch))))
     epoch += 1
     while epoch < config.num_epochs:
         print('Epoch:', epoch)
