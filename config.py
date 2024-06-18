@@ -50,7 +50,7 @@ num_negative_samples = 1_000
 
 
 # loss
-alpha = 0.25
+alpha = 0.1
 
 
 # alignment
