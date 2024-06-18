@@ -35,7 +35,7 @@ num_RCBs = 10
 channels = 64
 
 ### text encoder
-context = 1
+context = 1  # when context = 0, for some audio segments the set of negatives might be empty -> NegativeSampler.sample() fails
 use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40  # len(char_dict) if use_chars else len(phoneme_dict)
 
@@ -50,7 +50,7 @@ num_negative_samples = 1_000
 
 
 # loss
-alpha = 0.1
+alpha = 0.75
 
 
 # alignment
@@ -74,4 +74,4 @@ hop_size = segment_length // 2  # in waveform samples
 
 # spectrogram
 n_fft = 512
-fourier_bins = n_fft // 2 + 1
+freq_bins = n_fft // 2 + 1

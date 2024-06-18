@@ -42,13 +42,13 @@ class AudioEncoder(nn.Module):
             *[RCB(config.channels, config.channels) for _ in range(config.num_RCBs - 1)]
         )
 
-        self.conv1d = nn.Conv1d(in_channels=config.channels, out_channels=config.embedding_dim, kernel_size=config.fourier_bins)
+        self.conv1d = nn.Conv1d(in_channels=config.channels, out_channels=config.embedding_dim, kernel_size=config.freq_bins)
 
     def forward(self, x):
         #print("\tIn AudioEncoder: input size", x.shape)
         # x.shape: (batch, feature, time)
 
-        assert x.shape[1] == config.fourier_bins
+        assert x.shape[1] == config.freq_bins
 
         x = x.unsqueeze(1)  # (batch, channel, feature, time)
 
