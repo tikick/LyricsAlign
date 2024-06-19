@@ -77,6 +77,7 @@ def check_trellis_inputs(
     :param resolution: See trellis_segmentation
     :param blank_probs: See trellis_segmentation
     """
+    print(type(symbol_probs))
     assert (
         symbol_probs.ndim == 2
     ), f"Need to provide [time, symbols] shape for symbol_probs not {symbol_probs.shape}"
