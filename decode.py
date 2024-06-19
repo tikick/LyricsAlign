@@ -20,14 +20,14 @@ def vertical_align(S, song, level, log, epoch):
             if i == 0 and j == 0:
                 DP[i, j] = S[i, j]
                 parent[i, j] = False
-            elif j == 0:
-                DP[i, j] = DP[i - 1, j] + S[i, j]
-                parent[i, j] = False
+            #elif j == 0:
+            #    DP[i, j] = DP[i - 1, j] + S[i, j]
+            #    parent[i, j] = False
             elif i == 0:
                 DP[i, j] = max(DP[i, j - 1], S[i, j])
                 parent[i, j] = (DP[i, j] == DP[i, j - 1])
             else:
-                DP[i, j] = max(DP[i, j - 1], DP[i - 1, j] + S[i, j])
+                DP[i, j] = max(DP[i, j - 1], DP[i - 1, j - 1] + S[i, j])
                 parent[i, j] = (DP[i, j] == DP[i, j - 1])
     
     token_alignment = []

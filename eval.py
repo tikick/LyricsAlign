@@ -27,7 +27,7 @@ def evaluate(model, device, jamendo, log, epoch):
             S = S.cpu().numpy()
             #print('S.shape:', S.shape)
 
-            alignment = example_decoding.align(S, song) #align(S, song, level='word', log=log, epoch=epoch)
+            alignment = align(S, song, level='word', log=log, epoch=epoch)#example_decoding.align(S, song)
             PCO_score += percentage_of_correct_onsets(alignment, song['times'])
             AAE_score += average_absolute_error(alignment, song['times'])
         

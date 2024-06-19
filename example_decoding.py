@@ -177,9 +177,9 @@ from utils import load
 def align(S: np.ndarray, song):
     waveform = load(song['audio_path'], sr=config.sr)
     duration = len(waveform) / config.sr
-    print(duration)
+    #print(duration)
     fps = S.shape[1] / duration
-    print(fps)
+    #print(fps)
     token_starts, _, _ = trellis_segmentation(S.transpose(), resolution=1/fps)
 
     words = song['words'] if config.use_chars else song['phowords']
