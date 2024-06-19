@@ -182,4 +182,16 @@ def align(S: np.ndarray, song):
     fps = S.shape[1] / duration
     print(fps)
     token_starts, _, _ = trellis_segmentation(S.transpose(), resolution=1/fps)
-    return list(zip(token_starts, token_starts))
+
+    words = song['words'] if config.use_chars else song['phowords']
+    word_alignment = []
+    first_word_token = last_word_token = 0
+    for word in words:
+        num_word_tokens = len(word)
+        last_word_token = first_word_token + num_word_tokens - 1
+        word_start = token_starts[first_word_token]
+        word_end = token_starts[last_word_token]
+        word_alignment.append((word_start, word_end))
+        first_word_token = last_word_token + 2  # +1 space between words
+        
+    return word_alignment
