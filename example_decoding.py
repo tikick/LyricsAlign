@@ -181,5 +181,5 @@ def align(S: np.ndarray, song):
     print(duration)
     fps = S.shape[1] / duration
     print(fps)
-    token_starts, _, _ = trellis_segmentation(S.transpose, resolution=1/fps)
+    token_starts, _, _ = trellis_segmentation(S.transpose(), resolution=1/fps)
     return list(zip(token_starts, token_starts))
