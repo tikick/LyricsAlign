@@ -159,7 +159,7 @@ def main():
     val_20 = val_split[:20]
 
     optimizer = optim.Adam(model.parameters(), config.lr)
-    #scheduler = ReduceLROnPlateau(optimizer, mode='max', patience=1, threshold=1e-3, threshold_mode='abs')
+    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=1, threshold=1e-3, threshold_mode='abs')
 
     criterion = contrastive_loss
 
@@ -209,7 +209,10 @@ def main():
             wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
             wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
         
-        #scheduler.step(PCO_val_20)  # error if masked = True
+        old_lr = optimizer.param_groups[0]["lr"]
+        scheduler.step(PCO_val_20)  # error if masked = True
+        new_lr = optimizer.param_groups[0]["lr"]
+        print(f'lr: {old_lr} -> {new_lr}')
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_jamendo}, AAE: {AAE_jamendo}')
 
