@@ -160,3 +160,25 @@ def test_trellis_segmentation_real_data() -> None:
     assert 1.87 < symbol_timings[num_check] < 1.92 and transcript[num_check] == "B"
     num_check = 31  # A : 2.515
     assert 2.49 < symbol_timings[num_check] < 2.54 and transcript[num_check] == "A"
+
+    # my
+    print(blank_probs.shape)
+    print(symbol_probs.shape)
+    print(symbol_timings.shape)
+    print(decoded_symbol_probs.shape)
+
+
+#test_trellis_segmentation_real_data()
+
+
+import config
+from utils import load
+
+def align(S: np.ndarray, song):
+    waveform = load(song['audio_path'], sr=config.sr)
+    duration = len(waveform) / config.sr
+    print(duration)
+    fps = S.shape[1] / duration
+    print(fps)
+    token_starts, _, _ = trellis_segmentation(S.transpose, resolution=1/fps)
+    return list(zip(token_starts, token_starts))

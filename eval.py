@@ -7,6 +7,7 @@ from data import get_jamendo, get_jamendoshorts, jamendo_collate
 from models import SimilarityModel
 from utils import fix_seeds
 from decode import align
+import example_decoding
 
 
 def evaluate(model, device, jamendo, log, epoch):
@@ -26,7 +27,7 @@ def evaluate(model, device, jamendo, log, epoch):
             S = S.cpu().numpy()
             #print('S.shape:', S.shape)
 
-            alignment = align(S, song, level='word', log=log, epoch=epoch)
+            alignment = example_decoding.align(S, song) #align(S, song, level='word', log=log, epoch=epoch)
             PCO_score += percentage_of_correct_onsets(alignment, song['times'])
             AAE_score += average_absolute_error(alignment, song['times'])
         
