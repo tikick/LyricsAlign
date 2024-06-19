@@ -12,6 +12,7 @@ import csv
 import config
 
 
+# why dict?
 phoneme_dict = [' ', 'AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH']
 phoneme2int = {phoneme_dict[i]: i for i in range(len(phoneme_dict))}
 int2phoneme = {i: phoneme_dict[i] for i in range(len(phoneme_dict))}
