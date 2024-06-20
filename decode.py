@@ -3,6 +3,7 @@ import wandb
 import matplotlib.pyplot as plt
 
 import config
+from utils import load
 
 
 def vertical_align(S, song, level, log, epoch):
@@ -98,7 +99,7 @@ def align(S, song, level, log, epoch):
         mask = compute_line_mask(S, song, token_alignment)
         S = S * mask
     alignment = vertical_align(S, song, level, log, epoch)  # was: _align
-    return convert_frames_to_seconds(alignment)
+    return convert_frames_to_seconds(alignment, S, song)
     
 
 def compute_line_mask(S, song, token_alignment):
@@ -138,9 +139,13 @@ def compute_line_mask(S, song, token_alignment):
     return mask
 
 
-def convert_frames_to_seconds(alignment):
+def convert_frames_to_seconds(alignment, S, song):
     # convert (start, end) from spec frames to seconds
-    fps = 43.07
+    #fps = 43.07
+    waveform = load(song['audio_path'], sr=config.sr)
+    duration = len(waveform) / config.sr
+    #print(duration)
+    fps = S.shape[1] / duration
     return [(start / fps, end / fps) for (start, end) in alignment]
 
 
