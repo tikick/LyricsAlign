@@ -11,25 +11,18 @@ def vertical_align(S, song, level, log, epoch):
     assert np.all((S >= 0) & (S <= 1))
     assert level in ['token', 'word']
 
-    S = np.log(S)
     num_tokens, num_frames = S.shape
+    S = np.log(S)
 
-    DP = -np.inf * np.ones_like(S)
-    parent = - np.ones_like(S, dtype=int)  # 1 = left, 0 = up
-    for i in range(num_tokens):
+    # add begin of sentence token and frame for convinience
+    DP = -np.inf * np.ones((num_tokens + 1, num_frames + 1), dtype=np.float32)
+    DP[0, :] = 0
+    parent = np.empty_like(DP, dtype=bool)  # False = parent is same token, True = parent is previous token
+
+    for i in range(1, num_tokens + 1):
         for j in range(i, num_frames):
-            if i == 0 and j == 0:
-                DP[i, j] = S[i, j]
-                parent[i, j] = 0
-            #elif j == 0:
-            #    DP[i, j] = DP[i - 1, j] + S[i, j]
-            #    parent[i, j] = 0
-            elif i == 0:
-                DP[i, j] = max(DP[i, j - 1], S[i, j])
-                parent[i, j] = (DP[i, j] == DP[i, j - 1])
-            else:
-                DP[i, j] = max(DP[i, j - 1], DP[i - 1, j - 1] + S[i, j])
-                parent[i, j] = (DP[i, j] == DP[i, j - 1])
+            DP[i, j] = max(DP[i, j - 1], DP[i - 1, j - 1] + S[i, j])
+            parent[i, j] = DP[i, j - 1] < DP[i - 1, j - 1] + S[i, j]
     
     token_alignment = []
     token_start = token_end = num_frames - 1  # token_end inclusive
