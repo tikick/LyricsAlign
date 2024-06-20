@@ -19,10 +19,10 @@ def vertical_align(S, song, level, log, epoch):
     DP[0, :] = 0
     parent = np.empty_like(DP, dtype=bool)  # False = parent is same token, True = parent is previous token
 
-    for i in range(1, num_tokens + 1):
+    for i in range(num_tokens):
         for j in range(i, num_frames):
-            DP[i, j] = max(DP[i, j - 1], DP[i - 1, j - 1] + S[i, j])
-            parent[i, j] = DP[i, j - 1] < DP[i - 1, j - 1] + S[i, j]
+            DP[i + 1, j + 1] = max(DP[i + 1, j], DP[i, j] + S[i, j])
+            parent[i + 1, j + 1] = DP[i + 1, j] < DP[i, j] + S[i, j]
     
     token_alignment = []
     token_start = token_end = num_frames - 1  # token_end inclusive
