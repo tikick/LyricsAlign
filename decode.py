@@ -17,12 +17,14 @@ def vertical_align(S, song, level, log, epoch):
     # add begin of sentence token and frame for convinience
     DP = -np.inf * np.ones((num_tokens + 1, num_frames + 1), dtype=np.float32)
     DP[0, :] = 0
-    parent = np.empty_like(DP, dtype=bool)  # False = parent is same token, True = parent is previous token
+    parent = np.zeros_like(DP, dtype=bool)  # False = parent is same token, True = parent is previous token
 
-    for i in range(num_tokens):
-        for j in range(i, num_frames):
-            DP[i + 1, j + 1] = max(DP[i + 1, j], DP[i, j] + S[i, j])
-            parent[i + 1, j + 1] = DP[i + 1, j] < DP[i, j] + S[i, j]
+    for j in range(1, num_frames + 1):
+        for i in range(1, num_tokens + 1):
+            stay = DP[i, j - 1]
+            move = DP[i - 1, j - 1] + S[i - 1, j - 1]  # -1 in S: i and j are shifted by 1
+            DP[i, j] = max(stay, move)
+            parent[i, j] = stay < move
     
     token_alignment = []
     token_start = token_end = num_frames - 1  # token_end inclusive

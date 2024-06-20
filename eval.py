@@ -27,7 +27,7 @@ def evaluate(model, device, jamendo, log, epoch):
             S = S.cpu().numpy()
             #print('S.shape:', S.shape)
 
-            alignment = align(S, song, level='word', log=log, epoch=epoch)#example_decoding.align(S, song)
+            alignment = example_decoding.align(S, song)#align(S, song, level='word', log=log, epoch=epoch)
             PCO_score += percentage_of_correct_onsets(alignment, song['times'])
             AAE_score += average_absolute_error(alignment, song['times'])
         
@@ -60,9 +60,8 @@ if __name__ == '__main__':
     jamendo = get_jamendo()
     jamendoshorts = get_jamendoshorts()
 
-    for epoch in range(2, 4):
-        #epoch = 11
-        model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-17,12:30', str(epoch))))
+    for epoch in range(4, 6):
+        model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-19,10:29', str(epoch))))
 
         #evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
         PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
