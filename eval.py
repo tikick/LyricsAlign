@@ -61,19 +61,34 @@ if __name__ == '__main__':
     print('Running eval.py')
 
     fix_seeds()
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    cfg = {'num_RCBs': config.num_RCBs,
+           'channels': config.channels,
+           'context': config.context,
+           'use_chars': config.use_chars,
+           'embedding_dim': config.embedding_dim,
+           'num_epochs': config.num_epochs,
+           'lr': config.lr,
+           'batch_size': config.batch_size,
+           'num_negative_samples': config.num_negative_samples,
+           'alpha': config.alpha,
+           'masked': config.masked,
+           'use_dali': config.use_dali,
+           'words_slack': config.words_slack,
+           'val_size': config.val_size}
+    
+    print(cfg)
+    wandb.init(project='New-Align', config=cfg)
+
+    device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
     jamendo = get_jamendo()
     jamendoshorts = get_jamendoshorts()
 
-    for epoch in range(2, 4):
-        #epoch = 11
-        model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-17,12:30', str(epoch))))
+    for epoch in range(10):
+        model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-12,18:50', str(epoch))))
 
-        #evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
-        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
-
-        print('Epoch', epoch)
-        print('metric/PCO_jamendo', PCO_jamendo)
-        print('metric/AAE_jamendo', AAE_jamendo)
-        print('\n---------------------\n')
+        evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
+        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False)
+        wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
+        wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
