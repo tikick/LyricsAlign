@@ -11,6 +11,7 @@ def vertical_align(S, song, level, log, epoch):
     assert np.all((S >= 0) & (S <= 1))
     assert level in ['token', 'word']
 
+    S = np.log(S)
     num_tokens, num_frames = S.shape
 
     DP = np.zeros_like(S)
