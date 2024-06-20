@@ -15,7 +15,7 @@ def vertical_align(S, song, level, log, epoch):
     num_tokens, num_frames = S.shape
 
     DP = -np.inf * np.ones_like(S)
-    parent = - np.ones_like(S, dtype=bool)  # 1 = left, 0 = up
+    parent = - np.ones_like(S, dtype=int)  # 1 = left, 0 = up
     for i in range(num_tokens):
         for j in range(i, num_frames):
             if i == 0 and j == 0:
