@@ -85,8 +85,8 @@ if __name__ == '__main__':
     jamendo = get_jamendo()
     jamendoshorts = get_jamendoshorts()
 
-    for epoch in range(10):
-        model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-13,11:41', str(epoch))))
+    for epoch in range(9):
+        model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-13,17:55', str(epoch))))
 
         evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
         PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False)
