@@ -163,6 +163,7 @@ def get_georg():
 
 def jamendo_collate(song):
     waveform = load(song['audio_path'], sr=config.sr)
+    song['duration'] = len(waveform) / config.sr
     spec = wav2spec(waveform)
     spectrogram, all_tokens, _ = collate(data=[(spec, song['words'], song['phowords'])])
     return spectrogram, all_tokens

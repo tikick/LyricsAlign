@@ -159,29 +159,11 @@ def main():
     val_20 = val_split[:20]
 
     optimizer = optim.Adam(model.parameters(), config.lr)
-    #scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=1, threshold=1e-3, threshold_mode='abs')
+    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=1, threshold=1e-3, threshold_mode='abs')
 
     criterion = contrastive_loss
 
-    # log before training
     epoch = -1
-
-    #val_loss = validate(model, device, val_loader, negative_sampler, criterion, epoch)
-    #wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
-
-    evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
-    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
-    wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
-    wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
-    if not config.masked:
-        PCO_val_20, AAE_val_20 = evaluate(model, device, val_20, log=False, epoch=-1)
-        PCO_train_20, AAE_train_20 = evaluate(model, device, train_20, log=False, epoch=-1)
-        wandb.log({'metric/PCO_val_20': PCO_val_20, 'metric/epoch': epoch})
-        wandb.log({'metric/AAE_val_20': AAE_val_20, 'metric/epoch': epoch})
-        wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
-        wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
-
-    #epoch = 3
     #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-17,12:30', str(epoch))))
     epoch += 1
     while epoch < config.num_epochs:
@@ -197,21 +179,21 @@ def main():
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
 
         evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
-        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False, epoch=-1)
+        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False)
         wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
         wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
         if not config.masked:
-            PCO_val_20, AAE_val_20 = evaluate(model, device, val_20, log=False, epoch=-1)
-            PCO_train_20, AAE_train_20 = evaluate(model, device, train_20, log=False, epoch=-1)
+            PCO_val_20, AAE_val_20 = evaluate(model, device, val_20, log=False)
+            PCO_train_20, AAE_train_20 = evaluate(model, device, train_20, log=False)
             wandb.log({'metric/PCO_val_20': PCO_val_20, 'metric/epoch': epoch})
             wandb.log({'metric/AAE_val_20': AAE_val_20, 'metric/epoch': epoch})
             wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
             wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
         
-        #old_lr = optimizer.param_groups[0]["lr"]
-        #scheduler.step(PCO_val_20)  # error if masked = True
-        #new_lr = optimizer.param_groups[0]["lr"]
-        #print(f'lr: {old_lr} -> {new_lr}')
+        old_lr = optimizer.param_groups[0]["lr"]
+        scheduler.step(PCO_val_20)  # error if masked = True
+        new_lr = optimizer.param_groups[0]["lr"]
+        print(f'lr: {old_lr} -> {new_lr}')
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_jamendo}, AAE: {AAE_jamendo}')
 

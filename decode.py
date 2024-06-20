@@ -6,14 +6,13 @@ import config
 from utils import load
 
 
-def vertical_align(S, song, level, log, epoch):
+def diagonal_align(S, song):
     # finds monotonic path maximizing the cumulative similarity score, without horizontal score accumulation
 
     assert np.all((S >= 0) & (S <= 1))
-    assert level in ['token', 'word']
 
-    num_tokens, num_frames = S.shape
     S = np.log(S)
+    num_tokens, num_frames = S.shape
 
     # add begin of sentence token and frame for convinience
     DP = -np.inf * np.ones((num_tokens + 1, num_frames + 1), dtype=np.float32)
@@ -37,14 +36,6 @@ def vertical_align(S, song, level, log, epoch):
             token -= 1
 
     token_alignment = list(reversed(token_alignment))
-
-    if log:
-        token_alignment_image = np.zeros_like(S)
-        for token, frames in enumerate(token_alignment):
-            token_alignment_image[token, frames[0]:frames[1]] = 1
-    
-    if level == 'token':
-        return token_alignment
     
     words = song['words'] if config.use_chars else song['phowords']
     word_alignment = []
@@ -58,48 +49,24 @@ def vertical_align(S, song, level, log, epoch):
         first_word_token = last_word_token + 2  # +1 space between words
     
     assert len(word_alignment) == len(song['times'])
-
-    if log:
-        words = song['words']
-        word_alignment_image = np.zeros(shape=(len(words), num_frames))
-        gt_word_alignment_image = np.zeros(shape=(len(words), num_frames))
-        for word, frames in enumerate(word_alignment):
-            word_alignment_image[word, frames[0]:frames[1]] = 1
-        fps = 43.07  # the number of spectrogram frames in a second
-        for word, time in enumerate(song['times']):
-            frames = (int(time[0] * fps), int(time[1] * fps))
-            gt_word_alignment_image[word, frames[0]:frames[1]] = 1
-
-    # log plots
-    if log:
-        tokens = chars(song['words']) if config.use_chars else phonemes(song['phowords'])    
-        heights = [len(tokens)] * 3 + [len(song['words'])] * 2
-        fig, axs = plt.subplots(5, 1, height_ratios=heights, 
-                                figsize=(min(num_frames // 14, 100), min((sum(heights) + 20 * len(heights)) // 12, 100)))
-        
-        show(DP, axs[0], 'DP', tokens)
-        show(S, axs[1], 'S', tokens)
-        alignment_cmap = 'Blues'
-        show(token_alignment_image, axs[2], 'token alignment', tokens, alignment_cmap)
-        show(word_alignment_image, axs[3], 'word alignment', song['words'], alignment_cmap)
-        show(gt_word_alignment_image, axs[4], 'ground truth word alignment', song['words'], alignment_cmap)
-
-        fig.tight_layout()
-
-        wandb.log({'media/' + song['id']: plt, 'media/epoch': epoch})
-        #plt.show()
-        plt.close()
-
-    return word_alignment
+    
+    return token_alignment, word_alignment
 
 
-def align(S, song, level, log, epoch):
+def get_alignment(S, song, time_measure='seconds'):
+    assert time_measure in ['seconds', 'frames']
+
     if config.masked:
-        token_alignment = vertical_align(S, song, level='token', log=False, epoch=-1)
+        token_alignment, _ = diagonal_align(S, song)
         mask = compute_line_mask(S, song, token_alignment)
         S = S * mask
-    alignment = vertical_align(S, song, level, log, epoch)  # was: _align
-    return convert_frames_to_seconds(alignment, S, song)
+    token_alignment, word_alignment = diagonal_align(S, song)
+
+    if time_measure == 'seconds':
+        fps = S.shape[1] / song['duration']
+        return convert_frames_to_seconds(token_alignment, fps), convert_frames_to_seconds(word_alignment, fps)
+    else:
+        return token_alignment, word_alignment
     
 
 def compute_line_mask(S, song, token_alignment):
@@ -139,33 +106,9 @@ def compute_line_mask(S, song, token_alignment):
     return mask
 
 
-def convert_frames_to_seconds(alignment, S, song):
+def convert_frames_to_seconds(alignment, fps):
     # convert (start, end) from spec frames to seconds
-    #fps = 43.07
-    waveform = load(song['audio_path'], sr=config.sr)
-    duration = len(waveform) / config.sr
-    #print(duration)
-    fps = S.shape[1] / duration
     return [(start / fps, end / fps) for (start, end) in alignment]
-
-
-def show(data, ax, title, ytick_labels, cmap='hot'):
-    im = ax.imshow(data, cmap=cmap, aspect='auto', interpolation='none')
-    ax.figure.colorbar(im, ax=ax)
-    ax.set_title(title)
-    ax.set_yticks(ticks=np.arange(data.shape[0]), labels=ytick_labels)
-    ax.tick_params(axis='both', labelsize=6)
-
-# get yticklabels for plots
-def chars(words):
-    lyrics = ' '.join(words)
-    return [c for c in lyrics]
-def phonemes(phowords):
-    phonemes = []
-    for phoword in phowords:
-        phonemes += phoword + [' ']
-    phonemes = phonemes[:-1]
-    return phonemes
 
 
 if __name__ == '__main__':
