@@ -36,7 +36,7 @@ channels = 64
 
 ### text encoder
 context = 1  # when context = 0, for some audio segments the set of negatives might be empty -> NegativeSampler.sample() fails
-use_chars = True  # if false uses phonemes
+use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40  # len(char_dict) if use_chars else len(phoneme_dict)
 
 ### audio and text encoder
