@@ -14,16 +14,16 @@ def vertical_align(S, song, level, log, epoch):
     S = np.log(S)
     num_tokens, num_frames = S.shape
 
-    DP = np.zeros_like(S)
-    parent = np.empty_like(S, dtype=bool)  # True = left, False = up
+    DP = -np.inf * np.ones_like(S)
+    parent = - np.ones_like(S, dtype=bool)  # 1 = left, 0 = up
     for i in range(num_tokens):
         for j in range(i, num_frames):
             if i == 0 and j == 0:
                 DP[i, j] = S[i, j]
-                parent[i, j] = False
+                parent[i, j] = 0
             #elif j == 0:
             #    DP[i, j] = DP[i - 1, j] + S[i, j]
-            #    parent[i, j] = False
+            #    parent[i, j] = 0
             elif i == 0:
                 DP[i, j] = max(DP[i, j - 1], S[i, j])
                 parent[i, j] = (DP[i, j] == DP[i, j - 1])
@@ -35,6 +35,7 @@ def vertical_align(S, song, level, log, epoch):
     token_start = token_end = num_frames - 1  # token_end inclusive
     for token in reversed(range(num_tokens)):
         assert token_start > 0
+        assert parent[token, token_start] != -1
         while parent[token, token_start]:  # while parent is left
             token_start -= 1
         token_alignment.append((token_start, token_end))
