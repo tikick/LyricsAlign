@@ -1,9 +1,6 @@
 import numpy as np
-import wandb
-import matplotlib.pyplot as plt
 
 import config
-from utils import load
 
 
 def diagonal_align(S, song):
