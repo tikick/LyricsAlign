@@ -205,8 +205,7 @@ class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
         super(LA_Dataset, self).__init__()
         dataset_name = 'dali' if config.use_dali else 'georg'
-        #file_name = f'{dataset_name}_{partition}_slack_{config.words_slack}'
-        file_name = f'{dataset_name}_{partition}_100'
+        file_name = f'{dataset_name}_{partition}_slack_{config.words_slack}_with_time'
         pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')
 
         if not os.path.exists(pickle_file):
@@ -356,9 +355,11 @@ class NegativeSampler:
 if __name__ == '__main__':
     print('Running data.py')
     
-    georg = get_georg()
-    print('Size of Georg:', len(georg))
-    train, val = train_test_split(georg, test_size=config.val_size, random_state=97)
+    #georg = get_georg()
+    #print('Size of Georg:', len(georg))
+    dali = get_dali()
+    print('Size of DALI:', len(dali))
+    train, val = train_test_split(dali, test_size=config.val_size, random_state=97)
 
     train_data = LA_Dataset(train, 'train')
     val_data = LA_Dataset(val, 'val')
