@@ -146,8 +146,6 @@ def encode_phowords(phowords, times):
         phoneme_times += [time] * len(phoword) + [(end, next_start)]
     phonemes += phowords[-1]
     phoneme_times += [times[-1]] * len(phowords[-1])
-    print(phonemes)
-    print(phoneme_times)
 
     phonemes = [' '] * config.context + phonemes + [' '] * config.context
 
