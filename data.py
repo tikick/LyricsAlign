@@ -236,7 +236,7 @@ class LA_Dataset(Dataset):
                     offset = sample_start / config.sr
                     times = [(start - offset, end - offset) for (start, end) in times]
                     for (start, end) in times:
-                        assert 0 <= start < 5 and 0 <= end < 5, f'start = {start}, end = {end}'
+                        assert 0 <= start < 5 and 0 <= end < 5, f'id={song['id']}, i={i}, sample_start={sample_start}, offset={offset} start={start}, end={end}'
                     sample = (spec, words, phowords, times)
                     samples.append(sample)
 
