@@ -185,9 +185,9 @@ def collate(data):
         spectrograms.append(spec)
 
         if config.use_chars:
-            tokens, token_times = encode_words(words)
+            tokens, token_times = encode_words(words, times)
         else:
-            tokens, token_times = encode_phowords(phowords)
+            tokens, token_times = encode_phowords(phowords, times)
 
         tokens_per_spectrogram.append(len(tokens))
         all_tokens += tokens
@@ -273,9 +273,9 @@ class NegativeSampler:
         for song in tqdm(dataset):
 
             if config.use_chars:
-                tokens = encode_words(song['words'])
+                tokens, _ = encode_words(song['words'], song['times'])
             else:
-                tokens = encode_phowords(song['phowords'])
+                tokens, _ = encode_phowords(song['phowords'], song['times'])
 
             for token in tokens:
                 idx = self._token2idx(token)
