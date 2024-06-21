@@ -171,7 +171,7 @@ def jamendo_collate(song):
     waveform = load(song['audio_path'], sr=config.sr)
     song['duration'] = len(waveform) / config.sr
     spec = wav2spec(waveform)
-    spectrogram, all_tokens, _ = collate(data=[(spec, song['words'], song['phowords'])])
+    spectrogram, all_tokens, _, _ = collate(data=[(spec, song['words'], song['phowords'])])
     return spectrogram, all_tokens
 
 
@@ -271,8 +271,6 @@ class NegativeSampler:
         self.frequencies = np.zeros((pow(config.vocab_size, 1 + 2 * config.context),), dtype=int)
 
         for song in tqdm(dataset):
-            print(song['id'], song['words'], song['phowords'])
-
             if config.use_chars:
                 tokens, _ = encode_words(song['words'], song['times'])
             else:
