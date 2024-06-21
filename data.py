@@ -172,31 +172,35 @@ def jamendo_collate(song):
 def collate(data):
     spectrograms = []
     all_tokens = []
+    all_times = []
     tokens_per_spectrogram = []
 
-    for spec, words, phowords in data:
+    for spec, words, phowords, times in data:
         spectrograms.append(spec)
 
         if config.use_chars:
-            tokens = encode_words(words)
+            tokens, token_times = encode_words(words)
         else:
-            tokens = encode_phowords(phowords)
+            tokens, token_times = encode_phowords(phowords)
 
         tokens_per_spectrogram.append(len(tokens))
         all_tokens += tokens
+        all_times += token_times
 
     # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
     spectrograms = torch.Tensor(np.array(spectrograms))
     all_tokens = torch.IntTensor(all_tokens)
+    all_times = torch.IntTensor(all_times)
 
-    return spectrograms, all_tokens, tokens_per_spectrogram
+    return spectrograms, all_tokens, all_times, tokens_per_spectrogram
 
 
 class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
         super(LA_Dataset, self).__init__()
         dataset_name = 'dali' if config.use_dali else 'georg'
-        file_name = f'{dataset_name}_{partition}_slack_{config.words_slack}'
+        #file_name = f'{dataset_name}_{partition}_slack_{config.words_slack}'
+        file_name = f'{dataset_name}_{partition}_100.pkl'
         pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')
 
         if not os.path.exists(pickle_file):
@@ -223,9 +227,17 @@ class LA_Dataset(Dataset):
 
                     if idx_first_word >= idx_past_last_word:  # no words (fully contained) in this sample, skip
                         continue
-
-                    spec = wav2spec(waveform[sample_start:sample_end])     
-                    sample = (spec, song['words'][idx_first_word:idx_past_last_word], song['phowords'][idx_first_word:idx_past_last_word])
+                    
+                    # sample spectrogram, words, phowords and relative times withing sample
+                    spec = wav2spec(waveform[sample_start:sample_end])
+                    words = song['words'][idx_first_word:idx_past_last_word]
+                    phowords = song['phowords'][idx_first_word:idx_past_last_word]
+                    times = song['times'][idx_first_word:idx_past_last_word]
+                    offset = sample_start / config.sr
+                    times = [(start - offset, end - offset) for (start, end) in times]
+                    for (start, end) in times:
+                        assert 0 <= start < 5 and 0 <= end < 5
+                    sample = (spec, words, phowords, times)
                     samples.append(sample)
 
             with open(pickle_file, 'wb') as f:
@@ -237,7 +249,7 @@ class LA_Dataset(Dataset):
             self.samples = pickle.load(f)
 
     def __getitem__(self, index):
-        return self.samples[index]  # (spec, words, phowords)
+        return self.samples[index]  # (spec, words, phowords, times)
 
     def __len__(self):
         return len(self.samples)

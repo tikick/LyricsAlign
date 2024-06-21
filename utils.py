@@ -96,24 +96,38 @@ def normalize_jamendo(raw_lines):
     return lines
 
 
-def encode_words(words):
-    lyrics = ' '.join(words)
-    lyrics = ' ' * config.context + lyrics + ' ' * config.context
+def encode_words(words, times):  # could merge with encode_phowords, same code
+    chars = ''
+    char_times = []
+    for word, time, next_time in zip(words[:-1], times[:-1], times[1:]):
+        chars += word + ' '
+        end, next_start = time[1], next_time[0]
+        char_times += [time] * len(word) + [(end, next_start)]
+    chars += word[-1]
+    char_times += [times[-1]] * len(word[-1])
+
+    chars = ' ' * config.context + chars + ' ' * config.context
     
     enc_chars = []
-    for c in lyrics:
+    for c in chars:
         idx = char2int[c]
         enc_chars.append(idx)
 
     tokens = [enc_chars[i:i + (1 + 2 * config.context)] for i in range(len(enc_chars) - 2 * config.context)]  # token: enc_char and context
     assert len(tokens) > 0
-    return tokens
 
-def encode_phowords(phowords):
+    return tokens, char_times
+
+def encode_phowords(phowords, times):
     phonemes = []
-    for phoword in phowords:
+    phoneme_times = []
+    for phoword, time, next_time in zip(phowords[:-1], times[:-1], times[1:]):
         phonemes += phoword + [' ']
-    phonemes = phonemes[:-1]
+        end, next_start = time[1], next_time[0]
+        phoneme_times += [time] * len(phoword) + [(end, next_start)]
+    phonemes += phoword[-1]
+    phoneme_times += [times[-1]] * len(phoword[-1])
+
     phonemes = [' '] * config.context + phonemes + [' '] * config.context
 
     enc_phonemes = []
@@ -123,7 +137,8 @@ def encode_phowords(phowords):
 
     tokens = [enc_phonemes[i:i + (1 + 2 * config.context)] for i in range(len(enc_phonemes) - 2 * config.context)]  # token: enc_phoneme and context
     assert len(tokens) > 0
-    return tokens
+
+    return tokens, phoneme_times
 
 
 def read_jamendo_times(times_file):

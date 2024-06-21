@@ -27,7 +27,7 @@ def train(model, device, train_loader, negative_sampler, criterion, optimizer):
     batch_loss = 0.
 
     for idx, batch in enumerate(tqdm(train_loader)):
-        spectrograms, positives, positives_per_spectrogram = batch
+        spectrograms, positives, times, positives_per_spectrogram = batch
         negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
         negatives = torch.IntTensor(negatives)
         spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
@@ -36,7 +36,7 @@ def train(model, device, train_loader, negative_sampler, criterion, optimizer):
 
         PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
 
-        loss = criterion(PA, NA)
+        loss = criterion(PA, NA, times)
         loss.backward()
 
         optimizer.step()
@@ -59,14 +59,14 @@ def validate(model, device, val_loader, negative_sampler, criterion, epoch):
 
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(val_loader)):
-            spectrograms, positives, positives_per_spectrogram = batch
+            spectrograms, positives, times, positives_per_spectrogram = batch
             negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
             negatives = torch.IntTensor(negatives)
             spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
 
             PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
 
-            loss = criterion(PA, NA)
+            loss = criterion(PA, NA, times)
             val_loss += loss.item()
 
             # log first batch
@@ -137,6 +137,7 @@ def main():
     # else:
     if config.use_dali:
         dataset = get_dali()
+        dataset = dataset[:100]
         print('Size of DALI:', len(dataset))
     else:
         dataset = get_georg()
