@@ -271,6 +271,7 @@ class NegativeSampler:
         self.frequencies = np.zeros((pow(config.vocab_size, 1 + 2 * config.context),), dtype=int)
 
         for song in tqdm(dataset):
+            print(song['id'], song['words'], song['phowords'])
 
             if config.use_chars:
                 tokens, _ = encode_words(song['words'], song['times'])
