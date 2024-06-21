@@ -223,7 +223,7 @@ class LA_Dataset(Dataset):
 
                     # find the lyrics within (start, end) (+- slack)
                     idx_first_word = bisect.bisect_left(start_times, (sample_start / config.sr) + config.words_slack)
-                    idx_past_last_word = bisect.bisect_right(end_times, (sample_end / config.sr) - config.words_slack)
+                    idx_past_last_word = bisect.bisect_left(end_times, (sample_end / config.sr) - config.words_slack)
 
                     if idx_first_word >= idx_past_last_word:  # no words (fully contained) in this sample, skip
                         continue
@@ -236,7 +236,7 @@ class LA_Dataset(Dataset):
                     offset = sample_start / config.sr
                     times = [(start - offset, end - offset) for (start, end) in times]
                     for (start, end) in times:
-                        assert 0 <= start < 5 and 0 <= end < 5
+                        assert 0 <= start < 5 and 0 <= end < 5, f'start = {start}, end = {end}'
                     sample = (spec, words, phowords, times)
                     samples.append(sample)
 
