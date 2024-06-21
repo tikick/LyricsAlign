@@ -122,8 +122,8 @@ def encode_words(words, times):  # could merge with encode_phowords, same code
         chars += word + ' '
         end, next_start = time[1], next_time[0]
         char_times += [time] * len(word) + [(end, next_start)]
-    chars += word[-1]
-    char_times += [times[-1]] * len(word[-1])
+    chars += words[-1]
+    char_times += [times[-1]] * len(words[-1])
 
     chars = ' ' * config.context + chars + ' ' * config.context
     
@@ -144,8 +144,10 @@ def encode_phowords(phowords, times):
         phonemes += phoword + [' ']
         end, next_start = time[1], next_time[0]
         phoneme_times += [time] * len(phoword) + [(end, next_start)]
-    phonemes += phoword[-1]
-    phoneme_times += [times[-1]] * len(phoword[-1])
+    phonemes += phowords[-1]
+    phoneme_times += [times[-1]] * len(phowords[-1])
+    print(phonemes)
+    print(phoneme_times)
 
     phonemes = [' '] * config.context + phonemes + [' '] * config.context
 
