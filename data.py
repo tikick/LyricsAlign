@@ -206,7 +206,7 @@ class LA_Dataset(Dataset):
         super(LA_Dataset, self).__init__()
         dataset_name = 'dali' if config.use_dali else 'georg'
         #file_name = f'{dataset_name}_{partition}_slack_{config.words_slack}'
-        file_name = f'{dataset_name}_{partition}_100.pkl'
+        file_name = f'{dataset_name}_{partition}_100'
         pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')
 
         if not os.path.exists(pickle_file):
