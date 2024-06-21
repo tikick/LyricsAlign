@@ -71,6 +71,25 @@ def lines2pholines(lines):
     return pholines
 
 
+def dali_song_is_corrupt(song):
+    corrupted_dali_songs = ['1b9c139f491c41f5b0776eefd21c122d']
+    if song['id'] in corrupted_dali_songs:
+        return True
+    
+    flat_times = [t for time in song['times'] for t in time]
+    if not all(flat_times[i] <= flat_times[i + 1] for i in range(len(flat_times) - 1)):
+        return True
+
+    return False
+
+def georg_song_is_corrupt(song):
+    flat_times = [t for time in song['times'] for t in time]
+    if not all(flat_times[i] <= flat_times[i + 1] for i in range(len(flat_times) - 1)):
+        return True
+
+    return False
+
+
 def normalize_dali(raw_words, raw_times, cut=False):
     # if cut=True removes the whole word (first stripping punctuation and only then cutting might be better),
     # else strips the unknown chars from the word

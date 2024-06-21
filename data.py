@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 
 import config
 from utils import encode_words, encode_phowords, words2phowords, lines2pholines, \
-    load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo, char_dict
+    load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo, dali_song_is_corrupt, georg_song_is_corrupt
 
 
 def get_dali(lang='english'):
@@ -46,6 +46,9 @@ def get_dali(lang='english'):
                 'words': words,
                 'phowords': phowords,
                 'times': times}
+        
+        if dali_song_is_corrupt(song):
+            continue
 
         songs.append(song)
 
@@ -156,6 +159,9 @@ def get_georg():
                     'phowords': phowords,
                     'times': times}
             
+            if georg_song_is_corrupt(song):
+                continue
+            
             songs.append(song)
     
     return songs
@@ -236,7 +242,7 @@ class LA_Dataset(Dataset):
                     offset = sample_start / config.sr
                     times = [(start - offset, end - offset) for (start, end) in times]
                     for (start, end) in times:
-                        assert 0 <= start < 5 and 0 <= end < 5, f'id={song['id']}, i={i}, sample_start={sample_start}, offset={offset} start={start}, end={end}'
+                        assert 0 <= start < 5 and 0 <= end < 5, f'id={song["id"]}, i={i}, sample_start={sample_start}, offset={offset} start={start}, end={end}'
                     sample = (spec, words, phowords, times)
                     samples.append(sample)
 
