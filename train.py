@@ -17,7 +17,7 @@ from data import get_dali, get_georg, get_jamendo, get_jamendoshorts, LA_Dataset
 from models import SimilarityModel, contrastive_loss
 from utils import fix_seeds, display_module_parameters, int2char, int2phoneme
 from eval import evaluate
-from decode import show
+from media import show_plot
 
 
 def train(model, device, train_loader, negative_sampler, criterion, optimizer):
@@ -88,10 +88,10 @@ def validate(model, device, val_loader, negative_sampler, criterion, epoch):
                     fig, axs = plt.subplots(2, 1, height_ratios=heights, figsize=(15, min((sum(heights) + 20 * len(heights)) // 12, 100)))
 
                     j, k = cumsum[i], cumsum[i + 1]
-                    show(PA[j:k], axs[0], 'positive scores', positives[j:k])  # PA[i]
+                    show_plot(PA[j:k], axs[0], 'positive scores', positives[j:k])  # PA[i]
                     j = i * config.num_negative_samples
                     k = j + 50  # don't show all 1000 negative tokens
-                    show(NA[j:k], axs[1], 'negative scores', negatives[j:k])  # NA[i]
+                    show_plot(NA[j:k], axs[1], 'negative scores', negatives[j:k])  # NA[i]
 
                     fig.tight_layout()
 
