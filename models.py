@@ -169,7 +169,7 @@ def contrastive_loss(PA, NA, times):
         sum += torch.pow(torch.max(row_slice) - 1, 2)
     mean_positives = sum / len(times)
 
-    fig, ax = plt.subplots(figsize=(min(PA.shape[1] // 14, 100), min((len(times) + 20 * len(config.batch_size)) // 12, 100)))
+    fig, ax = plt.subplots(figsize=(min(PA.shape[1] // 14, 100), min((len(times) + 20 * config.batch_size) // 12, 100)))
     alignment_cmap = 'Blues'
     show_plot(box_image, ax, 'box image', times, alignment_cmap)
     fig.tight_layout()
