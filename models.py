@@ -158,7 +158,7 @@ def contrastive_loss(PA, NA, times):
     slack = 0
     fps = PA.shape[1] / duration
     sum = 0.
-    box_image = np.zeros_like(PA)
+    box_image = np.zeros(PA.shape)
     for i, (start, end) in enumerate(times):
         frame_start, frame_end = int((start - slack) * fps), int((end + slack) * fps)
         frame_start = max(frame_start, 0)
