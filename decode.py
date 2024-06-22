@@ -77,8 +77,8 @@ def compute_line_mask(S, song, token_alignment):
 
     lines = song['lines'] if config.use_chars else song['pholines']
     first_line_token = past_last_line_token = 0
-    for line in lines:
-        num_line_tokens = len(line)
+    for i, line in enumerate(lines):
+        num_line_tokens = len(line) + (1 if i + 1 < len(lines) else 0)  # +1 space at the end of the line (see paper image)
         past_last_line_token = first_line_token + num_line_tokens
         middle_token = first_line_token + num_line_tokens // 2
         line_center = token_alignment[middle_token][0]
@@ -98,7 +98,7 @@ def compute_line_mask(S, song, token_alignment):
         mask[first_line_token:past_last_line_token, window_start:window_end] = \
             np.linspace(1, 0, tol_window_length)[:window_end - window_start]
 
-        first_line_token = past_last_line_token + 1  # +1 space between lines
+        first_line_token = past_last_line_token  # +1 space between lines already added in num_line_tokens
     
     return mask
 

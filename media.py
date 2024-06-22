@@ -10,19 +10,19 @@ def log_plots(S, song, token_alignment, word_alignment, epoch):
 
     token_alignment_image = np.zeros_like(S)
     for token, frames in enumerate(token_alignment):
-        token_alignment_image[token, frames[0]:frames[1]] = 1
+        token_alignment_image[token, frames[0]:frames[1] + 1] = 1
 
     words = song['words']
     word_alignment_image = np.zeros(shape=(len(words), num_frames))
     gt_word_alignment_image = np.zeros(shape=(len(words), num_frames))
 
     for word, frames in enumerate(word_alignment):
-        word_alignment_image[word, frames[0]:frames[1]] = 1
+        word_alignment_image[word, frames[0]:frames[1] + 1] = 1
 
     fps = S.shape[1] / song['duration']
     for word, time in enumerate(song['times']):
         frames = (int(time[0] * fps), int(time[1] * fps))
-        gt_word_alignment_image[word, frames[0]:frames[1]] = 1
+        gt_word_alignment_image[word, frames[0]:frames[1] + 1] = 1
 
     tokens = chars(song['words']) if config.use_chars else phonemes(song['phowords'])    
     heights = [len(tokens)] * 2 + [len(song['words'])] * 2
