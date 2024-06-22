@@ -196,7 +196,6 @@ def collate(data):
     # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
     spectrograms = torch.Tensor(np.array(spectrograms))
     all_tokens = torch.IntTensor(all_tokens)
-    all_times = torch.IntTensor(all_times)
 
     return spectrograms, all_tokens, all_times, tokens_per_spectrogram
 
