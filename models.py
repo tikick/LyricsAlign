@@ -145,11 +145,11 @@ class SimilarityModel(nn.Module):
             return 0.5 * (S + 1)
     
 
-def contrastive_loss(PA, NA, times):
+def _contrastive_loss(PA, NA, times):
     return 2 * (config.alpha * torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
                 (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension
 
-def _contrastive_loss(PA, NA, times):
+def contrastive_loss(PA, NA, times):
     fps = PA.shape[1] / (config.segment_length / config.sr)
     sum = 0.
     for i, (start, end) in enumerate(times):
