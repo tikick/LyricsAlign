@@ -4,8 +4,11 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import wandb
 
 import config
+from media import show_plot
 
 
 class RCB(nn.Module):
@@ -151,14 +154,27 @@ def _contrastive_loss(PA, NA, times):
 
 def contrastive_loss(PA, NA, times):
     assert len(times) == PA.shape[0]
-    fps = PA.shape[1] / (config.segment_length / config.sr)
+    duration = config.segment_length / config.sr
+    slack = 0
+    fps = PA.shape[1] / duration
     sum = 0.
+    box_image = np.zeros_like(PA)
     for i, (start, end) in enumerate(times):
-        frame_start, frame_end = int(start * fps), int(end * fps)
+        frame_start, frame_end = int((start - slack) * fps), int((end + slack) * fps)
+        frame_start = max(frame_start, 0)
+        frame_end = min(frame_end, PA.shape[1] - 1)
         assert 0 <= frame_start < PA.shape[1] and 0 <= frame_end < PA.shape[1]
         row_slice = PA[i, :]#frame_start:frame_end + 1]
+        box_image[i, frame_start:frame_end + 1] = 1
         sum += torch.pow(torch.max(row_slice) - 1, 2)
     mean_positives = sum / len(times)
+
+    fig, ax = plt.subplots(figsize=(min(PA.shape[1] // 14, 100), min((len(times) + 20 * len(config.batch_size)) // 12, 100)))
+    alignment_cmap = 'Blues'
+    show_plot(box_image, ax, 'box image', times, alignment_cmap)
+    fig.tight_layout()
+    wandb.log({'media/box_image': plt})
+    plt.close()
 
     return 2 * (config.alpha * mean_positives + \
                 (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension

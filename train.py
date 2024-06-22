@@ -27,6 +27,8 @@ def train(model, device, train_loader, negative_sampler, criterion, optimizer):
     batch_loss = 0.
 
     for idx, batch in enumerate(tqdm(train_loader)):
+        if idx >= 10:
+            return
         spectrograms, positives, times, positives_per_spectrogram = batch
         negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
         negatives = torch.IntTensor(negatives)
