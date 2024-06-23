@@ -1,7 +1,13 @@
-import config
-import os
+#import config
+#import os
+#import pandas as pd
+from data import get_georg
 
-with open(os.path.join(config.georg_base, 'data', 'audio_ids.txt'), 'r') as r:
-    with open(os.path.join(config.georg_base, 'data', 'vocals_ids.txt'), 'w') as w:
-        for line in r.readlines():
-            w.write(line[:-5] + '_vocals.mp3\n')
+#with open(os.path.join(config.georg_base, 'data', 'audio_ids.txt'), 'w') as f:
+#    for i in range(20):
+#        parq_file = os.path.join(config.georg_annotations, str(i), 'alignment.parq')
+#        df = pd.read_parquet(parq_file, engine='pyarrow')
+#        for _, row in df.iterrows():
+#                f.write(row['ytid'] + '.mp3\n')
+
+get_georg()

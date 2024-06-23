@@ -26,6 +26,7 @@ jamendoshorts_audio = os.path.join(jamendoshorts_base, 'mp3')
 georg_base = os.path.join(base_path, 'Georg')
 georg_annotations = os.path.join(georg_base, 'ttv')
 georg_audio = os.path.join(georg_base, 'data/audio')
+georg_vocals = os.path.join(georg_base, 'data/vocals')
 
 
 # hyperparameters
@@ -59,6 +60,8 @@ masked = False
 
 # dataset
 use_dali = False  # if false uses georg
+use_vocals = False
+assert not use_dali or not use_vocals
 
 
 # WARNING: if you change the following parameters remember to delete the sample files or the new samples will not be computed
