@@ -43,9 +43,9 @@ vocab_size = 28 if use_chars else 40  # len(char_dict) if use_chars else len(pho
 embedding_dim = 64
 
 ### others:
-num_epochs = 1
+num_epochs = 10
 lr = 0.0001
-batch_size = 8
+batch_size = 32
 num_negative_samples = 1_000
 
 
@@ -54,7 +54,7 @@ alpha = 0.5
 
 
 # alignment
-masked = True
+masked = False
 
 
 # dataset

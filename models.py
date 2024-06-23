@@ -155,19 +155,23 @@ def _contrastive_loss(PA, NA, times):
 def contrastive_loss(PA, NA, times):
     assert len(times) == PA.shape[0]
     duration = config.segment_length / config.sr
-    slack = 0
     fps = PA.shape[1] / duration
+    slack = 0
     sum = 0.
-    box_image = np.zeros(PA.shape)
+    #box_image = np.zeros(PA.shape)
     for i, (start, end) in enumerate(times):
         frame_start, frame_end = int((start - slack) * fps), int((end + slack) * fps)
-        frame_start = max(frame_start, 0)
-        frame_end = min(frame_end, PA.shape[1] - 1)
+        if slack > 0:
+            frame_start = max(frame_start, 0)
+            frame_end = min(frame_end, PA.shape[1] - 1)
         assert 0 <= frame_start < PA.shape[1] and 0 <= frame_end < PA.shape[1]
-        row_slice = PA[i, :]#frame_start:frame_end + 1]
-        box_image[i, frame_start:frame_end + 1] = 1
+        row_slice = PA[i, frame_start:frame_end + 1]
+        #box_image[i, frame_start:frame_end + 1] = 1
         sum += torch.pow(torch.max(row_slice) - 1, 2)
     mean_positives = sum / len(times)
+
+    return 2 * (config.alpha * mean_positives + \
+                (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension
 
     fig, ax = plt.subplots(figsize=(min(PA.shape[1] // 14, 100), min((len(times) + 20 * config.batch_size) // 12, 100)))
     alignment_cmap = 'Blues'
@@ -175,6 +179,3 @@ def contrastive_loss(PA, NA, times):
     fig.tight_layout()
     wandb.log({'media/box_image': plt})
     plt.close()
-
-    return 2 * (config.alpha * mean_positives + \
-                (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension

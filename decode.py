@@ -8,7 +8,7 @@ def diagonal_align(S, song):
 
     assert np.all((S >= 0) & (S <= 1))
 
-    S = np.log(S)
+    S = np.log(S)  # RuntimeWarning: divide by zero encountered in log
     num_tokens, num_frames = S.shape
 
     # add begin of sentence token and frame for convinience
