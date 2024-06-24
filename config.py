@@ -54,7 +54,7 @@ alpha = 0.5
 
 
 # alignment
-masked = True
+masked = False
 
 
 # dataset
