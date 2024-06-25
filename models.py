@@ -179,34 +179,3 @@ def contrastive_loss(PA, NA, times):
     fig.tight_layout()
     wandb.log({'media/box_image': plt})
     plt.close()
-
-def __contrastive_loss(PA, NA, times):
-    assert len(times) == PA.shape[0]
-    duration = config.segment_length / config.sr
-    fps = PA.shape[1] / duration
-    slack = 1
-    sum = 0.
-    
-    # change space box to (curr_word.start, next_word.end)
-    segment_id = 1
-    for i in range(1, len(times) - 1):
-        if times[i][0] < times[i - 1][1]:
-            segment_id += 1
-        if i % 2 == segment_id % 2:  # space
-            start = times[i - 1][0]
-            end = times[i + 1][1]
-            assert start <= end
-            times[i] = (start, end)
-
-    for i, (start, end) in enumerate(times):
-        frame_start, frame_end = int((start - slack) * fps), int((end + slack) * fps)
-        if slack > 0:
-            frame_start = max(frame_start, 0)
-            frame_end = min(frame_end, PA.shape[1] - 1)
-        assert 0 <= frame_start < PA.shape[1] and 0 <= frame_end < PA.shape[1]
-        row_slice = PA[i, frame_start:frame_end + 1]
-        sum += torch.pow(torch.max(row_slice) - 1, 2)
-    mean_positives = sum / len(times)
-
-    return 2 * (config.alpha * mean_positives + \
-                (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension
