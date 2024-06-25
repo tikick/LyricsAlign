@@ -118,6 +118,7 @@ def get_jamendoshorts(lang='English'):
 def get_georg():
     # num_unk_chars = 39330, num_total_chars = 19920586, alignment_nones = 755
     songs = []
+    corrupt = 0
     
     for i in range(20):  # for folders from 0 to 19
         parq_file = os.path.join(config.georg_annotations, str(i), 'alignment.parq')
@@ -159,11 +160,13 @@ def get_georg():
                     'phowords': phowords,
                     'times': times}
             
-            #if georg_song_is_corrupt(song):
-            #    continue
+            if georg_song_is_corrupt(song):
+                corrupt += 1
+                continue
             
             songs.append(song)
     
+    print('Num corrupt songs:', corrupt)
     return songs
 
 
