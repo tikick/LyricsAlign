@@ -156,7 +156,7 @@ def contrastive_loss(PA, NA, times):
     assert len(times) == PA.shape[0]
     duration = config.segment_length / config.sr
     fps = PA.shape[1] / duration
-    slack = 1.75
+    slack = 1
     sum = 0.
     #box_image = np.zeros(PA.shape)
     for i, (start, end) in enumerate(times):
