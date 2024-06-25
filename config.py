@@ -60,7 +60,7 @@ masked = False
 
 # dataset
 use_dali = False  # if false uses georg
-use_vocals = False
+use_vocals = True
 assert not use_dali or not use_vocals
 
 
