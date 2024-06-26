@@ -51,7 +51,7 @@ num_negative_samples = 1_000
 
 # loss
 alpha = 0.5
-beta = 1
+beta = 0.01
 box_slack = -100
 loss = 'multi-loss'
 
