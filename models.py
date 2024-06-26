@@ -157,6 +157,7 @@ class SimilarityModel(nn.Module):
 ctc = nn.CTCLoss(blank=config.vocab_size, zero_infinity=True)
 def contrastive_loss(PA, NA, posteriorgram, targets, target_lengths):
     input_lengths = torch.full(size=(posteriorgram.shape[0],), fill_value=posteriorgram.shape[1], dtype=torch.int32)
+    target_lengths = torch.IntTensor(target_lengths)
 
     return 2 * (config.alpha * torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
                 (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))) + \
