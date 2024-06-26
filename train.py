@@ -34,9 +34,9 @@ def train(model, device, train_loader, negative_sampler, criterion, optimizer):
 
         optimizer.zero_grad()
 
-        PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
+        PA, NA, posteriorgram = model(spectrograms, positives, positives_per_spectrogram, negatives)
 
-        loss = criterion(PA, NA, times)
+        loss = criterion(PA, NA, posteriorgram)
         loss.backward()
 
         optimizer.step()

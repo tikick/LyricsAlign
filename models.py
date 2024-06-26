@@ -47,6 +47,8 @@ class AudioEncoder(nn.Module):
 
         self.conv1d = nn.Conv1d(in_channels=config.channels, out_channels=config.embedding_dim, kernel_size=config.freq_bins)
 
+        self.linear = nn.Linear(config.embedding_dim, config.vocab_size + 1)  # +1 blank for CTC
+
     def forward(self, x):
         #print("\tIn AudioEncoder: input size", x.shape)
         # x.shape: (batch, feature, time)
@@ -64,6 +66,10 @@ class AudioEncoder(nn.Module):
         x = x.reshape(s[0] * s[1], s[2], s[3])  # (batch, channel, feature)
         x = self.conv1d(x)
         x = x.reshape(s[0], s[1], config.embedding_dim)  # (batch, time, embedding)
+
+        posteriorgram = self.linear(x)  # (batch, time, vocab_size + 1)
+        posteriorgram = F.log_softmax(posteriorgram, dim=2)
+
         x = x.transpose(1, 2)  # (batch, embedding, time)
 
         # l2 normalization
@@ -71,7 +77,7 @@ class AudioEncoder(nn.Module):
 
         assert x.shape[1] == config.embedding_dim
         #print("\tIn AudioEncoder: output size", x.shape)
-        return x
+        return x, posteriorgram
 
 
 class TextEncoder(nn.Module):
@@ -120,7 +126,7 @@ class SimilarityModel(nn.Module):
     def forward(self, spectrograms, positives, positives_per_spectrogram=None, negatives=None):
         
         if negatives is not None:  # we're in train
-            A = self.audio_encoder(spectrograms)
+            A, posteriorgram = self.audio_encoder(spectrograms)
             P = self.text_encoder(positives)
             N = self.text_encoder(negatives)
 
@@ -135,12 +141,12 @@ class SimilarityModel(nn.Module):
                 j, k = i * config.num_negative_samples, (i + 1) * config.num_negative_samples
                 NA[j:k] = torch.matmul(N[j:k], A[i])  # (tokens, time)
 
-            return PA, NA
+            return PA, NA, posteriorgram
         
         else:  # we're in eval
             assert len(spectrograms) == 1
 
-            A = self.audio_encoder(spectrograms)
+            A, posteriorgram = self.audio_encoder(spectrograms)
             P = self.text_encoder(positives)
             
             S = torch.matmul(P, A[0])
@@ -148,35 +154,9 @@ class SimilarityModel(nn.Module):
             return 0.5 * (S + 1)
     
 
-def _contrastive_loss(PA, NA, times):
+ctc = nn.CTCLoss(zero_infinity=True)
+def contrastive_loss(PA, NA, posteriorgram):
+
     return 2 * (config.alpha * torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
-                (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension
-
-def contrastive_loss(PA, NA, times):
-    assert len(times) == PA.shape[0]
-    duration = config.segment_length / config.sr
-    fps = PA.shape[1] / duration
-    sum = 0.
-    #box_image = np.zeros(PA.shape)
-    for i, (start, end) in enumerate(times):
-        frame_start = int((start - config.box_slack) * fps)
-        frame_end = int((end + config.box_slack) * fps)
-        if config.box_slack > 0:
-            frame_start = max(frame_start, 0)
-            frame_end = min(frame_end, PA.shape[1] - 1)
-        assert 0 <= frame_start < PA.shape[1] and 0 <= frame_end < PA.shape[1]
-        row_slice = PA[i, frame_start:frame_end + 1]
-        #box_image[i, frame_start:frame_end + 1] = 1
-        sum += torch.pow(torch.max(row_slice) - 1, 2)
-    mean_positives = sum / len(times)
-
-    mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
-
-    return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)
-
-    fig, ax = plt.subplots(figsize=(min(PA.shape[1] // 14, 100), min((len(times) + 20 * config.batch_size) // 12, 100)))
-    alignment_cmap = 'Blues'
-    show_plot(box_image, ax, 'box image', times, alignment_cmap)
-    fig.tight_layout()
-    wandb.log({'media/box_image': plt})
-    plt.close()
+                (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))) + \
+           ctc(posteriorgram.transpose(0, 1), )
