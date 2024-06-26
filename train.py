@@ -115,6 +115,7 @@ def main():
            'num_negative_samples': config.num_negative_samples,
            'alpha': config.alpha,
            'box_slack': config.box_slack,
+           'loss': config.loss,
            'masked': config.masked,
            'use_dali': config.use_dali,
            'val_size': config.val_size}
