@@ -161,7 +161,7 @@ def contrastive_loss(PA, NA, posteriorgram, targets, target_lengths):
 
     return 2 * (config.alpha * torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
                 (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))) + \
-           ctc(posteriorgram.transpose(0, 1), targets, input_lengths, target_lengths)
+           config.beta * ctc(posteriorgram.transpose(0, 1), targets, input_lengths, target_lengths)
 
 
 def _contrastive_loss(PA, NA, times):
