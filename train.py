@@ -115,6 +115,7 @@ def main():
            'num_negative_samples': config.num_negative_samples,
            'alpha': config.alpha,
            'box_slack': config.box_slack,
+           'loss': config.loss,
            'masked': config.masked,
            'use_dali': config.use_dali,
            'val_size': config.val_size}
@@ -163,8 +164,8 @@ def main():
 
     criterion = contrastive_loss
 
-    epoch = 2
-    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-25,12:11', str(epoch))))
+    epoch = -1
+    #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-25,12:11', str(epoch))))
     epoch += 1
     while epoch < config.num_epochs:
         print('Epoch:', epoch)
