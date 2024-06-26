@@ -275,9 +275,9 @@ class NegativeSampler:
 
         for song in tqdm(dataset):
             if config.use_chars:
-                tokens, _ = encode_words(song['words'], song['times'])
+                _, tokens, _ = encode_words(song['words'], song['times'])
             else:
-                tokens, _ = encode_phowords(song['phowords'], song['times'])
+                _, tokens, _ = encode_phowords(song['phowords'], song['times'])
 
             for token in tokens:
                 idx = self._token2idx(token)
