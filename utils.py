@@ -137,7 +137,7 @@ def encode_words(words, times):  # could merge with encode_phowords, same code
     tokens = [enc_chars[i:i + (1 + 2 * config.context)] for i in range(len(enc_chars) - 2 * config.context)]  # token: enc_char and context
     assert len(tokens) > 0
 
-    return tokens, char_times
+    return enc_chars[config.context:-config.context], tokens, char_times
 
 def encode_phowords(phowords, times):
     phonemes = []
@@ -161,7 +161,7 @@ def encode_phowords(phowords, times):
     tokens = [enc_phonemes[i:i + (1 + 2 * config.context)] for i in range(len(enc_phonemes) - 2 * config.context)]  # token: enc_phoneme and context
     assert len(tokens) > 0
 
-    return tokens, phoneme_times
+    return enc_phonemes[config.context:-config.context], tokens, phoneme_times
 
 
 def read_jamendo_times(times_file):

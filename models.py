@@ -154,9 +154,33 @@ class SimilarityModel(nn.Module):
             return 0.5 * (S + 1)
     
 
-ctc = nn.CTCLoss(zero_infinity=True)
-def contrastive_loss(PA, NA, posteriorgram):
+ctc = nn.CTCLoss(blank=config.vocab_size, zero_infinity=True)
+def contrastive_loss(PA, NA, posteriorgram, targets, target_lengths):
+    input_lengths = torch.full(size=(posteriorgram.shape[0],), fill_value=posteriorgram.shape[1], dtype=torch.int32)
 
     return 2 * (config.alpha * torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
                 (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))) + \
-           ctc(posteriorgram.transpose(0, 1), )
+           ctc(posteriorgram.transpose(0, 1), targets, input_lengths, target_lengths)
+
+
+def _contrastive_loss(PA, NA, times):
+    assert len(times) == PA.shape[0]
+    duration = config.segment_length / config.sr
+    fps = PA.shape[1] / duration
+    sum = 0.
+    #box_image = np.zeros(PA.shape)
+    for i, (start, end) in enumerate(times):
+        frame_start = int((start - config.box_slack) * fps)
+        frame_end = int((end + config.box_slack) * fps)
+        if config.box_slack > 0:
+            frame_start = max(frame_start, 0)
+            frame_end = min(frame_end, PA.shape[1] - 1)
+        assert 0 <= frame_start < PA.shape[1] and 0 <= frame_end < PA.shape[1]
+        row_slice = PA[i, frame_start:frame_end + 1]
+        #box_image[i, frame_start:frame_end + 1] = 1
+        sum += torch.pow(torch.max(row_slice) - 1, 2)
+    mean_positives = sum / len(times)
+
+    mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
+
+    return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)

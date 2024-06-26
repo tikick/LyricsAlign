@@ -180,24 +180,28 @@ def collate(data):
     all_tokens = []
     all_times = []
     tokens_per_spectrogram = []
+    targets = []
 
     for spec, words, phowords, times in data:
         spectrograms.append(spec)
 
         if config.use_chars:
-            tokens, token_times = encode_words(words, times)
+            target, tokens, token_times = encode_words(words, times)
         else:
-            tokens, token_times = encode_phowords(phowords, times)
+            target, tokens, token_times = encode_phowords(phowords, times)
+        assert len(target) == len(tokens)
 
         tokens_per_spectrogram.append(len(tokens))
         all_tokens += tokens
         all_times += token_times
+        targets += target
 
     # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
     spectrograms = torch.Tensor(np.array(spectrograms))
     all_tokens = torch.IntTensor(all_tokens)
+    targets = torch.IntTensor(targets)
 
-    return spectrograms, all_tokens, all_times, tokens_per_spectrogram
+    return spectrograms, targets, all_tokens, all_times, tokens_per_spectrogram
 
 
 class LA_Dataset(Dataset):
