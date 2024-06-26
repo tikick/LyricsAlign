@@ -114,6 +114,7 @@ def main():
            'batch_size': config.batch_size,
            'num_negative_samples': config.num_negative_samples,
            'alpha': config.alpha,
+           'loss': config.loss,
            'masked': config.masked,
            'use_dali': config.use_dali,
            'words_slack': config.words_slack,
