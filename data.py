@@ -204,7 +204,7 @@ class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
         super(LA_Dataset, self).__init__()
         dataset_name = 'dali' if config.use_dali else 'georg'
-        file_name = f'{dataset_name}_{partition}_slack_{config.words_slack}_with_time'
+        file_name = f'{dataset_name}_{partition}_with_time'
         #file_name = f'{dataset_name}_{partition}_100'
         pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')
 
@@ -227,8 +227,8 @@ class LA_Dataset(Dataset):
                     assert sample_end <= len(waveform)
 
                     # find the lyrics within (start, end) (+- slack)
-                    idx_first_word = bisect.bisect_left(start_times, (sample_start / config.sr) + config.words_slack)
-                    idx_past_last_word = bisect.bisect_left(end_times, (sample_end / config.sr) - config.words_slack)
+                    idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
+                    idx_past_last_word = bisect.bisect_left(end_times, sample_end / config.sr)
 
                     if idx_first_word >= idx_past_last_word:  # no words (fully contained) in this sample, skip
                         continue

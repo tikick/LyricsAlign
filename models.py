@@ -156,12 +156,12 @@ def contrastive_loss(PA, NA, times):
     assert len(times) == PA.shape[0]
     duration = config.segment_length / config.sr
     fps = PA.shape[1] / duration
-    slack = 1
     sum = 0.
     #box_image = np.zeros(PA.shape)
     for i, (start, end) in enumerate(times):
-        frame_start, frame_end = int((start - slack) * fps), int((end + slack) * fps)
-        if slack > 0:
+        frame_start = int((start - config.box_slack) * fps)
+        frame_end = int((end + config.box_slack) * fps)
+        if config.box_slack > 0:
             frame_start = max(frame_start, 0)
             frame_end = min(frame_end, PA.shape[1] - 1)
         assert 0 <= frame_start < PA.shape[1] and 0 <= frame_end < PA.shape[1]
@@ -170,8 +170,9 @@ def contrastive_loss(PA, NA, times):
         sum += torch.pow(torch.max(row_slice) - 1, 2)
     mean_positives = sum / len(times)
 
-    return 2 * (config.alpha * mean_positives + \
-                (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension
+    mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
+
+    return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)
 
     fig, ax = plt.subplots(figsize=(min(PA.shape[1] // 14, 100), min((len(times) + 20 * config.batch_size) // 12, 100)))
     alignment_cmap = 'Blues'
