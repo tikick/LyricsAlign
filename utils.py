@@ -120,10 +120,10 @@ def encode_words(words, times):  # could merge with encode_phowords, same code
     char_times = []
     for word, time, next_time in zip(words[:-1], times[:-1], times[1:]):
         chars += word + ' '
-        #end, next_start = time[1], next_time[0]
-        #char_times += [time] * len(word) + [(end, next_start)]
-        start, next_end = time[0], next_time[1]
-        char_times += [time] * len(word) + [(start, next_end)]
+        end, next_start = time[1], next_time[0]
+        char_times += [time] * len(word) + [(end, next_start)]
+        #start, next_end = time[0], next_time[1]
+        #char_times += [time] * len(word) + [(start, next_end)]
     chars += words[-1]
     char_times += [times[-1]] * len(words[-1])
 
@@ -144,10 +144,10 @@ def encode_phowords(phowords, times):
     phoneme_times = []
     for phoword, time, next_time in zip(phowords[:-1], times[:-1], times[1:]):
         phonemes += phoword + [' ']
-        #end, next_start = time[1], next_time[0]
-        #phoneme_times += [time] * len(phoword) + [(end, next_start)]
-        start, next_end = time[0], next_time[1]
-        phoneme_times += [time] * len(phoword) + [(start, next_end)]
+        end, next_start = time[1], next_time[0]
+        phoneme_times += [time] * len(phoword) + [(end, next_start)]
+        #start, next_end = time[0], next_time[1]
+        #phoneme_times += [time] * len(phoword) + [(start, next_end)]
     phonemes += phowords[-1]
     phoneme_times += [times[-1]] * len(phowords[-1])
 
