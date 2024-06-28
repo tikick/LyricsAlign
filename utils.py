@@ -8,6 +8,7 @@ from torch import nn
 import string
 from g2p_en import G2p
 import csv
+import random
 
 import config
 
