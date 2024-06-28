@@ -25,9 +25,13 @@ g2p = G2p()
 
 
 def fix_seeds(seed=97):
+    random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
+    #torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+    #torch.use_deterministic_algorithms(True)
 
 def display_module_parameters(model):
     table = PrettyTable(['Modules', 'Parameters'])
