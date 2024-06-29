@@ -78,7 +78,7 @@ def lines2pholines(lines):
 
 def georg_song_is_corrupt(song):
     flat_times = [t for time in song['times'] for t in time]
-    if not all(flat_times[i] <= flat_times[i + 1] + 0.025 for i in range(len(flat_times) - 1)):
+    if not all(flat_times[i] <= flat_times[i + 1] + 0.03 for i in range(len(flat_times) - 1)):
         return True
 
     return False
