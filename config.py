@@ -72,7 +72,7 @@ words_slack = 0  # words identified within audio segment have a words_slack slac
 val_size = 0.1
 
 # waveform
-sr = 11025  # waveform sampling rate
+sr = 44100  # waveform sampling rate
 segment_length = sr * 5  # length in waveform samples, corresponds to a 5 seconds audio segment
 hop_size = segment_length // 2  # in waveform samples
 

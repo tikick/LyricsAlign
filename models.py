@@ -107,17 +107,37 @@ class TextEncoder(nn.Module):
         return x
 
 
+import dac
+
 class SimilarityModel(nn.Module):
 
     def __init__(self):
         super(SimilarityModel, self).__init__()
-        self.audio_encoder = nn.DataParallel(AudioEncoder())
-        self.text_encoder = nn.DataParallel(TextEncoder())
+        #self.audio_encoder = nn.DataParallel(AudioEncoder())
 
-    def forward(self, spectrograms, positives, positives_per_spectrogram=None, negatives=None):
+        freeze_dac = True
+        dac_path = dac.utils.download(model_type='44khz')
+        self.dac = dac.DAC.load(dac_path)
+        if freeze_dac:
+            for param in self.dac.parameters():
+                param.requires_grad = False
+
+        self.text_encoder = TextEncoder()#nn.DataParallel(TextEncoder())
+
+        print(f'dac.device: {self.dac.device}, text_encoder.device: {self.text_encoder.device}')
+
+    def forward(self, waveforms, positives, positives_per_spectrogram=None, negatives=None):
+
+        print(f'waveforms.shape = {waveforms.shape}')  # shuold be (bs, 1, 44k * 5) after .unsqueeze(1) in a few lines
         
         if negatives is not None:  # we're in train
-            A = self.audio_encoder(spectrograms)
+            #A = self.audio_encoder(spectrograms)
+            x = self.dac.preprocess(waveforms.unsqueeze(1), config.sr)  # channel dimension
+            _, _, latents, _, _ = self.dac.encode(x)
+            print(f'latents.shape = {latents.shape}')
+            A = torch.stack([l.mean(axis=2) for l in latents.split(2, 2)], axis=2)  # merge two consecutive columns into one (mean)
+            print(f'A.shape = {A.shape}')
+
             P = self.text_encoder(positives)
             N = self.text_encoder(negatives)
 
@@ -135,6 +155,7 @@ class SimilarityModel(nn.Module):
             return PA, NA
         
         else:  # we're in eval
+            raise EnvironmentError
             assert len(spectrograms) == 1
 
             A = self.audio_encoder(spectrograms)

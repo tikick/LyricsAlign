@@ -170,18 +170,18 @@ def get_georg():
 def jamendo_collate(song):
     waveform = load(song['audio_path'], sr=config.sr)
     song['duration'] = len(waveform) / config.sr
-    spec = wav2spec(waveform)
-    spectrogram, all_tokens, _ = collate(data=[(spec, song['words'], song['phowords'])])
-    return spectrogram, all_tokens
+    #spec = wav2spec(waveform)
+    waveform, all_tokens, _ = collate(data=[(waveform, song['words'], song['phowords'])])
+    return waveform, all_tokens
 
 
 def collate(data):
-    spectrograms = []
+    waveforms = []
     all_tokens = []
     tokens_per_spectrogram = []
 
-    for spec, words, phowords in data:
-        spectrograms.append(spec)
+    for waveform, words, phowords in data:
+        waveforms.append(waveform)
 
         if config.use_chars:
             tokens = encode_words(words)
@@ -192,17 +192,17 @@ def collate(data):
         all_tokens += tokens
 
     # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
-    spectrograms = torch.Tensor(np.array(spectrograms))
+    waveforms = torch.Tensor(np.array(waveforms))
     all_tokens = torch.IntTensor(all_tokens)
 
-    return spectrograms, all_tokens, tokens_per_spectrogram
+    return waveforms, all_tokens, tokens_per_spectrogram
 
 
 class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
         super(LA_Dataset, self).__init__()
         dataset_name = 'dali' if config.use_dali else 'georg'
-        file_name = f'{dataset_name}_{partition}'
+        file_name = f'{dataset_name}_{partition}_waveforms'
         if config.use_vocals:
             file_name += '_vocals'
         pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')
@@ -232,8 +232,8 @@ class LA_Dataset(Dataset):
                     if idx_first_word >= idx_past_last_word:  # no words (fully contained) in this sample, skip
                         continue
 
-                    spec = wav2spec(waveform[sample_start:sample_end])     
-                    sample = (spec, song['words'][idx_first_word:idx_past_last_word], song['phowords'][idx_first_word:idx_past_last_word])
+                    #spec = wav2spec(waveform[sample_start:sample_end])     
+                    sample = (waveform[sample_start:sample_end], song['words'][idx_first_word:idx_past_last_word], song['phowords'][idx_first_word:idx_past_last_word])
                     samples.append(sample)
 
             with open(pickle_file, 'wb') as f:

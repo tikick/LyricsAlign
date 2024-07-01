@@ -27,14 +27,14 @@ def train(model, device, train_loader, negative_sampler, criterion, optimizer):
     batch_loss = 0.
 
     for idx, batch in enumerate(tqdm(train_loader)):
-        spectrograms, positives, positives_per_spectrogram = batch
+        waveforms, positives, positives_per_spectrogram = batch
         negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
         negatives = torch.IntTensor(negatives)
-        spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
+        waveforms, positives, negatives = waveforms.to(device), positives.to(device), negatives.to(device)
 
         optimizer.zero_grad()
 
-        PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
+        PA, NA = model(waveforms, positives, positives_per_spectrogram, negatives)
 
         loss = criterion(PA, NA)
         loss.backward()
