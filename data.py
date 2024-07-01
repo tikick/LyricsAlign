@@ -202,7 +202,7 @@ class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
         super(LA_Dataset, self).__init__()
         dataset_name = 'dali' if config.use_dali else 'georg'
-        file_name = f'{dataset_name}_{partition}_slack_{config.words_slack}'
+        file_name = f'{dataset_name}_{partition}'
         if config.use_vocals:
             file_name += '_vocals'
         pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')
@@ -352,6 +352,6 @@ if __name__ == '__main__':
     train, val = train_test_split(georg, test_size=config.val_size, random_state=97)
 
     train_data = LA_Dataset(train, 'train')
-    #val_data = LA_Dataset(val, 'val')
+    val_data = LA_Dataset(val, 'val')
     print('Num training samples:', len(train_data))
-    #print('Num validation samples:', len(val_data))
+    print('Num validation samples:', len(val_data))
