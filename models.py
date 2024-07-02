@@ -124,10 +124,11 @@ class SimilarityModel(nn.Module):
 
         self.text_encoder = TextEncoder()#nn.DataParallel(TextEncoder())
 
-        print(f'dac.device: {self.dac.device}, text_encoder.device: {self.text_encoder.device}')
+        print(f'dac.device: {self.dac.device}')
 
     def forward(self, waveforms, positives, positives_per_spectrogram=None, negatives=None):
 
+        print(f'dac.device: {self.dac.device}')
         print(f'waveforms.shape = {waveforms.shape}')  # shuold be (bs, 1, 44k * 5) after .unsqueeze(1) in a few lines
         
         if negatives is not None:  # we're in train
