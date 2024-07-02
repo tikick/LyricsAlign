@@ -138,6 +138,7 @@ def main():
     # else:
     if config.use_dali:
         dataset = get_dali()
+        dataset = dataset[:10]
         print('Size of DALI:', len(dataset))
     else:
         dataset = get_georg()
