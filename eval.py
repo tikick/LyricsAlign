@@ -21,10 +21,10 @@ def evaluate(model, device, jamendo, log=False, epoch=-1):
             #print(song['id'])
             #print(song['words'])
             #print(song['times'])
-            spectrogram, positives = jamendo_collate(song)
-            spectrogram, positives = spectrogram.to(device), positives.to(device)
+            waveform, positives = jamendo_collate(song)
+            waveform, positives = waveform.to(device), positives.to(device)
 
-            S = model(spectrogram, positives)
+            S = model(waveform, positives)
             S = S.cpu().numpy()
             #print('S.shape:', S.shape)
 
