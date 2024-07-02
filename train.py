@@ -192,8 +192,8 @@ def main():
             wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
         
         old_lr = optimizer.param_groups[0]["lr"]
-        scheduler.step(PCO_jamendo)
         #scheduler.step(PCO_val_20)  # error if masked = True
+        scheduler.step(PCO_jamendo)
         new_lr = optimizer.param_groups[0]["lr"]
         print(f'lr: {old_lr} -> {new_lr}')
 
