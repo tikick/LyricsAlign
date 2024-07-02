@@ -121,6 +121,7 @@ def main():
            'val_size': config.val_size}
     
     print(cfg)
+    os.environ["WANDB__SERVICE_WAIT"] = "300"
     wandb.init(project='New-Align', config=cfg)
 
     run_start_time = datetime.now().strftime('%m-%d,%H:%M')
