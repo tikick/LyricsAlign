@@ -241,6 +241,7 @@ class LA_Dataset(Dataset):
                     offset = sample_start / config.sr
                     times = [(start - offset, end - offset) for (start, end) in times]
                     for (start, end) in times:
+                        # +0.03 due to georg's failed monotonicity
                         assert 0 <= start < 5.03 and 0 <= end < 5.03, f'id={song["id"]}, i={i}, sample_start={sample_start}, offset={offset} start={start}, end={end}'
                     sample = (spec, words, phowords, times)
                     samples.append(sample)
