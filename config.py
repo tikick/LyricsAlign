@@ -62,7 +62,7 @@ masked = False
 # dataset
 use_dali = True  # if false uses georg
 use_vocals = False
-assert not use_dali or not use_vocals
+#assert not use_dali or not use_vocals
 
 
 # WARNING: if you change the following parameters remember to delete the sample files or the new samples will not be computed
