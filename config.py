@@ -44,7 +44,7 @@ vocab_size = 28 if use_chars else 40  # len(char_dict) if use_chars else len(pho
 embedding_dim = 64
 
 ### others:
-num_epochs = 4
+num_epochs = 10
 lr = 0.0001
 batch_size = 32
 num_negative_samples = 1_000
@@ -60,8 +60,8 @@ masked = False
 
 
 # dataset
-use_dali = False  # if false uses georg
-use_vocals = True
+use_dali = True  # if false uses georg
+use_vocals = False
 assert not use_dali or not use_vocals
 
 
