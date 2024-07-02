@@ -138,6 +138,8 @@ class SimilarityModel(nn.Module):
             #print(f'latents.shape = {latents.shape}')
             A = torch.stack([l.mean(axis=2) for l in latents.split(2, 2)], axis=2)  # merge two consecutive columns into one (mean)
             #print(f'A.shape = {A.shape}')
+            # l2 normalization
+            A = F.normalize(A, p=2, dim=1)
 
             P = self.text_encoder(positives)
             N = self.text_encoder(negatives)
@@ -162,6 +164,8 @@ class SimilarityModel(nn.Module):
             x = self.dac.preprocess(waveforms.unsqueeze(1), config.sr)  # channel dimension
             _, _, latents, _, _ = self.dac.encode(x)
             A = torch.stack([l.mean(axis=2) for l in latents.split(2, 2)], axis=2)  # merge two consecutive columns into one (mean)
+            # l2 normalization
+            A = F.normalize(A, p=2, dim=1)
             
             P = self.text_encoder(positives)
             
