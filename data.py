@@ -159,8 +159,8 @@ def get_georg():
                     'phowords': phowords,
                     'times': times}
             
-            if georg_song_is_corrupt(song):
-                continue
+            #if georg_song_is_corrupt(song):
+            #    continue
             
             songs.append(song)
     
@@ -355,11 +355,11 @@ class NegativeSampler:
 if __name__ == '__main__':
     print('Running data.py')
     
-    #georg = get_georg()
-    #print('Size of Georg:', len(georg))
-    dali = get_dali()
-    print('Size of DALI:', len(dali))
-    train, val = train_test_split(dali, test_size=config.val_size, random_state=97)
+    georg = get_georg()
+    print('Size of Georg:', len(georg))
+    #dali = get_dali()
+    #print('Size of DALI:', len(dali))
+    train, val = train_test_split(georg, test_size=config.val_size, random_state=97)
 
     train_data = LA_Dataset(train, 'train')
     val_data = LA_Dataset(val, 'val')
