@@ -41,7 +41,7 @@ use_chars = False  # if false uses phonemes
 vocab_size = 28 if use_chars else 40  # len(char_dict) if use_chars else len(phoneme_dict)
 
 ### audio and text encoder
-embedding_dim = 64
+embedding_dim = 72
 
 ### others:
 num_epochs = 10
