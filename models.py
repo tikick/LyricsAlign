@@ -124,20 +124,20 @@ class SimilarityModel(nn.Module):
 
         self.text_encoder = TextEncoder()#nn.DataParallel(TextEncoder())
 
-        print(f'dac.device: {self.dac.device}')
+        #print(f'dac.device: {self.dac.device}')
 
     def forward(self, waveforms, positives, positives_per_spectrogram=None, negatives=None):
 
-        print(f'dac.device: {self.dac.device}')
-        print(f'waveforms.shape = {waveforms.shape}')  # shuold be (bs, 1, 44k * 5) after .unsqueeze(1) in a few lines
+        #print(f'dac.device: {self.dac.device}')
+        #print(f'waveforms.shape = {waveforms.shape}')  # shuold be (bs, 1, 44k * 5) after .unsqueeze(1) in a few lines
         
         if negatives is not None:  # we're in train
             #A = self.audio_encoder(spectrograms)
             x = self.dac.preprocess(waveforms.unsqueeze(1), config.sr)  # channel dimension
             _, _, latents, _, _ = self.dac.encode(x)
-            print(f'latents.shape = {latents.shape}')
+            #print(f'latents.shape = {latents.shape}')
             A = torch.stack([l.mean(axis=2) for l in latents.split(2, 2)], axis=2)  # merge two consecutive columns into one (mean)
-            print(f'A.shape = {A.shape}')
+            #print(f'A.shape = {A.shape}')
 
             P = self.text_encoder(positives)
             N = self.text_encoder(negatives)
@@ -156,10 +156,13 @@ class SimilarityModel(nn.Module):
             return PA, NA
         
         else:  # we're in eval
-            raise EnvironmentError
-            assert len(spectrograms) == 1
+            assert len(waveforms) == 1
 
-            A = self.audio_encoder(spectrograms)
+            #A = self.audio_encoder(spectrograms)
+            x = self.dac.preprocess(waveforms.unsqueeze(1), config.sr)  # channel dimension
+            _, _, latents, _, _ = self.dac.encode(x)
+            A = torch.stack([l.mean(axis=2) for l in latents.split(2, 2)], axis=2)  # merge two consecutive columns into one (mean)
+            
             P = self.text_encoder(positives)
             
             S = torch.matmul(P, A[0])

@@ -59,12 +59,12 @@ def validate(model, device, val_loader, negative_sampler, criterion, epoch):
 
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(val_loader)):
-            spectrograms, positives, positives_per_spectrogram = batch
+            waveforms, positives, positives_per_spectrogram = batch
             negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
             negatives = torch.IntTensor(negatives)
-            spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
+            waveforms, positives, negatives = waveforms.to(device), positives.to(device), negatives.to(device)
 
-            PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
+            PA, NA = model(waveforms, positives, positives_per_spectrogram, negatives)
 
             loss = criterion(PA, NA)
             val_loss += loss.item()
