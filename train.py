@@ -177,9 +177,6 @@ def main():
         # save checkpoint
         torch.save(model.state_dict(), os.path.join(run_checkpoint_dir, str(epoch)))
 
-        val_loss = validate(model, device, val_loader, negative_sampler, criterion, epoch)
-        wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
-
         evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
         PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False)
         wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
@@ -191,6 +188,9 @@ def main():
             wandb.log({'metric/AAE_val_20': AAE_val_20, 'metric/epoch': epoch})
             wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
             wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
+
+        val_loss = validate(model, device, val_loader, negative_sampler, criterion, epoch)
+        wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
         
         old_lr = optimizer.param_groups[0]["lr"]
         #scheduler.step(PCO_val_20)  # error if masked = True
