@@ -172,12 +172,12 @@ def contrastive_loss(PA, NA, times):
         window_start = max(frame_start - tol_window_length, 0)
         window_end = frame_start
         box_mask[i, window_start:window_end] = \
-            np.linspace(0, 1, tol_window_length)[tol_window_length - (window_end - window_start):]
+            torch.linspace(0, 1, tol_window_length)[tol_window_length - (window_end - window_start):]
         # right tolerance window
         window_start = frame_end
         window_end = min(frame_end + tol_window_length, PA.shape[1])
         box_mask[i, window_start:window_end] = \
-            np.linspace(1, 0, tol_window_length)[:window_end - window_start]
+            torch.linspace(1, 0, tol_window_length)[:window_end - window_start]
 
     PA = PA * box_mask
     mean_positives = torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2))
