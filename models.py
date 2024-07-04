@@ -159,7 +159,8 @@ def contrastive_loss(PA, NA, times):
     fps = PA.shape[1] / duration
     tol_window_length = int(config.box_slack * fps)
 
-    box_mask = np.zeros(PA.shape)
+    #box_mask = np.zeros(PA.shape)
+    box_mask = torch.zeros(PA.shape, device=PA.device)
     for i, (start, end) in enumerate(times):
         frame_start = int(start * fps)
         frame_end = int(end * fps) + 1  # +1 to make non-inclusive
