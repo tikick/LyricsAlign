@@ -154,22 +154,32 @@ def _contrastive_loss(PA, NA, times):
 
 def contrastive_loss(PA, NA, times):
     assert len(times) == PA.shape[0]
+
     duration = config.segment_length / config.sr
     fps = PA.shape[1] / duration
-    sum = 0.
-    #box_image = np.zeros(PA.shape)
-    for i, (start, end) in enumerate(times):
-        frame_start = int((start - config.box_slack) * fps)
-        frame_end = int((end + config.box_slack) * fps)
-        if config.box_slack > 0:
-            frame_start = max(frame_start, 0)
-            frame_end = min(frame_end, PA.shape[1] - 1)
-        assert 0 <= frame_start < PA.shape[1] and 0 <= frame_end < PA.shape[1]
-        row_slice = PA[i, frame_start:frame_end + 1]
-        #box_image[i, frame_start:frame_end + 1] = 1
-        sum += torch.pow(torch.max(row_slice) - 1, 2)
-    mean_positives = sum / len(times)
+    tol_window_length = int(config.box_slack * fps)
 
+    box_mask = np.zeros(PA.shape)
+    for i, (start, end) in enumerate(times):
+        frame_start = int(start * fps)
+        frame_end = int(end * fps) + 1  # +1 to make non-inclusive
+        assert 0 <= frame_start < PA.shape[1] and 0 < frame_end <= PA.shape[1]
+        box_mask[i, frame_start:frame_end] = 1
+
+        # add linear tolerance window
+        # left tolerance window
+        window_start = max(frame_start - tol_window_length, 0)
+        window_end = frame_start
+        box_mask[i, window_start:window_end] = \
+            np.linspace(0, 1, tol_window_length)[tol_window_length - (window_end - window_start):]
+        # right tolerance window
+        window_start = frame_end
+        window_end = min(frame_end + tol_window_length, PA.shape[1])
+        box_mask[i, window_start:window_end] = \
+            np.linspace(1, 0, tol_window_length)[:window_end - window_start]
+
+    PA = PA * box_mask
+    mean_positives = torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2))
     mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
 
     return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)
