@@ -157,18 +157,22 @@ def contrastive_loss(PA, NA, times):
     duration = config.segment_length / config.sr
     fps = PA.shape[1] / duration
     sum = 0.
+    summands = 0
     #box_image = np.zeros(PA.shape)
     for i, (start, end) in enumerate(times):
         frame_start = int((start - config.box_slack) * fps)
         frame_end = int((end + config.box_slack) * fps)
-        if config.box_slack > 0:
-            frame_start = max(frame_start, 0)
-            frame_end = min(frame_end, PA.shape[1] - 1)
+        #if config.box_slack > 0:
+        #    frame_start = max(frame_start, 0)
+        #    frame_end = min(frame_end, PA.shape[1] - 1)
+        if frame_start < 0 or frame_end >= PA.shape[1]:
+            continue
         assert 0 <= frame_start < PA.shape[1] and 0 <= frame_end < PA.shape[1]
         row_slice = PA[i, frame_start:frame_end + 1]
         #box_image[i, frame_start:frame_end + 1] = 1
         sum += torch.pow(torch.max(row_slice) - 1, 2)
-    mean_positives = sum / len(times)
+        summands += 1
+    mean_positives = sum / summands
 
     mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
 
