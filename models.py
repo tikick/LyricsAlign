@@ -165,7 +165,7 @@ def contrastive_loss(PA, NA, times):
         #if config.box_slack > 0:
         #    frame_start = max(frame_start, 0)
         #    frame_end = min(frame_end, PA.shape[1] - 1)
-        if frame_start < 0 or frame_end >= PA.shape[1]:
+        if frame_start < 0 or frame_end >= PA.shape[1]:  # box not fully contained
             continue
         assert 0 <= frame_start < PA.shape[1] and 0 <= frame_end < PA.shape[1]
         row_slice = PA[i, frame_start:frame_end + 1]
