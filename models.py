@@ -115,7 +115,7 @@ class SimilarityModel(nn.Module):
         super(SimilarityModel, self).__init__()
         #self.audio_encoder = nn.DataParallel(AudioEncoder())
 
-        freeze_dac = True
+        freeze_dac = False
         dac_path = dac.utils.download(model_type='44khz')
         self.dac = dac.DAC.load(dac_path)
         if freeze_dac:
