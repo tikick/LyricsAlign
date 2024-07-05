@@ -43,7 +43,7 @@ vocab_size = 28 if use_chars else 40  # len(char_dict) if use_chars else len(pho
 embedding_dim = 64
 
 ### others:
-num_epochs = 18
+num_epochs = 10
 lr = 0.0001
 batch_size = 8
 num_negative_samples = 1_000
@@ -51,7 +51,7 @@ num_negative_samples = 1_000
 
 # loss
 alpha = 0.5
-box_slack = 2
+box_slack = 4
 loss = 'soft-box-loss'
 
 
