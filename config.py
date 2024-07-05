@@ -50,8 +50,9 @@ num_negative_samples = 1_000
 
 
 # loss
-alpha = 0.2
-box_slack = 1.5
+alpha = 0.5
+box_slack_left = 1.5
+box_slack_right = 0.5
 loss = 'box-loss'
 
 
