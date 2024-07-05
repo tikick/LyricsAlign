@@ -53,7 +53,7 @@ num_negative_samples = 1_000
 alpha = 0.5
 box_slack_left = 1.5
 box_slack_right = 0.5
-loss = 'box-loss'
+loss = 'asym-box-loss'
 
 
 # alignment
