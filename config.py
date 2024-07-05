@@ -51,7 +51,7 @@ num_negative_samples = 1_000
 
 # loss
 alpha = 0.5
-box_slack = 6
+box_slack = 4
 loss = 'soft-box-loss'
 
 
