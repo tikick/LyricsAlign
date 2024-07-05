@@ -172,7 +172,11 @@ def contrastive_loss(PA, NA, times):
         #box_image[i, frame_start:frame_end + 1] = 1
         sum += torch.pow(torch.max(row_slice) - 1, 2)
         summands += 1
-    mean_positives = sum / summands
+
+    if summands > 0:
+        mean_positives = sum / summands
+    else:
+        mean_positives = 0
 
     mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
 
