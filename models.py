@@ -164,7 +164,7 @@ def contrastive_loss(PA, NA, times):
     for i, (start, end) in enumerate(times):
         frame_start = int(start * fps)
         frame_end = int(end * fps) + 1  # +1 to make non-inclusive
-        assert 0 <= frame_start < PA.shape[1] and 0 < frame_end <= PA.shape[1]
+        assert 0 <= frame_start < frame_end <= PA.shape[1]
         box_mask[i, frame_start:frame_end] = 1
 
         # add linear tolerance window
@@ -179,9 +179,8 @@ def contrastive_loss(PA, NA, times):
         box_mask[i, window_start:window_end] = \
             torch.linspace(1, 0, tol_window_length, dtype=float, requires_grad=False)[:window_end - window_start]
 
-    PA = PA + 2  # PA \in [1, 3]
-    PA = PA * box_mask
-    mean_positives = torch.mean(torch.pow((torch.max(PA, dim=1).values - 2) - 1, 2))
+    indices = torch.max((PA + 1) * box_mask, dim=1).indices  # +1 to make PA non-negative
+    mean_positives = torch.mean(torch.pow(PA.gather(dim=1, index=indices.unsqueeze(1)) - 1, 2))
     mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
 
     return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)
