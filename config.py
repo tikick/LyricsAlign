@@ -56,7 +56,7 @@ loss = 'box-loss'
 
 
 # alignment
-masked = False
+masked = True
 
 
 # dataset
