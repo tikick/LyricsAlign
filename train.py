@@ -165,8 +165,8 @@ def main():
 
     criterion = contrastive_loss
 
-    epoch = -1
-    #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '06-25,12:11', str(epoch))))
+    epoch = 3
+    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(epoch))))
     epoch += 1
     while epoch < config.num_epochs:
         print('Epoch:', epoch)
