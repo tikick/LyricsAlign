@@ -170,7 +170,8 @@ def contrastive_loss(PA, NA, times):
         sum += torch.pow(torch.max(row_slice) - 1, 2)
     mean_positives = sum / len(times)
 
-    mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
+    #mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
+    mean_negatives = torch.mean(torch.pow(NA, 2))
 
     return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)
 
