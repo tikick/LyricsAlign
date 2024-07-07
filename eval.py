@@ -72,12 +72,14 @@ if __name__ == '__main__':
            'batch_size': config.batch_size,
            'num_negative_samples': config.num_negative_samples,
            'alpha': config.alpha,
+           'box_slack': config.box_slack,
+           'loss': config.loss,
            'masked': config.masked,
            'use_dali': config.use_dali,
-           'words_slack': config.words_slack,
            'val_size': config.val_size}
     
     print(cfg)
+    os.environ["WANDB__SERVICE_WAIT"] = "300"
     wandb.init(project='New-Align', config=cfg)
 
     device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
