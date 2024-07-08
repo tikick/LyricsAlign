@@ -167,7 +167,10 @@ def contrastive_loss(PA, times):
         pos_sum += torch.pow(torch.max(pos_row_slice) - 1, 2)
 
         neg_row_slice = torch.cat((PA[i, :frame_start], PA[i, frame_end + 1:]))
-        neg_sum += torch.pow(torch.max(neg_row_slice), 2)
+        if neg_row_slice.numel() == 0:
+            neg_sum += 0
+        else:
+            neg_sum += torch.pow(torch.max(neg_row_slice), 2)
 
     mean_positives = pos_sum / len(times)
     mean_negatives = neg_sum / len(times)
