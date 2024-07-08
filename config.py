@@ -46,7 +46,7 @@ embedding_dim = 64
 num_epochs = 18
 lr = 0.0001
 batch_size = 8
-num_negative_samples = 1_000
+num_negative_samples = -1
 
 
 # loss

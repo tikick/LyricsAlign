@@ -20,7 +20,7 @@ from eval import evaluate
 from media import show_plot
 
 
-def train(model, device, train_loader, negative_sampler, criterion, optimizer):
+def train(model, device, train_loader, criterion, optimizer):
     model.train()
     num_batches = len(train_loader.dataset) // config.batch_size
     train_loss = 0.
@@ -28,15 +28,13 @@ def train(model, device, train_loader, negative_sampler, criterion, optimizer):
 
     for idx, batch in enumerate(tqdm(train_loader)):
         spectrograms, positives, times, positives_per_spectrogram = batch
-        negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
-        negatives = torch.IntTensor(negatives)
-        spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
+        spectrograms, positives = spectrograms.to(device), positives.to(device)
 
         optimizer.zero_grad()
 
-        PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
+        PA = model(spectrograms, positives, positives_per_spectrogram)
 
-        loss = criterion(PA, NA, times)
+        loss = criterion(PA, times)
         loss.backward()
 
         optimizer.step()
@@ -52,7 +50,7 @@ def train(model, device, train_loader, negative_sampler, criterion, optimizer):
     return train_loss / num_batches
 
 
-def validate(model, device, val_loader, negative_sampler, criterion, epoch):
+def validate(model, device, val_loader, criterion, epoch):
     model.eval()
     num_batches = len(val_loader.dataset) // config.batch_size
     val_loss = 0.
@@ -60,38 +58,28 @@ def validate(model, device, val_loader, negative_sampler, criterion, epoch):
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(val_loader)):
             spectrograms, positives, times, positives_per_spectrogram = batch
-            negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
-            negatives = torch.IntTensor(negatives)
-            spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
+            spectrograms, positives = spectrograms.to(device), positives.to(device)
 
-            PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
+            PA = model(spectrograms, positives, positives_per_spectrogram)
 
-            loss = criterion(PA, NA, times)
+            loss = criterion(PA, times)
             val_loss += loss.item()
 
             # log first batch
             if idx == 0:
                 PA = PA.cpu().numpy()
-                NA = NA.cpu().numpy()
-                #PA = 0.5 * (PA + 1)
-                #NA = 0.5 * (NA + 1)
                 positives = positives.cpu().tolist()
-                negatives = negatives.cpu().tolist()
 
                 f = int2char if config.use_chars else int2phoneme
                 positives = [[f[pos[i]] for i in range(len(pos))] for pos in positives]
-                negatives = [[f[neg[i]] for i in range(len(neg))] for neg in negatives]
 
                 cumsum = np.cumsum([0] + positives_per_spectrogram)
                 for i in range(min(8, config.batch_size)):
-                    heights = [positives_per_spectrogram[i], 50]
-                    fig, axs = plt.subplots(2, 1, height_ratios=heights, figsize=(15, min((sum(heights) + 20 * len(heights)) // 12, 100)))
+                    heights = [positives_per_spectrogram[i]]
+                    fig, axs = plt.subplots(1, 1, figsize=(15, min((sum(heights) + 20 * len(heights)) // 12, 100)))
 
                     j, k = cumsum[i], cumsum[i + 1]
                     show_plot(PA[j:k], axs[0], 'positive scores', positives[j:k])  # PA[i]
-                    j = i * config.num_negative_samples
-                    k = j + 50  # don't show all 1000 negative tokens
-                    show_plot(NA[j:k], axs[1], 'negative scores', negatives[j:k])  # NA[i]
 
                     fig.tight_layout()
 
@@ -153,7 +141,7 @@ def main():
     train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
     val_loader = DataLoader(dataset=val_data, batch_size=config.batch_size, shuffle=False, collate_fn=collate)
     
-    negative_sampler = NegativeSampler(dataset)
+    #negative_sampler = NegativeSampler(dataset)
 
     jamendo = get_jamendo()
     jamendoshorts = get_jamendoshorts()
@@ -171,7 +159,7 @@ def main():
     while epoch < config.num_epochs:
         print('Epoch:', epoch)
 
-        train_loss = train(model, device, train_loader, negative_sampler, criterion, optimizer)
+        train_loss = train(model, device, train_loader, criterion, optimizer)
         wandb.log({'train/train_loss': train_loss, 'train/epoch': epoch})
 
         # save checkpoint
@@ -189,7 +177,7 @@ def main():
             wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
             wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
 
-        val_loss = validate(model, device, val_loader, negative_sampler, criterion, epoch)
+        val_loss = validate(model, device, val_loader, criterion, epoch)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
         
         old_lr = optimizer.param_groups[0]["lr"]
