@@ -12,22 +12,31 @@ import json
 
 
 def evaluate(model, device, jamendo):
-    model.eval()
+    #model.eval()
     PCO_score_sum = 0.
     AAE_score_sum = 0.
     word_alignments = []
 
-    with torch.no_grad():
-        for song in jamendo:
-            spectrogram, positives = jamendo_collate(song)
-            spectrogram, positives = spectrogram.to(device), positives.to(device)
-
-            S = model(spectrogram, positives)
-            S = S.cpu().numpy()
-
-            _, word_alignment = get_alignment(S, song, time_measure='seconds')
+    file_path = os.path.join(config.base_path, "jamendo_alignments.txt")
+    with open(file_path, 'r') as f:
+        for line in f:
+            # Read each line (which contains a JSON-encoded list)
+            word_alignment = json.loads(line.strip())  # Convert JSON string to list
             word_alignments.append(word_alignment)
-            continue
+
+    with torch.no_grad():
+        for song, word_alignment in zip(jamendo, word_alignments):
+            #if song['id'] != 'Songwriterz_-_Back_In_Time':
+            #    continue
+            #spectrogram, positives = jamendo_collate(song)
+            #spectrogram, positives = spectrogram.to(device), positives.to(device)
+
+            #S = model(spectrogram, positives)
+            #S = S.cpu().numpy()
+
+            #_, word_alignment = get_alignment(S, song, time_measure='seconds')
+            #word_alignments.append(word_alignment)
+            #continue
         
             PCO_score = percentage_of_correct_onsets(song['words'], word_alignment, song['times'])
             AAE_score = average_absolute_error(word_alignment, song['times'])
@@ -40,13 +49,13 @@ def evaluate(model, device, jamendo):
             PCO_score_sum += PCO_score
             AAE_score_sum += AAE_score
     
-    file_path = os.path.join(config.base_path, "word_alignments.txt")
-    # Open the file in write mode
-    with open(file_path, 'w') as f:
-        # Write each list as a JSON string on a new line
-        for word_alignment in word_alignments:
-            json.dump(word_alignment, f)  # Write list as JSON string
-            f.write('\n')  # Add a newline after each list
+    #file_path = os.path.join(config.base_path, "jamendo_alignments.txt")
+    ## Open the file in write mode
+    #with open(file_path, 'w') as f:
+    #    # Write each list as a JSON string on a new line
+    #    for word_alignment in word_alignments:
+    #        json.dump(word_alignment, f)  # Write list as JSON string
+    #        f.write('\n')  # Add a newline after each list
 
     return PCO_score_sum / len(jamendo), AAE_score_sum / len(jamendo)
 
@@ -62,30 +71,17 @@ def average_absolute_error(alignment, gt_alignment):
 def percentage_of_correct_onsets(words, alignment, gt_alignment, tol=0.3):
     assert len(alignment) == len(gt_alignment) and len(words) == len(alignment)
     correct_onsets = 0
-    failed_words = []
-    failed_times = []
-    failed_gt_times = []
-    for word, time, gt_time in zip(words, alignment, gt_alignment):
+    for idx, (word, time, gt_time) in enumerate(zip(words, alignment, gt_alignment)):
         if abs(time[0] - gt_time[0]) <= tol:
             correct_onsets += 1
         else:
-            failed_words.append(word)
-            failed_times.append(time)
-            failed_gt_times.append(gt_time)
-    
-    print('failed_words')
-    print(failed_words)
-    print('failed_times')
-    print(failed_times)
-    print('failed_gt_times')
-    print(failed_gt_times)
-    print(f'num failed words: {len(failed_words)}, tot words: {len(words)}')
+            print(f'word: {word}\ttime: {time}\tgt_time: {gt_time}')
 
     return correct_onsets / len(alignment)
 
 
 if __name__ == '__main__':
-    print('Running eval.py')
+    print('Running stats.py')
 
     fix_seeds()
 
@@ -109,11 +105,14 @@ if __name__ == '__main__':
     #os.environ["WANDB__SERVICE_WAIT"] = "300"
     #wandb.init(project='New-Align', config=cfg)
 
-    device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = SimilarityModel().to(device)
+    #device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    #model = SimilarityModel().to(device)
     jamendo = get_jamendo()
-    jamendoshorts = get_jamendoshorts()
+    #jamendoshorts = get_jamendoshorts()
 
-    for epoch in range(3, 4):
-        model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(epoch))))
-        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
+    #for epoch in range(3, 4):
+    #    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(epoch))))
+    #    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
+
+    PCO_jamendo, AAE_jamendo = evaluate(None, None, jamendo)
+    print(f'PCO_jamendo: {PCO_jamendo}, AAE_jamendo: {AAE_jamendo}')
