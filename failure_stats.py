@@ -1,9 +1,10 @@
 import os
 import torch
 import wandb
+from sklearn.model_selection import train_test_split
 
 import config
-from data import get_jamendo, get_jamendoshorts, jamendo_collate
+from data import get_jamendo, get_jamendoshorts, jamendo_collate, get_dali
 from models import SimilarityModel
 from utils import fix_seeds
 from decode import get_alignment
@@ -15,26 +16,24 @@ def evaluate(model, device, jamendo):
     #model.eval()
     PCO_score_sum = 0.
     AAE_score_sum = 0.
-    word_alignments = []
+    #word_alignments = []
 
-    file_path = os.path.join(config.base_path, "jamendo_alignments.txt")
-    with open(file_path, 'r') as f:
-        for line in f:
-            # Read each line (which contains a JSON-encoded list)
-            word_alignment = json.loads(line.strip())  # Convert JSON string to list
-            word_alignments.append(word_alignment)
+    #file_path = os.path.join(config.base_path, "jamendo_alignments.txt")
+    #with open(file_path, 'r') as f:
+    #    for line in f:
+    #        # Read each line (which contains a JSON-encoded list)
+    #        word_alignment = json.loads(line.strip())  # Convert JSON string to list
+    #        word_alignments.append(word_alignment)
 
     with torch.no_grad():
-        for song, word_alignment in zip(jamendo, word_alignments):
-            #if song['id'] != 'Songwriterz_-_Back_In_Time':
-            #    continue
-            #spectrogram, positives = jamendo_collate(song)
-            #spectrogram, positives = spectrogram.to(device), positives.to(device)
+        for song in jamendo:
+            spectrogram, positives = jamendo_collate(song)
+            spectrogram, positives = spectrogram.to(device), positives.to(device)
 
-            #S = model(spectrogram, positives)
-            #S = S.cpu().numpy()
+            S = model(spectrogram, positives)
+            S = S.cpu().numpy()
 
-            #_, word_alignment = get_alignment(S, song, time_measure='seconds')
+            _, word_alignment = get_alignment(S, song, time_measure='seconds')
             #word_alignments.append(word_alignment)
             #continue
         
@@ -74,8 +73,8 @@ def percentage_of_correct_onsets(words, alignment, gt_alignment, tol=0.3):
     for idx, (word, time, gt_time) in enumerate(zip(words, alignment, gt_alignment)):
         if abs(time[0] - gt_time[0]) <= tol:
             correct_onsets += 1
-        else:
-            print(f'word: {word}\ttime: {time}\tgt_time: {gt_time}')
+        #else:
+            #print(f'word: {word}\ttime: {time}\tgt_time: {gt_time}')
 
     return correct_onsets / len(alignment)
 
@@ -105,14 +104,23 @@ if __name__ == '__main__':
     #os.environ["WANDB__SERVICE_WAIT"] = "300"
     #wandb.init(project='New-Align', config=cfg)
 
-    #device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    #model = SimilarityModel().to(device)
-    jamendo = get_jamendo()
+    device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = SimilarityModel().to(device)
+    #jamendo = get_jamendo()
     #jamendoshorts = get_jamendoshorts()
 
-    #for epoch in range(3, 4):
-    #    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(epoch))))
-    #    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
+    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(3))))
 
-    PCO_jamendo, AAE_jamendo = evaluate(None, None, jamendo)
-    print(f'PCO_jamendo: {PCO_jamendo}, AAE_jamendo: {AAE_jamendo}')
+    dataset = get_dali()
+    print('Size of DALI:', len(dataset))
+    train_split, val_split = train_test_split(dataset, test_size=config.val_size, random_state=97)
+    train_20 = train_split[:20]
+    val_20 = val_split[:20]
+
+    print('train_20')
+    PCO_train_20, AAE_train_20 = evaluate(model, device, train_20)
+    print(f'PCO_train_20: {PCO_train_20}, AAE_train_20: {AAE_train_20}')
+
+    print('val_20')
+    PCO_val_20, AAE_val_20 = evaluate(model, device, val_20)
+    print(f'PCO_val_20: {PCO_val_20}, AAE_val_20: {AAE_val_20}')
