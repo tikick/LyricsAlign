@@ -12,11 +12,11 @@ import example_decoding
 import json
 
 
-def evaluate(model, device, jamendo):
+def evaluate(model, device, jamendo, file_name):
     #model.eval()
     PCO_score_sum = 0.
     AAE_score_sum = 0.
-    #word_alignments = []
+    word_alignments = []
 
     #file_path = os.path.join(config.base_path, "jamendo_alignments.txt")
     #with open(file_path, 'r') as f:
@@ -34,8 +34,8 @@ def evaluate(model, device, jamendo):
             S = S.cpu().numpy()
 
             _, word_alignment = get_alignment(S, song, time_measure='seconds')
-            #word_alignments.append(word_alignment)
-            #continue
+            word_alignments.append(word_alignment)
+            continue
         
             PCO_score = percentage_of_correct_onsets(song['words'], word_alignment, song['times'])
             AAE_score = average_absolute_error(word_alignment, song['times'])
@@ -48,13 +48,13 @@ def evaluate(model, device, jamendo):
             PCO_score_sum += PCO_score
             AAE_score_sum += AAE_score
     
-    #file_path = os.path.join(config.base_path, "jamendo_alignments.txt")
-    ## Open the file in write mode
-    #with open(file_path, 'w') as f:
-    #    # Write each list as a JSON string on a new line
-    #    for word_alignment in word_alignments:
-    #        json.dump(word_alignment, f)  # Write list as JSON string
-    #        f.write('\n')  # Add a newline after each list
+    file_path = os.path.join(config.base_path, file_name)
+    # Open the file in write mode
+    with open(file_path, 'w') as f:
+        # Write each list as a JSON string on a new line
+        for word_alignment in word_alignments:
+            json.dump(word_alignment, f)  # Write list as JSON string
+            f.write('\n')  # Add a newline after each list
 
     return PCO_score_sum / len(jamendo), AAE_score_sum / len(jamendo)
 
@@ -118,9 +118,9 @@ if __name__ == '__main__':
     val_20 = val_split[:20]
 
     print('train_20')
-    PCO_train_20, AAE_train_20 = evaluate(model, device, train_20)
+    PCO_train_20, AAE_train_20 = evaluate(model, device, train_20, "dali_train_20_alignments.txt")
     print(f'PCO_train_20: {PCO_train_20}, AAE_train_20: {AAE_train_20}')
 
     print('val_20')
-    PCO_val_20, AAE_val_20 = evaluate(model, device, val_20)
+    PCO_val_20, AAE_val_20 = evaluate(model, device, val_20, "dali_val_20_alignments.txt")
     print(f'PCO_val_20: {PCO_val_20}, AAE_val_20: {AAE_val_20}')
