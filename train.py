@@ -76,10 +76,10 @@ def validate(model, device, val_loader, criterion, epoch):
                 cumsum = np.cumsum([0] + positives_per_spectrogram)
                 for i in range(min(8, config.batch_size)):
                     heights = [positives_per_spectrogram[i]]
-                    fig, axs = plt.subplots(1, 1, figsize=(15, min((sum(heights) + 20 * len(heights)) // 12, 100)))
+                    fig, ax = plt.subplots(figsize=(15, min((sum(heights) + 20 * len(heights)) // 12, 100)))
 
                     j, k = cumsum[i], cumsum[i + 1]
-                    show_plot(PA[j:k], axs[0], 'positive scores', positives[j:k])  # PA[i]
+                    show_plot(PA[j:k], ax, 'positive scores', positives[j:k])  # PA[i]
 
                     fig.tight_layout()
 
