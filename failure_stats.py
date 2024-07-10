@@ -16,11 +16,11 @@ def evaluate(model, device, eval_dataset):
     model.eval()
     PCO_score_sum = 0.
     AAE_score_sum = 0.
-    dali_08_alignments = []  # dali songs with (0.3 <=) PCO < 0.8
-    dali_08_ids = []
+    #dali_08_alignments = []  # dali songs with (0.3 <=) PCO < 0.8
+    #dali_08_ids = []
     dali_08_wrong_words = []
-    dali_03_alignments = []  # PCO < 0.3
-    dali_03_ids = []
+    #dali_03_alignments = []  # PCO < 0.3
+    #dali_03_ids = []
     dali_03_wrong_words = []
 
     #file_path = os.path.join(config.base_path, file_name)
@@ -44,45 +44,34 @@ def evaluate(model, device, eval_dataset):
             AAE_score = average_absolute_error(word_alignment, song['times'])
 
             if PCO_score < 0.3:
-                dali_03_alignments.append(word_alignment)
-                dali_03_ids.append(song['id'])
-                dali_03_wrong_words += [song['id']] + wrong_words + ['\n']
+                #dali_03_alignments.append(word_alignment)
+                #dali_03_ids.append(song['id'])
+                dali_03_wrong_words += [f'{song['id']}, PCO: {PCO_score:.4f}, AAE: {AAE_score:.4f}'] + wrong_words + ['\n']
             elif PCO_score < 0.8:
-                dali_08_alignments.append(word_alignment)
-                dali_08_ids.append(song['id'])
-                dali_08_wrong_words += [song['id']] + wrong_words + ['\n']
+                #dali_08_alignments.append(word_alignment)
+                #dali_08_ids.append(song['id'])
+                dali_08_wrong_words += [f'{song['id']}, PCO: {PCO_score:.4f}, AAE: {AAE_score:.4f}'] + wrong_words + ['\n']
             
-            print(f'dali_id: {song['id']}, PCO: {PCO_score}, AAE: {AAE_score}')
+            print(f'dali_id: {song['id']}, PCO: {PCO_score:.4f}, AAE: {AAE_score:.4f}')
 
             PCO_score_sum += PCO_score
             AAE_score_sum += AAE_score
     
-    file_path = os.path.join(config.base_path, 'dali_03_alignments.txt')
-    with open(file_path, 'w') as f:
-        for word_alignment in dali_03_alignments:
-            json.dump(word_alignment, f)  # Write list as JSON string
-            f.write('\n')  # Add a newline after each list
+    #file_path = os.path.join(config.base_path, 'dali_03_alignments.txt')
+    #with open(file_path, 'w') as f:
+    #    for word_alignment in dali_03_alignments:
+    #        json.dump(word_alignment, f)  # Write list as JSON string
+    #        f.write('\n')  # Add a newline after each list
 
-    file_path = os.path.join(config.base_path, 'dali_03_ids.txt')
-    with open(file_path, 'w') as f:
-        for id in dali_03_ids:
-            f.write(id + '\n')
+    #file_path = os.path.join(config.base_path, 'dali_03_ids.txt')
+    #with open(file_path, 'w') as f:
+    #    for id in dali_03_ids:
+    #        f.write(id + '\n')
 
     file_path = os.path.join(config.base_path, 'dali_03_wrong_words.txt')
     with open(file_path, 'w') as f:
         for s in dali_03_wrong_words:
             f.write(s + '\n')
-
-    file_path = os.path.join(config.base_path, 'dali_08_alignments.txt')
-    with open(file_path, 'w') as f:
-        for word_alignment in dali_08_alignments:
-            json.dump(word_alignment, f)  # Write list as JSON string
-            f.write('\n')  # Add a newline after each list
-
-    file_path = os.path.join(config.base_path, 'dali_08_ids.txt')
-    with open(file_path, 'w') as f:
-        for id in dali_08_ids:
-            f.write(id + '\n')
 
     file_path = os.path.join(config.base_path, 'dali_08_wrong_words.txt')
     with open(file_path, 'w') as f:
@@ -108,7 +97,8 @@ def percentage_of_correct_onsets(words, alignment, gt_alignment, tol=0.3):
         if abs(time[0] - gt_time[0]) <= tol:
             correct_onsets += 1
         else:
-            wrong_words.append(f'gt_time: {gt_time[0]},\ttime_dif: {time[0] - gt_time[0]},\tword: {word}')
+            dif = time[0] - gt_time[0]
+            wrong_words.append(f'gt_time: {gt_time[0]:.2f},\ttime_dif: {dif:.2f},\tword: {word}')
 
     return correct_onsets / len(alignment), wrong_words
 
