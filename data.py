@@ -18,6 +18,41 @@ from utils import encode_words, encode_phowords, words2phowords, lines2pholines,
     load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo, dali_song_is_corrupt, georg_song_is_corrupt
 
 
+def _get_dali(keep, lang='english'):
+    # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
+    # above stat did not consider words completely removed, not up to date
+
+    dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[],
+        keep=keep)
+        #keep=['0a3cd469757e470389178d44808273ab', '0a81772ae3a7404f9ef09ecd1f94db07', '0dea06fa7ca04eb88b17e8d83993adc3', '1ae34dc139ea43669501fb9cef85cbd0', '1afbb77f88dc44e9bedc07b54341be9c', '1b9c139f491c41f5b0776eefd21c122d'])
+
+    songs = []
+
+    for id in keep:
+        annot = dali_data[id].annotations['annot']
+        metadata = dali_data[id].info['metadata']
+
+        if lang is not None and metadata['language'] != lang:
+            continue
+        
+        words = [d['text'] for d in annot['words']]
+        times = [d['time'] for d in annot['words']]
+        words, times = normalize_dali(words, times)
+        phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
+
+        song = {'id': id,
+                'audio_path': os.path.join(config.dali_audio, id + '.wav'),
+                'words': words,
+                'phowords': phowords,
+                'times': times}
+        
+        if dali_song_is_corrupt(song):
+            continue
+
+        songs.append(song)
+
+    return songs
+
 def get_dali(lang='english'):
     # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
     # above stat did not consider words completely removed, not up to date
