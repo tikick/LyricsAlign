@@ -48,7 +48,7 @@ def evaluate(model, device, eval_dataset):
                 #dali_03_alignments.append(word_alignment)
                 #dali_03_ids.append(song['id'])
                 dali_03_wrong_words.append([f'id: {song['id']}', f'url: {song['url']}', ''])
-                dali_03_wrong_words.append(['PCO: {PCO_score:.4f}', 'AAE: {AAE_score:.4f}', ''])
+                dali_03_wrong_words.append([f'PCO: {PCO_score:.4f}', f'AAE: {AAE_score:.4f}', ''])
                 dali_03_wrong_words.append(['', '', ''])
                 dali_03_wrong_words.append(['gt_time', 'time_dif', 'word'])
                 dali_03_wrong_words += wrong_words
@@ -57,7 +57,7 @@ def evaluate(model, device, eval_dataset):
                 #dali_08_alignments.append(word_alignment)
                 #dali_08_ids.append(song['id'])
                 dali_08_wrong_words.append([f'id: {song['id']}', f'url: {song['url']}', ''])
-                dali_08_wrong_words.append(['PCO: {PCO_score:.4f}', 'AAE: {AAE_score:.4f}', ''])
+                dali_08_wrong_words.append([f'PCO: {PCO_score:.4f}', f'AAE: {AAE_score:.4f}', ''])
                 dali_08_wrong_words.append(['', '', ''])
                 dali_08_wrong_words.append(['gt_time', 'time_dif', 'word'])
                 dali_08_wrong_words += wrong_words
@@ -82,12 +82,12 @@ def evaluate(model, device, eval_dataset):
     file_path = os.path.join(config.base_path, 'dali_03_wrong_words.txt')
     with open(file_path, 'w') as f:
         for s in dali_03_wrong_words:
-            f.write('{: >30} {: >30} {: >30}\n'.format(*s))
+            f.write('{: <20} {: <20} {: <20}\n'.format(*s))
 
     file_path = os.path.join(config.base_path, 'dali_08_wrong_words.txt')
     with open(file_path, 'w') as f:
         for s in dali_08_wrong_words:
-            f.write('{: >30} {: >30} {: >30}\n'.format(*s))
+            f.write('{: <20} {: <20} {: <30}\n'.format(*s))
 
     return PCO_score_sum / len(eval_dataset), AAE_score_sum / len(eval_dataset)
 
