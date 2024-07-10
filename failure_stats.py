@@ -154,7 +154,7 @@ if __name__ == '__main__':
     #                         '8dc5d778a80c4c759ac433679e5a00be', 'eb3c0842190b42e29b1df91a55a3c7c8', '2fe0fcc9713947f195821d778d7a9f12',
     #                         '4688353ef25e43dbb256490a0272bfeb', '79fe3f63bbd044878309c10c520344d6'])
     dali = get_dali()
-    dali = dali[:20]
+    #dali = dali[:20]
     print('Size of DALI:', len(dali))
     #train_split, val_split = train_test_split(dataset, test_size=config.val_size, random_state=97)
     #train_20 = train_split[:20]
