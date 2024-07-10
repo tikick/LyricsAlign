@@ -80,7 +80,8 @@ def get_dali(lang='english'):
                 'audio_path': os.path.join(config.dali_audio, file),
                 'words': words,
                 'phowords': phowords,
-                'times': times}
+                'times': times,
+                'url': dali_data[file[:-4]].info['audio']['url']}
         
         if dali_song_is_corrupt(song):
             continue

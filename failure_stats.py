@@ -46,13 +46,19 @@ def evaluate(model, device, eval_dataset):
             if PCO_score < 0.3:
                 #dali_03_alignments.append(word_alignment)
                 #dali_03_ids.append(song['id'])
-                dali_03_wrong_words += [f'{song['id']}', 'PCO: {PCO_score:.4f}', 'AAE: {AAE_score:.4f}'] + \
-                    ['gt_time', 'time_dif', 'word'] + wrong_words + ['\n', '\n', '\n']
+                dali_03_wrong_words += [f'id: {song['id']}', f'url: {song['url']}', ''] + \
+                      ['PCO: {PCO_score:.4f}', 'AAE: {AAE_score:.4f}', ''] + \
+                        ['gt_time', 'time_dif', 'word'] + \
+                            wrong_words + \
+                                ['\n', '\n', '\n']
             elif PCO_score < 0.8:
                 #dali_08_alignments.append(word_alignment)
                 #dali_08_ids.append(song['id'])
-                dali_08_wrong_words += [f'{song['id']}', 'PCO: {PCO_score:.4f}', 'AAE: {AAE_score:.4f}'] + \
-                    ['gt_time', 'time_dif', 'word'] + wrong_words + ['\n', '\n', '\n']
+                dali_08_wrong_words += [f'id: {song['id']}', f'url: {song['url']}', ''] + \
+                      ['PCO: {PCO_score:.4f}', 'AAE: {AAE_score:.4f}', ''] + \
+                        ['gt_time', 'time_dif', 'word'] + \
+                            wrong_words + \
+                                ['\n', '\n', '\n']
                 
             print(f'dali_id: {song['id']}, PCO: {PCO_score:.4f}, AAE: {AAE_score:.4f}')
 
