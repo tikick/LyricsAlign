@@ -184,7 +184,7 @@ def main():
         PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False)
         wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
         wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
-        if not config.masked:
+        if False:#not config.masked:
             PCO_val_20, AAE_val_20 = evaluate(model, device, val_20, log=False)
             PCO_train_20, AAE_train_20 = evaluate(model, device, train_20, log=False)
             wandb.log({'metric/PCO_val_20': PCO_val_20, 'metric/epoch': epoch})
