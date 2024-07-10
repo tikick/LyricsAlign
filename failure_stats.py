@@ -108,7 +108,7 @@ def percentage_of_correct_onsets(words, alignment, gt_alignment, tol=0.3):
         if abs(time[0] - gt_time[0]) <= tol:
             correct_onsets += 1
         else:
-            wrong_words.append(f'gt_time: {gt_time},\ttime_dif: {time - gt_time},\tword: {word}')
+            wrong_words.append(f'gt_time: {gt_time[0]},\ttime_dif: {time[0] - gt_time[0]},\tword: {word}')
 
     return correct_onsets / len(alignment), wrong_words
 
