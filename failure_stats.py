@@ -2,6 +2,7 @@ import os
 import torch
 import wandb
 from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 
 import config
 from data import get_jamendo, get_jamendoshorts, jamendo_collate, get_dali
@@ -31,7 +32,7 @@ def evaluate(model, device, eval_dataset):
     #        word_alignments.append(word_alignment)
 
     with torch.no_grad():
-        for song in eval_dataset:
+        for song in tqdm(eval_dataset):
             spectrogram, positives = jamendo_collate(song)
             spectrogram, positives = spectrogram.to(device), positives.to(device)
 
@@ -46,19 +47,21 @@ def evaluate(model, device, eval_dataset):
             if PCO_score < 0.3:
                 #dali_03_alignments.append(word_alignment)
                 #dali_03_ids.append(song['id'])
-                dali_03_wrong_words += [f'id: {song['id']}', f'url: {song['url']}', ''] + \
-                      ['PCO: {PCO_score:.4f}', 'AAE: {AAE_score:.4f}', ''] + \
-                        ['gt_time', 'time_dif', 'word'] + \
-                            wrong_words + \
-                                ['\n', '\n', '\n']
+                dali_03_wrong_words.append([f'id: {song['id']}', f'url: {song['url']}', ''])
+                dali_03_wrong_words.append(['PCO: {PCO_score:.4f}', 'AAE: {AAE_score:.4f}', ''])
+                dali_03_wrong_words.append(['', '', ''])
+                dali_03_wrong_words.append(['gt_time', 'time_dif', 'word'])
+                dali_03_wrong_words += wrong_words
+                dali_03_wrong_words.append(['\n', '\n', '\n'])
             elif PCO_score < 0.8:
                 #dali_08_alignments.append(word_alignment)
                 #dali_08_ids.append(song['id'])
-                dali_08_wrong_words += [f'id: {song['id']}', f'url: {song['url']}', ''] + \
-                      ['PCO: {PCO_score:.4f}', 'AAE: {AAE_score:.4f}', ''] + \
-                        ['gt_time', 'time_dif', 'word'] + \
-                            wrong_words + \
-                                ['\n', '\n', '\n']
+                dali_08_wrong_words.append([f'id: {song['id']}', f'url: {song['url']}', ''])
+                dali_08_wrong_words.append(['PCO: {PCO_score:.4f}', 'AAE: {AAE_score:.4f}', ''])
+                dali_08_wrong_words.append(['', '', ''])
+                dali_08_wrong_words.append(['gt_time', 'time_dif', 'word'])
+                dali_08_wrong_words += wrong_words
+                dali_08_wrong_words.append(['\n', '\n', '\n'])
                 
             print(f'dali_id: {song['id']}, PCO: {PCO_score:.4f}, AAE: {AAE_score:.4f}')
 
