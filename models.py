@@ -148,16 +148,18 @@ def _contrastive_loss(PA, NA, times):
     return 2 * (config.alpha * torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
                 (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension
 
-def contrastive_loss(PA, times):
-    assert len(times) == PA.shape[0]
+def contrastive_loss(PA, times, is_duplicate):
+    assert len(times) == PA.shape[0] and len(times) == len(is_duplicate)
     duration = config.segment_length / config.sr
     fps = PA.shape[1] / duration
     pos_sum = 0.
     neg_sum = 0.
+    neg_summands = 0
     for i, (start, end) in enumerate(times):
 
         frame_start = int((start - config.box_slack) * fps)
         frame_end = int((end + config.box_slack) * fps)
+        assert frame_start <= frame_end
         if config.box_slack > 0:
             frame_start = max(frame_start, 0)
             frame_end = min(frame_end, PA.shape[1] - 1)
@@ -167,13 +169,16 @@ def contrastive_loss(PA, times):
         pos_sum += torch.pow(torch.max(pos_row_slice) - 1, 2)
 
         neg_row_slice = torch.cat((PA[i, :frame_start], PA[i, frame_end + 1:]))
-        if neg_row_slice.numel() == 0:
-            neg_sum += 0
-        else:
-            neg_sum += torch.pow(torch.max(neg_row_slice), 2)
+        if neg_row_slice.numel() == 0 or is_duplicate[i]:
+            continue
+        neg_sum += torch.pow(torch.max(neg_row_slice), 2)
+        neg_summands += 1
 
     mean_positives = pos_sum / len(times)
-    mean_negatives = neg_sum / len(times)
+    if neg_summands > 0:
+        mean_negatives = neg_sum / neg_summands
+    else:
+        mean_negatives = 0
 
     #mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
     #mean_negatives = torch.mean(torch.pow(NA, 2))

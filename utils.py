@@ -121,6 +121,7 @@ def normalize_jamendo(raw_lines):
 
 
 def encode_words(words, times):  # could merge with encode_phowords, same code
+    raise NotImplementedError('no duplicate checking')
     chars = ''
     char_times = []
     for word, time, next_time in zip(words[:-1], times[:-1], times[1:]):
@@ -155,18 +156,24 @@ def encode_phowords(phowords, times):
         #phoneme_times += [time] * len(phoword) + [(start, next_end)]
     phonemes += phowords[-1]
     phoneme_times += [times[-1]] * len(phowords[-1])
+    phoneme_freq = [0] * len(phoneme_dict)
+    for p in phonemes:
+        phoneme_freq[phoneme2int[p]] += 1
 
     phonemes = [' '] * config.context + phonemes + [' '] * config.context
 
     enc_phonemes = []
-    for p in phonemes:
+    is_duplicate = [False] * len(phonemes)
+    for i, p in enumerate(phonemes):
         idx = phoneme2int[p]
         enc_phonemes.append(idx)
+        is_duplicate[i] = phoneme_freq[idx] > 1
+        assert phoneme_freq[idx] >= 1 or idx == 0  # idx = 0, i.e., space
 
     tokens = [enc_phonemes[i:i + (1 + 2 * config.context)] for i in range(len(enc_phonemes) - 2 * config.context)]  # token: enc_phoneme and context
     assert len(tokens) > 0
 
-    return tokens, phoneme_times
+    return tokens, phoneme_times, is_duplicate[config.context:-config.context]
 
 
 def read_jamendo_times(times_file):
