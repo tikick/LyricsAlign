@@ -57,7 +57,7 @@ def validate(model, device, val_loader, criterion, epoch):
 
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(val_loader)):
-            spectrograms, positives, times, positives_per_spectrogram = batch
+            spectrograms, positives, times, is_duplicate, positives_per_spectrogram = batch
             spectrograms, positives = spectrograms.to(device), positives.to(device)
 
             PA = model(spectrograms, positives, positives_per_spectrogram)
