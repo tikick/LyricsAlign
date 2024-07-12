@@ -1002,3 +1002,38 @@ id: 322ce7bba6b14042934a954e4b1128ae url: PLPHAzDMVT4
 vocalizations, -14
 
 id: f61b84e90ad64111b1f5b6ff0652bd5e url: q5W5rVH7LMY                                   
+
+id: b12ccf222abc419a956d58d006132903 url: kBqWtdMpies                                   
+vocalizations
+
+id: 847bb881d5684aab9f7be5ab6f614d47 url: eUT49JWxiz8                                   
+
+id: 5fbffb9d04a54b6fa5cac023f1a172b6 url: fX6GsynDN-Y                                   
+
+id: 1d9a4e277da64f5e840f8a91ed135dc6 url: tnaYxumRwHY                                   
+repeated lines
+
+id: 2af9d520e2af495e9f8b0daa3398c07f url: 5muUoLLsl48                                   
+
+id: d257dc8cf7bd47329b6be34fdda74dfe url: X9tvLrWG1mk                                   
+repeated lines
+
+id: be6f07a9d8ef4fd0b1ce00b8e27aafbd url: wmHTLeOLFp0                                   
+repeated lines
+
+
+id: 244f33fdccae4f2ab2c0cb8f6ebc4161 url: YnvxJ0qt6-E                                   
+0.3
+
+id: c53cdb57cee44a9f969cd1d2ce88dba8 url: Trpp9qIldhQ                                   
+0.3
+
+id: 6725f3f3d28c4e1fb787ffe7e63b5cb4 url: E-6-eHXzEHY                                   
+0.3
+
+id: 1678e55d4e3b461ea7f53fb224f6d159 url: Gs0t8LXH6lw                                   
+
+id: 69bf59fd301240a290d6c48f4b9a72f5 url: ld1wQXxO1Ow                                   
+vocalizations
+
+id: 95432690e3f145cab0e99f741707f5d5 url: nXE_DOn4xXs                                   
