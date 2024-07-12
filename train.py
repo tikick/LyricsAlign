@@ -62,7 +62,7 @@ def validate(model, device, val_loader, criterion, epoch):
 
             PA = model(spectrograms, positives, positives_per_spectrogram)
 
-            loss = criterion(PA, times)
+            loss = criterion(PA, times, is_duplicate)
             val_loss += loss.item()
 
             # log first batch
