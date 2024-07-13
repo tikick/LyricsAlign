@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
     device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
-    #jamendo = get_jamendo()
+    jamendo = get_jamendo()
     #jamendoshorts = get_jamendoshorts()
 
     model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(3))))
@@ -153,9 +153,9 @@ if __name__ == '__main__':
     #                         '43a3ee52120b448abdea76d8f277eb3b', '3559797f9a1647209578fcfbfa851e47', '8d319219cdc94e10ae5aaf8ecfdbfd2a',
     #                         '8dc5d778a80c4c759ac433679e5a00be', 'eb3c0842190b42e29b1df91a55a3c7c8', '2fe0fcc9713947f195821d778d7a9f12',
     #                         '4688353ef25e43dbb256490a0272bfeb', '79fe3f63bbd044878309c10c520344d6'])
-    dali = get_dali()
+    #dali = get_dali()
     #dali = dali[:20]
-    print('Size of DALI:', len(dali))
+    #print('Size of DALI:', len(dali))
     #train_split, val_split = train_test_split(dataset, test_size=config.val_size, random_state=97)
     #train_20 = train_split[:20]
     #val_20 = val_split[:20]
@@ -175,5 +175,8 @@ if __name__ == '__main__':
     #PCO_val_20, AAE_val_20 = evaluate(None, None, val_20, "dali_val_20_alignments.txt")
     #print(f'PCO_val_20: {PCO_val_20}, AAE_val_20: {AAE_val_20}')
 
-    PCO_dali, AAE_dali = evaluate(model, device, dali)
-    print(f'PCO_dali: {PCO_dali}, AAE_dali: {AAE_dali}')
+    #PCO_dali, AAE_dali = evaluate(model, device, dali)
+    #print(f'PCO_dali: {PCO_dali}, AAE_dali: {AAE_dali}')
+
+    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
+    print(f'PCO_jamendo: {PCO_jamendo}, AAE_jamendo: {AAE_jamendo}')
