@@ -58,7 +58,7 @@ id: 24bfcfc2287741e28bbecf498e01542f url: RvuVFHTvdaY
 -0.5
 
 id: bddb1d0dfc644be9b8a3c47174e189b3 url: GFB4rsAyUb4                         
-corrupt
+concat words
 
 id: 0d0c3aa76809409e9afdbba8840c0974 url: R-R_u57gEUk                         
 wrong lyrics
@@ -79,7 +79,7 @@ id: d566e0f3de3a4449ac95bed00d13c6c0 url: wD6Pq0bSMPo
 2.5
 
 id: dad3dd9d0da1451b9dabe1e8fa31fadc url: KfKIq1Pmc8Q                         
-corrupt
+concat words
 
 id: 078126680b814bd88bcbe9855a63c5ed url: eVTXPUF4Oz4                         
 0.6
@@ -196,7 +196,7 @@ id: 267de365cc3a4fd9ab69794dd1451bee url: ZQ2nCGawrSY
 0.5
 
 id: 60851537ac6b4815873d09194e4aaac0 url: teoGKjmIKnQ                         
-corrupt
+concat words
 
 id: 058d1893d89b4d9cb866946a05ca4d2b url: FypNu5UEWVA                         
 
@@ -401,7 +401,7 @@ id: 42c625f1ff2945318af82de3bda53fc9 url: EfK-WX2pa8c
 -0.8 > -1.4
 
 id: 2b334e10e348400888073833fec23971 url: 7Kxx-s4X3CA                         
-corrupt
+concat words
 
 id: e316a7f6057b4465ab85731c124fe5eb url: 0DMrKkGnP6Y                         
 time out of bounds
@@ -469,7 +469,7 @@ id: 3d5d3323f5a741eea997481fdf22eb01 url: mlfWy4bEjgo
 id: 4ad0d5887fe242bb800d946f11d8988b url: U9jINg6Upkw                         
 
 id: 317c6dd57cb446fe9461cd84e1187f12 url: yxmstD3R-bM                         
-corrupt
+polish, vocalizations
 
 id: 78af83cf3f4d4ee1952a1eb961255dee url: o67xW7wusq4                         
 time out of bounds
@@ -620,10 +620,10 @@ id: 693a5882b716482e8e7ca9f5c9bdf954 url: t7v-6rHDuKQ
 wrong lyrics (brentalfloss, tetris)
 
 id: 1c6c81c072704172ac0ff63a3f504f43 url: -9P5NnsZgYU                         
-corrupt
+concat words
 
 id: bf9ae3f4339645c78addefbda5171821 url: FkLTwX0duY4                         
-corrupt
+concat words
 
 id: 1e68dfeebaca4b0dab963b207733d35b url: YU4hhNKsPog                         
 -0.5
@@ -721,13 +721,13 @@ id: a68fe748704942f7b63591a137dc81a7 url: 1vrEljMfXYo
 0.7 > 0.3
 
 id: 45a98dc68bc7426191a850f42fdcaf79 url: mPc2plEHrHA                         
-corrupt
+concat words
 
 id: 2aa2f1fc57f848dc878f461ddcfb041b url: roPQ_M3yJTA                         
 -0.3 > -0.7
 
 id: 2ed813a485e54820838df7b88e0abaec url: qPdihUTYk90                         
-corrupt
+concat words
 
 id: de321d2f9acb428eb986bc8dbb9958be url: koJlIGDImiU                         
 -0.4

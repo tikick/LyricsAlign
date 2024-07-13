@@ -68,7 +68,7 @@ id: 51dc592510894e36927afd9c756d1490 url: WVEt36YWl8Y
 vocalizations
 
 id: 101e1a018e9e4a8ca0986c59499bcddf url: -2l1QI_TpaA                                   
-corrupt
+time out of bounds                         
 
 id: 6bfdd2edd26d458893150692e5b2fabe url: 3Gwahh04Y1Y                                   
 
@@ -104,7 +104,7 @@ id: bacd498b20f743f29ad96bfac12820ef url: PB4MRsDSogw
 japanese
 
 id: 6ee5dcf21f4d43bfa6fd910b768b4c09 url: MwmxLCgai0Y                                   
-corrupt
+time out of bounds                         
 
 id: 5516babfcb3249c6a49ea1ce9abcf09c url: LCJblaUkkfc                                   
 
@@ -625,7 +625,7 @@ long vowels
 id: af263adec8d74d34874e701ffcc2a9ec url: 2Fcuq1--52A                                   
 
 id: ee588c0cd164412d9dbe18fda38e4824 url: ZYVbgl4mLB0                                   
-corrupt
+concat words
 
 id: c297a6875df745b9970d6f4869eb5b5c url: 7Ix4nX9dmCE                                   
 -0.5 < 1
@@ -1025,7 +1025,6 @@ repeated lines
 id: be6f07a9d8ef4fd0b1ce00b8e27aafbd url: wmHTLeOLFp0                                   
 repeated lines
 
-
 id: 244f33fdccae4f2ab2c0cb8f6ebc4161 url: YnvxJ0qt6-E                                   
 0.3
 
@@ -1079,7 +1078,7 @@ id: 678d1556f0a340fb963790afd0ac6672 url: yIfonkjmnb8
 id: 7187c1888eb14d56b6ca028d135332f2 url: v_OHJxN9C1Y                                   
 
 id: 53815494222d46a094534e971d4b7e3f url: aiWmWTuA4Vw                                   
-repeated words, vocalizations, corrupted, length
+repeated words, vocalizations, time out of bounds                         
 
 id: dec85e5447764b0780eb26ae30000e40 url: XnDo0O_eY1w                                   
 repeated lines, vocalizations
