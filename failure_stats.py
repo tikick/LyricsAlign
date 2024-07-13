@@ -19,10 +19,11 @@ def evaluate(model, device, eval_dataset):
     AAE_score_sum = 0.
     #dali_08_alignments = []  # dali songs with (0.3 <=) PCO < 0.8
     #dali_08_ids = []
-    dali_08_wrong_words = []
+    #dali_08_wrong_words = []
     #dali_03_alignments = []  # PCO < 0.3
     #dali_03_ids = []
-    dali_03_wrong_words = []
+    #dali_03_wrong_words = []
+    jamendo_wrong_words = []
 
     #file_path = os.path.join(config.base_path, file_name)
     #with open(file_path, 'r') as f:
@@ -44,26 +45,33 @@ def evaluate(model, device, eval_dataset):
             PCO_score, wrong_words = percentage_of_correct_onsets(song['words'], word_alignment, song['times'])
             AAE_score = average_absolute_error(word_alignment, song['times'])
 
-            if PCO_score < 0.3:
+            #if PCO_score < 0.3:
                 #dali_03_alignments.append(word_alignment)
                 #dali_03_ids.append(song['id'])
-                dali_03_wrong_words.append([f'id: {song['id']}', f'url: {song['url']}', ''])
-                dali_03_wrong_words.append([f'PCO: {PCO_score:.4f}', f'AAE: {AAE_score:.4f}', ''])
-                dali_03_wrong_words.append(['', '', ''])
-                dali_03_wrong_words.append(['gt_time', 'time_dif', 'word'])
-                dali_03_wrong_words += wrong_words
-                dali_03_wrong_words.append(['\n', '\n', '\n'])
-            elif PCO_score < 0.8:
+            #    dali_03_wrong_words.append([f'id: {song['id']}', f'url: {song['url']}', ''])
+            #    dali_03_wrong_words.append([f'PCO: {PCO_score:.4f}', f'AAE: {AAE_score:.4f}', ''])
+            #    dali_03_wrong_words.append(['', '', ''])
+            #    dali_03_wrong_words.append(['gt_time', 'time_dif', 'word'])
+            #    dali_03_wrong_words += wrong_words
+            #    dali_03_wrong_words.append(['\n', '\n', '\n'])
+            #elif PCO_score < 0.8:
                 #dali_08_alignments.append(word_alignment)
                 #dali_08_ids.append(song['id'])
-                dali_08_wrong_words.append([f'id: {song['id']}', f'url: {song['url']}', ''])
-                dali_08_wrong_words.append([f'PCO: {PCO_score:.4f}', f'AAE: {AAE_score:.4f}', ''])
-                dali_08_wrong_words.append(['', '', ''])
-                dali_08_wrong_words.append(['gt_time', 'time_dif', 'word'])
-                dali_08_wrong_words += wrong_words
-                dali_08_wrong_words.append(['\n', '\n', '\n'])
+            #    dali_08_wrong_words.append([f'id: {song['id']}', f'url: {song['url']}', ''])
+            #    dali_08_wrong_words.append([f'PCO: {PCO_score:.4f}', f'AAE: {AAE_score:.4f}', ''])
+            #    dali_08_wrong_words.append(['', '', ''])
+            #    dali_08_wrong_words.append(['gt_time', 'time_dif', 'word'])
+            #    dali_08_wrong_words += wrong_words
+            #    dali_08_wrong_words.append(['\n', '\n', '\n'])
+
+            jamendo_wrong_words.append([f'id: {song['id']}', '', ''])
+            jamendo_wrong_words.append([f'PCO: {PCO_score:.4f}', f'AAE: {AAE_score:.4f}', ''])
+            jamendo_wrong_words.append(['', '', ''])
+            jamendo_wrong_words.append(['gt_time', 'time_dif', 'word'])
+            jamendo_wrong_words += wrong_words
+            jamendo_wrong_words.append(['\n', '\n', '\n'])
                 
-            print(f'dali_id: {song['id']}, PCO: {PCO_score:.4f}, AAE: {AAE_score:.4f}')
+            print(f'jamendo_id: {song['id']}, PCO: {PCO_score:.4f}, AAE: {AAE_score:.4f}')
 
             PCO_score_sum += PCO_score
             AAE_score_sum += AAE_score
@@ -79,15 +87,10 @@ def evaluate(model, device, eval_dataset):
     #    for id in dali_03_ids:
     #        f.write(id + '\n')
 
-    file_path = os.path.join(config.base_path, 'dali_03_wrong_words.txt')
+    file_path = os.path.join(config.base_path, 'jamendo_wrong_words.txt')
     with open(file_path, 'w') as f:
-        for s in dali_03_wrong_words:
+        for s in jamendo_wrong_words:
             f.write('{: <20} {: <20} {: <20}\n'.format(*s))
-
-    file_path = os.path.join(config.base_path, 'dali_08_wrong_words.txt')
-    with open(file_path, 'w') as f:
-        for s in dali_08_wrong_words:
-            f.write('{: <20} {: <20} {: <30}\n'.format(*s))
 
     return PCO_score_sum / len(eval_dataset), AAE_score_sum / len(eval_dataset)
 
