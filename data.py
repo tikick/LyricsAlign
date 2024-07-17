@@ -80,10 +80,10 @@ def get_dali(lang='english'):
             continue
         
 
-        if id in remarks and \
-            remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'] not in '0+-' or remarks[id]['non-english']:
-            corrupt += 1
-            continue
+        if id in remarks:
+            if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'] not in '0+-' or remarks[id]['non-english']:
+                corrupt += 1
+                continue
 
         words = [d['text'] for d in annot['words']]
         words, times = normalize_dali(words, times, cutoff=remarks[id]['corrupt from'])
