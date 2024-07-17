@@ -1,6 +1,8 @@
 __pycache__
 .DS_Store
-DALI_v2.0
+DALI_v2.0/annot
+DALI_v2.0/mp3
+DALI_v2.0/wav
 jamendolyrics
 wandb
 pickles

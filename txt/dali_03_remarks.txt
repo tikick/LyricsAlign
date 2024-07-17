@@ -1,733 +1,780 @@
-Num songs: 256
-
 id: 8e63d5492ea94b40a50b0033a74ee3d8 url: Qci5ka9r54A
-time out of bounds                         
+wrong end from 75.63
 
-id: 7b61fa464da54a48bc956a533ba94613 url: J3UjJ4wKLkg                         
--0.6
+id: 7b61fa464da54a48bc956a533ba94613 url: J3UjJ4wKLkg
+offset: -0.6
 
-id: 50008b177f3c4c788a2a0d49d54f97ca url: zPonioDYnoY                         
-wrong lyrics
+id: 50008b177f3c4c788a2a0d49d54f97ca url: zPonioDYnoY
+corrupt
 
-id: 55c1801b6330461db26465dafd538bf7 url: 2RoVwtqRcMM                         
--3.7
+id: 55c1801b6330461db26465dafd538bf7 url: 2RoVwtqRcMM
+offset: -3.7
 
-id: b897dd4ce2154da3a128a60460d34ef9 url: YLHpvjrFpe0                         
-0.5
+id: b897dd4ce2154da3a128a60460d34ef9 url: YLHpvjrFpe0
+offset: 0.6, 0.5
 
-id: 98d2ea179ab348b790363a1e21a0cfee url: 5vmZtT713Oo                         
--1.3, 0.4 < 0.7
+id: 98d2ea179ab348b790363a1e21a0cfee url: 5vmZtT713Oo
+corrupt
 
-id: ce3558f4e01b4391ae106887962589d3 url: WGt-8adyabk                         
-wrong lyrics
+id: ce3558f4e01b4391ae106887962589d3 url: WGt-8adyabk
+corrupt
 
-id: 5eea90c128a34914911e94e616b8913f url: AhcttcXcRYY                         
-0.6
+id: 5eea90c128a34914911e94e616b8913f url: AhcttcXcRYY
+offset: 0.66
 
-id: aa6dc65f06de453081c89dc85588c178 url: AAZQaYKZMTI                         
-0.7, 1.4
+id: aa6dc65f06de453081c89dc85588c178 url: AAZQaYKZMTI
+corrupt
 
-id: f3a0b83fcc7b4ea3bb55b1edbf5a189f url: 41P8UxneDJE                         
--0.4
+id: f3a0b83fcc7b4ea3bb55b1edbf5a189f url: 41P8UxneDJE
+offset: -0.4
 
-id: 10f18aeb828d4a0ab4592abdc45f539b url: rp4UwPZfRis                         
-0.5
+id: 10f18aeb828d4a0ab4592abdc45f539b url: rp4UwPZfRis
+offset: 0.5
 
-id: a851c0b72cbf427f87edfcd53524d1b8 url: IlV7RhT6zHs                         
-0.3
+id: a851c0b72cbf427f87edfcd53524d1b8 url: IlV7RhT6zHs
+offset: 0.38
 
-id: 99456b487b11410f8228fb42d63af21b url: 5AhU12zC8fc                         
-0.7, 0.8
+id: 99456b487b11410f8228fb42d63af21b url: 5AhU12zC8fc
+offset: 0.66, 0.85
 
-id: f8e138f65797453a9a6edd754c59ac65 url: 6VZhSkREYBc                         
-0.4 < 8, vocalizations
-
-id: 98ebf10ca57041a8871368ec6f98bf00 url: 4vvBAONkYwI                         
-0.4
-
-id: cc226a4299d74339a6fca1ec6a329303 url: Lecf_TE4uOM                         
-time out of bounds
-
-id: 5ca035dbd3c24573832eab4ba8ec6e39 url: bz6IdhgqPgE                         
-time out of bounds
-
-id: 843573b8c5d24e229cff82d7b38dd1bc url: DeaAQPIHotQ                         
-wrong lyrics
-
-id: 24bfcfc2287741e28bbecf498e01542f url: RvuVFHTvdaY                         
--0.5
-
-id: bddb1d0dfc644be9b8a3c47174e189b3 url: GFB4rsAyUb4                         
-concat words
-
-id: 0d0c3aa76809409e9afdbba8840c0974 url: R-R_u57gEUk                         
-wrong lyrics
-
-id: 3eea0a8a992149c3947f0cdbd18d24fa url: zDKO6XYXioc                         
-0.5, 0.7
-
-id: bf4322856a3f4ce9b4721db5c5ce37fe url: YxFerWkYYqY                         
-time out of bounds
-
-id: aeaf841fceb84c5cade8147d37e6d808 url: _4VoZ6afztc                         
--0.4
-
-id: 4058aa5a512d42cb931e37b87120dae5 url: eM213aMKTHg                         
-0.7
-
-id: d566e0f3de3a4449ac95bed00d13c6c0 url: wD6Pq0bSMPo                         
-2.5
-
-id: dad3dd9d0da1451b9dabe1e8fa31fadc url: KfKIq1Pmc8Q                         
-concat words
-
-id: 078126680b814bd88bcbe9855a63c5ed url: eVTXPUF4Oz4                         
-0.6
-
-id: 7861bbf7b11645a2b1d4dda4c634cbac url: 3T2VizbQAwY                         
-0.4, <
-
-id: 23c124a6dcad4f1bbf28f032e0055747 url: G2zxzaWgVRA                         
-
-id: 899ed10c5e1949139021dfa0848cc665 url: _NkRNg0TZOw                         
-
-id: 43484ea2fb214c62906ea1ee4f98b77f url: uIbXvaE39wM                         
--0.3
-
-id: c1590a8c7c8343a9a08abaccc6f1cd8e url: NRtvqT_wMeY                         
-0.4
-
-id: 16bd3bddd8d74819938853251a43396e url: VcjzHMhBtf0                         
--3.6
-
-id: 82a1167f3ee94faab28bb5f28c377457 url: 1UUYjd2rjsE                         
--0.5
-
-id: 1d9c9db93db742da8880132615e87037 url: 4zKvXIbzSrw                         
-time out of bounds
-
-id: 3619a2e501594acea422c14a4b522f15 url: w6Q3mHyzn78                         
--0.4
-
-id: 82485faae5a54cc58d0ba484d1b46374 url: f58HKOgGsHo                         
-0.7, -0.7
-
-id: 5ac883dc659045c78fbef3b1fd789643 url: VKYY8DxVZHE                         
--0.5
-
-id: 085ee99e025d40659201adb53e076481 url: cLVxvQ3a2n8                         
-
-id: df7b04250c24415bb49d74c47544a45e url: 7WFpwdblDlw                         
-
-id: d9b4bed2740c4d629d5ed337d36c9896 url: dkQ0OJ5Byls                         
-0.6
-
-id: f5aefa0e4d4b48a7bad8e3f36403bdbd url: AJWtLf4-WWs                         
-0.4
-
-id: bac3800744fd47e9bbdc4c3e252d34b2 url: crjGHQL23nM                         
-
-id: cbefaea9fd1a48b9bbcb18f706184b88 url: a70yJwgQtzo                         
--0.6
-
-id: 7c374001fac847a582c88f486a0bc1cd url: hTWKbfoikeg                         
-0.5
-
-id: 3e4a4b15d7d648e1a9fa74b6a13f1d56 url: HTzGMEfbnAw                         
--0.4
-
-id: 24bb5550a6c045dcacee81d67f6b73b0 url: 8N2k-gv6xNE                         
--0.4
-
-id: e318fa04acf94ae2a1985b766bd67641 url: vD-YPGTwnJI                         
--1, <
-
-id: d4294fe9b2314106a62a2a3635efbe45 url: gpyRI1j9t6c                         
-0.4
-
-id: 418466c83b25444ca7715734a45939cd url: 8q2WS6ahCnY                         
--0.4
-
-id: 9ab28ef82e8b4874b432e545f9e64b2c url: TGwZ7MNtBFU                         
-1
-
-id: 2e9ce195467e4041b9bb19aa37e9b79a url: CvBfHwUxHIk                         
-0.6
-
-id: 6571ec1caffa49f1b7046e8a637563df url: zkGfPrst29Y                         
--0.5
-
-id: 6f0c29c6e4944d2e93044ad1e835c8a8 url: P25hBk8LmUM                         
--0.5 < 2
-
-id: f342990d4cfe4bbfb52eccfc5e91d8d3 url: 8WEtxJ4-sh4                         
-0.4
-
-id: ffef85420e914f96bad1420f75a9b105 url: DcHKOC64KnE                         
-0.7
-
-id: 20f4825270af4891962a0cd175f32327 url: LrjHz5hrupA                         
-1.3 < 6
-
-id: 3378d2783f464fa49e5aca2b34f6f789 url: NHozn0YXAeE                         
--0.5
-
-id: 080d7db5c3e84227bafc1773f545e18b url: l6-JST83NM4                         
-time out of bounds
-
-id: 18c6f86a3ee94d25a5bd375681083878 url: AM_3uOU-prs                         
-
-id: 0739ac95db2a4ea38e59825f03d3df7f url: 1vrEljMfXYo                         
-0.6
-
-id: c4d8ef08aa9d465e99ebe72b176ddad5 url: 0mQJTMKOgKc                         
--2.5 < 2
-
-id: 8e4e6469c1bc43a88b5e546cafc18dbd url: PXatLOWjr-k                         
--8.4
-
-id: 8b8cf4e6daad47099e96e9e73075bc73 url: 1uYWYWPc9HU                         
-1
-
-id: b0f0b802bc3e482fbbfa35b388f2ad1b url: l-EdCNjumvI                         
--0.6
-
-id: 267de365cc3a4fd9ab69794dd1451bee url: ZQ2nCGawrSY                         
-0.5
-
-id: 60851537ac6b4815873d09194e4aaac0 url: teoGKjmIKnQ                         
-concat words
-
-id: 058d1893d89b4d9cb866946a05ca4d2b url: FypNu5UEWVA                         
-
-id: cbd84bc03c28484abca09bcd48868b03 url: oIFLtNYI3Ls                         
-0.8
-
-id: 16ae41adfb1e42edbae9c2b769efcedf url: 8BImIx2-Gvo                         
-
-id: 24f2ecc715ee43878df329184190ba3b url: IpT-FW_G8-A                         
--0.6
-
-id: 990ef9c076b14f74a63ef4912d65d008 url: 6AvUgu4MhrY                         
-time out of bounds
-
-id: 8d01530a7c334e6dbbb708317e696f9c url: XMaw837aBTA                         
-time out of bounds
-
-id: c1ac350e2fcf4ae0ba0b4cbae9905e2c url: SeEq2tlD6WY                         
--0.4
-
-id: 777f663b3ef649e3bf7925935f08b77c url: 6EEW-9NDM5k                         
--0.4, 0.7
-
-id: aa68bd15ffff43ea9b81d9423ffd3066 url: 0C3zgYW_FAM                         
-0.4
-
-id: 27a91cf475ac47a5abd6c296e07b9ace url: 37zAeB_x2EM                         
-0.8
-
-id: e6c5d4fbde914d6a97b81dcde2ce5b92 url: 76ley2v2s9w                         
-
-id: 892876b7ef924a9baac482caa00c674e url: SaeLKhRnkhQ                         
--0.4
-
-id: badd3bfdf44945d8bce55943769042ea url: 3_0y3V6SFz4                         
--1.2 < 1.8
-
-id: 361a62af55104e368d364fa090d86a13 url: VkCg-3nxT8E                         
--0.5
-
-id: fff64f1669c34253928802a9ed246d2f url: Q4SLCG6smiM                         
-14 < 16, -14 < -1
-
-id: 7478e71ea20e41c79dca63a2042362f5 url: 76ley2v2s9w                         
-
-id: eccf6ed3637e4b9ab451275a7af10928 url: B1zCN0YhW1s                         
-0.9
-
-id: 9d8781497eb9488a8eb9936cf1bc7f7d url: H-ru2glqXAg                         
--0.7
-
-id: 76b3189ad2364279928176992c1702db url: kZZmhbZJwng                         
-
-id: 24ac72b695b1454bb0412157132fb1ba url: X2LTL8KgKv8                         
--0.4
-
-id: b921ccaf04014e388ce64e8145e069c9 url: RNOTF-znQyw                         
-0.7 < 1.1
-
-id: e3f6ea62412142db88501f06d5d22bfa url: 7p5PK3dmVQE                         
-0.6 < 0.8
-
-id: 018f045bb1784602976a289705832d60 url: N4FoC-K534o                         
-
-id: 599ff88bb3cd492b9490942f486f0147 url: LOHBDJyV7Oo                         
-
-id: 939726a0aa8f4a10ad03c9e12c895b38 url: zoo9Vu1a9bU                         
-1.3 > 0.7
-
-id: 3acfa7a1f0ea48088653a5ade183c6ab url: byEGjLU2egA                         
--0.5
-
-id: 3f2c5ea48ac64724a6d372439b54fd72 url: ac3HkriqdGQ                         
--0.4
-
-id: c368b4dcbad14fc3a6e2519a813f246d url: wVyggTKDcOE                         
--0.8
-
-id: 130ced8af6234fa5bd215de8665722b5 url: 1twGKD-gkZw                         
-time out of bounds
-
-id: 42268b583202471681d7ecc7f72aa89c url: WtS7PTKuuZc                         
-0.6
-
-id: 304488f4ccde488c9c454cb10a1a84c5 url: JIlg0yM0XKg                         
-0.5
-
-id: e46b776ac93d42a69b210a8a9596ec9d url: ymPu2PdLW3I                         
--0.4
-
-id: 50dff9f9ec1a48a094a6dfcb4ce7ffc1 url: RUmdWdEgHgk                         
+id: f8e138f65797453a9a6edd754c59ac65 url: 6VZhSkREYBc
+offset: 0.4, 8
 vocalizations
 
-id: 6ff7cce17b5543b2b0c7af015ed24108 url: qJS3xnD7Mus                         
--0.5
+id: 98ebf10ca57041a8871368ec6f98bf00 url: 4vvBAONkYwI
+offset: 0.4
 
-id: 35e6844e42414269b09777b5cc8d8f96 url: mgaeGW-2z6w                         
--0.5
+id: cc226a4299d74339a6fca1ec6a329303 url: Lecf_TE4uOM
+corrupt
 
-id: 6cda64d54c204b73bc571543ccc7a690 url: SNPb3pt4gnM                         
-0.4
+id: 5ca035dbd3c24573832eab4ba8ec6e39 url: bz6IdhgqPgE
+corrupt
 
-id: e7056e220ccf49e385f357fcce7dbec4 url: Azx6F2fYPa0                         
-0.7
+id: 843573b8c5d24e229cff82d7b38dd1bc url: DeaAQPIHotQ
+corrupt
 
-id: 2998b41ef5d54f039def0b0b9b910f5c url: rB7ONnfIjaI                         
-0.9
+id: 24bfcfc2287741e28bbecf498e01542f url: RvuVFHTvdaY
+offset: -0.57
 
-id: a82fe706ea27478d9d572553b7393860 url: yKNxeF4KMsY                         
-1.2
+id: bddb1d0dfc644be9b8a3c47174e189b3 url: GFB4rsAyUb4
+corrupt
 
-id: bce19fb042f140a1af25ba91ddb035b9 url: H_CCBLt_9rM                         
-time out of bounds
+id: 0d0c3aa76809409e9afdbba8840c0974 url: R-R_u57gEUk
+corrupt
 
-id: d039c20a8a1146ca813fcf8ea5a09490 url: rvp7PgWGQzA                         
-time out of bounds
+id: 3eea0a8a992149c3947f0cdbd18d24fa url: zDKO6XYXioc
+offset: 0.5, 0.9
 
-id: d840c9c32da749d78b52f6f019b44ece url: VRU2qs82DAg                         
-0.9
+id: bf4322856a3f4ce9b4721db5c5ce37fe url: YxFerWkYYqY
+corrupt
 
-id: 01ca76c8c8444a48ae787402f21ea114 url: l9ml3nyww80                         
--1.1
+id: aeaf841fceb84c5cade8147d37e6d808 url: _4VoZ6afztc
+offset: -0.4
 
-id: 426165e5feea4890bf6c731552468207 url: dXdUS1ObaCc                         
+id: 4058aa5a512d42cb931e37b87120dae5 url: eM213aMKTHg
+offset: 0.7
 
-id: 8bbe9c03e3c34b20a276fd7d3bec411e url: VlMEGBsw6j8                         
-0.8
+id: d566e0f3de3a4449ac95bed00d13c6c0 url: wD6Pq0bSMPo
+offset: 2.56
 
-id: e3e6b4b35939469e9a8637c8984b80c1 url: edHnmuaLLDM                         
-time out of bounds
+id: dad3dd9d0da1451b9dabe1e8fa31fadc url: KfKIq1Pmc8Q
+corrupt
 
-id: decf3fc10a7a4697acf4294cc1b25560 url: GsVcUzP_O_8                         
--1
+id: 078126680b814bd88bcbe9855a63c5ed url: eVTXPUF4Oz4
+offset: 0.64
 
-id: 905f39ad15a247509d650392739defd8 url: Ixrje2rXLMA                         
-time out of bounds
+id: 7861bbf7b11645a2b1d4dda4c634cbac url: 3T2VizbQAwY
+offset: 0.4, 1
 
-id: b557e857be194388931ec6bd9851cb7f url: 1V4FLUOlMks                         
+id: 23c124a6dcad4f1bbf28f032e0055747 url: G2zxzaWgVRA
+corrupt
 
-id: fcc34b82c7dc41b689c786a6782378b2 url: 0n3cUPTKnl0                         
-0.4
+id: 899ed10c5e1949139021dfa0848cc665 url: _NkRNg0TZOw
+offset: -3.3, 4.1
 
-id: b9a28a6d8cdb433098f5977426e53c3d url: 0yW7w8F2TVA                         
-time out of bounds
+id: 43484ea2fb214c62906ea1ee4f98b77f url: uIbXvaE39wM
+offset: -0.35
 
-id: a2e48a84d9b54dca962805cf8aa165a2 url: PmccuamuSGc                         
-time out of bounds
+id: c1590a8c7c8343a9a08abaccc6f1cd8e url: NRtvqT_wMeY
+offset: 0.4
 
-id: e504cf3696764731808338edd7520131 url: 5d7EbtLb8ok                         
-0.7
+id: 16bd3bddd8d74819938853251a43396e url: VcjzHMhBtf0
+offset: -3.6
 
-id: 2cb872f25df64e72af2f1ac4f0fc1a2c url: RNOTF-znQyw                         
-0.7, 1.1
+id: 82a1167f3ee94faab28bb5f28c377457 url: 1UUYjd2rjsE
+offset: -0.56
 
-id: c1fc50c90f514b6aa6ab7cbf57e179b9 url: v0CYB5V9e64                         
--0.5
+id: 1d9c9db93db742da8880132615e87037 url: 4zKvXIbzSrw
+wrong end from 70.76
 
-id: 3aa8f2f5c6b047c898a918868665d7a2 url: GlZxZ2n2zpw                         
--0.4
+id: 3619a2e501594acea422c14a4b522f15 url: w6Q3mHyzn78
+offset: -0.45
 
-id: bb0a9b0ee78640fd8843d73cb236eb6e url: hRpsA-UvJDg                         
-time out of bounds
+id: 82485faae5a54cc58d0ba484d1b46374 url: f58HKOgGsHo
+offset: 0.7, -0.8
 
-id: 7b65fd0fc57f44078d08a3790747ebd4 url: I5c2jBgCWxg                         
+id: 5ac883dc659045c78fbef3b1fd789643 url: VKYY8DxVZHE
+offset: -0.5
 
-id: 24200f75586340dc98d333a3e8659644 url: MbtajuiuLMU                         
-0.5
+id: 085ee99e025d40659201adb53e076481 url: cLVxvQ3a2n8
+corrupt
 
-id: e021de36f8f74bee8d4a5cb3d835502e url: RZZSOJonEMI                         
-time out of bounds
+id: df7b04250c24415bb49d74c47544a45e url: 7WFpwdblDlw
+corrupt
 
-id: 2f44e0b34cb04497b742feac36e2e438 url: o-0lAhnoDlU                         
--0.4
+id: d9b4bed2740c4d629d5ed337d36c9896 url: dkQ0OJ5Byls
+offset: 0.6
 
-id: e83330176ae047648dae45689bef2de3 url: DaBWlBknNgs                         
--0.4
+id: f5aefa0e4d4b48a7bad8e3f36403bdbd url: AJWtLf4-WWs
+offset: 0.4
 
-id: 47895f2dad0f4075b79171a014b706b3 url: e0EaygJdxyc                         
+id: bac3800744fd47e9bbdc4c3e252d34b2 url: crjGHQL23nM
+non-english
 
-id: 826233ce756a49ad802e0ebd11e14634 url: O1-4u9W-bns                         
-1.2
+id: cbefaea9fd1a48b9bbcb18f706184b88 url: a70yJwgQtzo
+offset: -0.57
 
-id: 10fee42189544e8cb7fbebd6eaa27ffc url: RgpWp-QKISo                         
-time out of bounds
+id: 7c374001fac847a582c88f486a0bc1cd url: hTWKbfoikeg
+offset: 0.5
 
-id: 35a376573fa945f7b8939e240598b171 url: C-u5WLJ9Yk4                         
-0.4
+id: 3e4a4b15d7d648e1a9fa74b6a13f1d56 url: HTzGMEfbnAw
+offset: -0.4
 
-id: b50a0c2a571f47c4a58eb9392d67efb3 url: 1HnOFwqpLRQ                         
-0.6
+id: 24bb5550a6c045dcacee81d67f6b73b0 url: 8N2k-gv6xNE
+offset: -0.4
 
-id: 09e084032ab94b5f9bb502aaf30cde09 url: AB4Kh9VkSb4                         
--0.4
+id: e318fa04acf94ae2a1985b766bd67641 url: vD-YPGTwnJI
+offset: -1.1, ?
 
-id: 698e336bb6224870b6c2eff616f7e8c9 url: wADRRYNHhOA                         
--0.3 > -3.1
+id: d4294fe9b2314106a62a2a3635efbe45 url: gpyRI1j9t6c
+offset: 0.47
 
-id: ead703f650a045bfa15233c4e9d34b56 url: ijAYN9zVnwg                         
--0.8 > -1.1
+id: 418466c83b25444ca7715734a45939cd url: 8q2WS6ahCnY
+offset: -0.45
 
-id: 42c625f1ff2945318af82de3bda53fc9 url: EfK-WX2pa8c                         
--0.8 > -1.4
+id: 9ab28ef82e8b4874b432e545f9e64b2c url: TGwZ7MNtBFU
+offset: 1
 
-id: 2b334e10e348400888073833fec23971 url: 7Kxx-s4X3CA                         
-concat words
+id: 2e9ce195467e4041b9bb19aa37e9b79a url: CvBfHwUxHIk
+offset: 0.58
 
-id: e316a7f6057b4465ab85731c124fe5eb url: 0DMrKkGnP6Y                         
-time out of bounds
+id: 6571ec1caffa49f1b7046e8a637563df url: zkGfPrst29Y
+offset: -0.5
 
-id: e228fea597004d308346d903104121bf url: 1wYNFfgrXTI                         
-0.4
+id: 6f0c29c6e4944d2e93044ad1e835c8a8 url: P25hBk8LmUM
+offset: -0.6, 2.3
 
-id: 7f26e2cc942147569627847d6c4bf357 url: a-Lp2uC_1lg                         
--0.5
+id: f342990d4cfe4bbfb52eccfc5e91d8d3 url: 8WEtxJ4-sh4
+offset: 0.38
 
-id: 7c217e727ae14ae3b25dffc786470fcd url: L6-uJLteKek                         
--1.1
+id: ffef85420e914f96bad1420f75a9b105 url: DcHKOC64KnE
+offset: 0.7
 
-id: ecc992711d8641e9b20bc7d5b432c427 url: bQRzrnH6_HY                         
+id: 20f4825270af4891962a0cd175f32327 url: LrjHz5hrupA
+offset: 1.3, 7.4
 
-id: 98fb42246b19475ba8b4d21c81f65af0 url: bE3tErR06N4                         
-0.4, time out of bounds
+id: 3378d2783f464fa49e5aca2b34f6f789 url: NHozn0YXAeE
+offset: -0.5
 
-id: d7d07317d1a546da8de8eb6a97520240 url: Lfph3043yZU                         
--0.7
+id: 080d7db5c3e84227bafc1773f545e18b url: l6-JST83NM4
+corrupt
 
-id: 2c16608fa4034d23af04c0a881d109b7 url: 2opaVONSaHQ                         
+id: 18c6f86a3ee94d25a5bd375681083878 url: AM_3uOU-prs
+corrupt
 
-id: 51fb79b4c68e408c818be0298cf57854 url: E1i34e0sDt8                         
--1.4
+id: 0739ac95db2a4ea38e59825f03d3df7f url: 1vrEljMfXYo
+offset: 0.65, 0.4
 
-id: 1433c4d6e556458da2938249849c3c12 url: sdVLfcom5qM                         
-time out of bounds
+id: c4d8ef08aa9d465e99ebe72b176ddad5 url: 0mQJTMKOgKc
+offset: -2.6, 1.6
 
-id: b4ca87687af245a9a1012b1bc06f943d url: Zzyfcys1aLM                         
--0.7
+id: 8e4e6469c1bc43a88b5e546cafc18dbd url: PXatLOWjr-k
+offset: -8.48
 
-id: 1760d2553acc4a488e3ef241e7290d65 url: OAfxs0IDeMs                         
--0.4
+id: 8b8cf4e6daad47099e96e9e73075bc73 url: 1uYWYWPc9HU
+offset: 1.07
 
-id: 6842ffaa54c54d9e98afdab77a2055e9 url: Co6OHe4KaEc                         
+id: b0f0b802bc3e482fbbfa35b388f2ad1b url: l-EdCNjumvI
+offset: -0.8
 
-id: 7d5d6a35eff049bfa1e158d956b06bfb url: 2-eclUz-RYI                         
-time out of bounds
+id: 267de365cc3a4fd9ab69794dd1451bee url: ZQ2nCGawrSY
+offset: 0.56
 
-id: bad9c59bca32429ca7c058447042452a url: WY_xwK87uO4                         
-time out of bounds
+id: 60851537ac6b4815873d09194e4aaac0 url: teoGKjmIKnQ
+corrupt
 
-id: 3d860b23bdf44e0e9b8954677fefbdfd url: w3Eaw-86tpw                         
-0.4
+id: 058d1893d89b4d9cb866946a05ca4d2b url: FypNu5UEWVA
+corrupt
 
-id: 3c1fac6f2f90429fbde9d084e9e51902 url: GGHnYD2y-44                         
-0.6
+id: cbd84bc03c28484abca09bcd48868b03 url: oIFLtNYI3Ls
+offset: 0.85
 
-id: 079d2b6002584742947822f02d88782b url: BPNmc71b7iE                         
-0.9 > -0.9, 13.8 > 12.5
+id: 16ae41adfb1e42edbae9c2b769efcedf url: 8BImIx2-Gvo
+corrupt
 
-id: 3b113d03fdbf471b904b83eec921a60c url: yG07WSu7Q9w                         
-2.4
+id: 24f2ecc715ee43878df329184190ba3b url: IpT-FW_G8-A
+offset: -0.6
 
-id: 851526c884fe45d0af1652e5ae85babb url: diYAc7gB-0A                         
-0.4
+id: 990ef9c076b14f74a63ef4912d65d008 url: 6AvUgu4MhrY
+corrupt
 
-id: 45baae4cd48c46af9fd8bcc99deaf001 url: a4FaSx5ZSwE                         
-1.7 >-2.5
+id: 8d01530a7c334e6dbbb708317e696f9c url: XMaw837aBTA
+corrupt
 
-id: 3d5d3323f5a741eea997481fdf22eb01 url: mlfWy4bEjgo                         
--4.7
+id: c1ac350e2fcf4ae0ba0b4cbae9905e2c url: SeEq2tlD6WY
+offset: -0.4
 
-id: 4ad0d5887fe242bb800d946f11d8988b url: U9jINg6Upkw                         
+id: 777f663b3ef649e3bf7925935f08b77c url: 6EEW-9NDM5k
+offset: -0.5 (chorus 0,7)
 
-id: 317c6dd57cb446fe9461cd84e1187f12 url: yxmstD3R-bM                         
-polish, vocalizations
+id: aa68bd15ffff43ea9b81d9423ffd3066 url: 0C3zgYW_FAM
+offset: 0.48
 
-id: 78af83cf3f4d4ee1952a1eb961255dee url: o67xW7wusq4                         
-time out of bounds
+id: 27a91cf475ac47a5abd6c296e07b9ace url: 37zAeB_x2EM
+offset: 0.78
 
-id: 1db0e4e049d543588a176d8ce2750d30 url: XPpTgCho5ZA                         
-0.4
+id: e6c5d4fbde914d6a97b81dcde2ce5b92 url: 76ley2v2s9w
+corrupt
 
-id: 1667f7619d9d46fd934d3dc09bb08069 url: HO8J2cz7KHg                         
+id: 892876b7ef924a9baac482caa00c674e url: SaeLKhRnkhQ
+offset: -0.4
 
-id: 0e20f7ad493e45bf9c98477388413837 url: PIb6AZdTr-A                         
-0.5
+id: badd3bfdf44945d8bce55943769042ea url: 3_0y3V6SFz4
+offset: -1.2, 1.8
+wrong end from 210
 
-id: 561fa47384ba467f84d6d9bf8af84c50 url: Oe4Ic7fHWf8                         
-0.7
+id: 361a62af55104e368d364fa090d86a13 url: VkCg-3nxT8E
+offset: -0.59
 
-id: 5f173b85cdb14de0b21b68a5fe7b129b url: t5Sd5c4o9UM                         
--1
+id: fff64f1669c34253928802a9ed246d2f url: Q4SLCG6smiM
+offset: 14.3, 16
+wrong end from 179
 
-id: 4da8e85c245c42d9a3803c1f22e12f26 url: JRfuAukYTKg                         
+id: 7478e71ea20e41c79dca63a2042362f5 url: 76ley2v2s9w
+corrupt
 
-id: 2269611d7ea445849d604a7303ebdb08 url: kZZmhbZJwng                         
+id: eccf6ed3637e4b9ab451275a7af10928 url: B1zCN0YhW1s
+offset: 0.9
 
-id: ab34e2cfe069444b83b6be02818e6e73 url: EkHTsc9PU2A                         
-0.7
+id: 9d8781497eb9488a8eb9936cf1bc7f7d url: H-ru2glqXAg
+offset: -0.7
 
-id: 343cf2e82c934d7093a71c0c1310eced url: agrXgrAgQ0U                         
+id: 76b3189ad2364279928176992c1702db url: kZZmhbZJwng
+corrupt
 
-id: 5c0a326a0a7940f8b88bb92767ba86cb url: ZJL4UGSbeFg                         
--0.5
+id: 24ac72b695b1454bb0412157132fb1ba url: X2LTL8KgKv8
+offset: -0.4
 
-id: 55dcff00691042a98c0bb1893231009d url: sPYsMM1FvXs                         
--0.6 > -1.6
+id: b921ccaf04014e388ce64e8145e069c9 url: RNOTF-znQyw
+offset: 0.7 < 1.1
 
-id: 3a0af778dd0a47a997779effc6399ea1 url: QYHxGBH6o4M                         
-0.5
+id: e3f6ea62412142db88501f06d5d22bfa url: 7p5PK3dmVQE
+offset: 0.5, 0.9
 
-id: 311e535619494803b1a2093b9722d0d1 url: MSGiM5e-LAw                         
-time out of bounds
+id: 018f045bb1784602976a289705832d60 url: N4FoC-K534o
+corrupt
 
-id: 95b5f00482534fae834198a21e228d35 url: WHxF38jvOMQ                         
-0.3 < 0.6, time out of bounds
+id: 599ff88bb3cd492b9490942f486f0147 url: LOHBDJyV7Oo
+corrupt
 
-id: 2c38100be2cb4b5f99a123d622157b4c url: pkcJEvMcnEg                         
--0.4
+id: 939726a0aa8f4a10ad03c9e12c895b38 url: zoo9Vu1a9bU
+offset: 1.38, 0.7
+vocalizations
 
-id: 8d145c17711c4350b463fddb55f509fd url: opU1urLhw50                         
--0.4
+id: 3acfa7a1f0ea48088653a5ade183c6ab url: byEGjLU2egA
+offset: -0.5
 
-id: 6262646565cd4cd5a8698fa2f68cb1da url: MeW0Sl0tNS8                         
-0.7
+id: 3f2c5ea48ac64724a6d372439b54fd72 url: ac3HkriqdGQ
+offset: -0.45
 
-id: 8ada65cb2b1d4a3ab6426822626fd8c3 url: hSyYps8xJfs                         
+id: c368b4dcbad14fc3a6e2519a813f246d url: wVyggTKDcOE
+offset: -0.85
 
-id: 2b15b78af6ea49428f97371ef760be06 url: ek2PDE1cAyY                         
--0.4
+id: 130ced8af6234fa5bd215de8665722b5 url: 1twGKD-gkZw
+corrupt
 
-id: e6a7cfeb336b4afc83471eab2caeef2b url: ybYgP48X2DY                         
-0.5
+id: 42268b583202471681d7ecc7f72aa89c url: WtS7PTKuuZc
+offset: 0.67
 
-id: 10b2677abd6d4e879ac70d0d698d7b54 url: G9BIX9akkh4                         
+id: 304488f4ccde488c9c454cb10a1a84c5 url: JIlg0yM0XKg
+offset: 0.5
 
-id: bb590165c7f547708593566404072b93 url: Nters8yCsOg                         
-0.5
+id: e46b776ac93d42a69b210a8a9596ec9d url: ymPu2PdLW3I
+offset: -0.4
 
-id: 2626a6da6ab04aec8110a53c1d5f6065 url: nc0Mv4Iyxvc                         
--0.5
+id: 50dff9f9ec1a48a094a6dfcb4ce7ffc1 url: RUmdWdEgHgk
+offset: 0.7
+vocalizations
 
-id: 58ffc82aa952454290eac1be05bd8a5f url: CM3jcGsS0Po                         
--0.4
+id: 6ff7cce17b5543b2b0c7af015ed24108 url: qJS3xnD7Mus
+offset: -0.5
 
-id: b30f620655a8411ca6f476f9b45cbcce url: G6jyPcaY5To                         
-0.8 > -0.7
+id: 35e6844e42414269b09777b5cc8d8f96 url: mgaeGW-2z6w
+offset: -0.5
 
-id: 73acb9b4bbcc4107a1a774890d128275 url: Gl9ikroWXSs                         
-wrong lyrics (brentalfloss)
+id: 6cda64d54c204b73bc571543ccc7a690 url: SNPb3pt4gnM
+offset: 0.37
 
-id: f5087b01521b4a64a2253400cfc76af2 url: bBPtP4t2J1k                         
--0.4
+id: e7056e220ccf49e385f357fcce7dbec4 url: Azx6F2fYPa0
+offset: 0.7
 
-id: fb38c36793654dbaa6107b91b7f88e6e url: zsCD5XCu6CM                         
-0.6
+id: 2998b41ef5d54f039def0b0b9b910f5c url: rB7ONnfIjaI
+offset: 0.85
 
-id: d9fd184aef554bfa8c4deadb28ad46b9 url: UrIiLvg58SY                         
--0.6, time out of bounds
+id: a82fe706ea27478d9d572553b7393860 url: yKNxeF4KMsY
+offset: 1.2
 
-id: 00f12f0436854abea015463aa25b6df6 url: 3Xh5i2FxAN4                         
-wrong lyrics (tetris)
+id: bce19fb042f140a1af25ba91ddb035b9 url: H_CCBLt_9rM
+wrong end from 72
 
-id: 4c9777bcb0d44caaae43165624fac08a url: DXAidGQUuns                         
--0.7
+id: d039c20a8a1146ca813fcf8ea5a09490 url: rvp7PgWGQzA
+wrong end from 87
 
-id: 65706aea19ae4a4e9bbd3707ada8ffc3 url: cJRP3LRcUFg                         
--2.7
+id: d840c9c32da749d78b52f6f019b44ece url: VRU2qs82DAg
+offset: 0.9
 
-id: 1d317475b5234d87bf9e8a2816269eb0 url: BJk6gZuPKRE                         
-0.5
+id: 01ca76c8c8444a48ae787402f21ea114 url: l9ml3nyww80
+offset: -1.14
 
-id: 38b9506594a64cab87c786d6f83a4fa3 url: o2ltvJBy1cw                         
-time out of bounds
+id: 426165e5feea4890bf6c731552468207 url: dXdUS1ObaCc
+corrupt
 
-id: 7e4b34caf56e4fa8b86a2a52fbb2d1ca url: XeWxFDlufNo                         
-time out of bounds
+id: 8bbe9c03e3c34b20a276fd7d3bec411e url: VlMEGBsw6j8
+offset: 0.8
 
-id: 1bd1284e286a426eaa6266b423e093dd url: NgbBy9hmZjA                         
+id: e3e6b4b35939469e9a8637c8984b80c1 url: edHnmuaLLDM
+corrupt
 
-id: e3b6e015b78d425a9f7beaff23bcb69f url: fHEgzRtKC5o                         
-wrong lyrics (brentalfloss, tetris)
+id: decf3fc10a7a4697acf4294cc1b25560 url: GsVcUzP_O_8
+offset: -1
 
-id: 34baf0e6190147b8bc27cebc928ae663 url: KRzMtlZjXpU                         
-0.4
+id: 905f39ad15a247509d650392739defd8 url: Ixrje2rXLMA
+corrupt
 
-id: ee862840143f4c11afa8656f83615f88 url: K1uNjmxJQUo                         
--0.5
+id: b557e857be194388931ec6bd9851cb7f url: 1V4FLUOlMks
+corrupt
 
-id: 3e9ce1a830a14fb38c73dc35fb079d7b url: DL7-CKirWZE                         
--0.5
+id: fcc34b82c7dc41b689c786a6782378b2 url: 0n3cUPTKnl0
+offset: 0.4
 
-id: 22c4a290d25f49acab0e32353e83ab4b url: toYfeN0ACDw                         
+id: b9a28a6d8cdb433098f5977426e53c3d url: 0yW7w8F2TVA
+corrupt
 
-id: 82d588429206407b84147f1a3390de79 url: EDwb9jOVRtU                         
-0.9
+id: a2e48a84d9b54dca962805cf8aa165a2 url: PmccuamuSGc
+wrong end from 150.30
 
-id: 08b2759fdeaf4913bdaab65b1242ed0d url: QfcLcDBII78                         
--0.6
+id: e504cf3696764731808338edd7520131 url: 5d7EbtLb8ok
+offset: 0.7
 
-id: 8bca4d54247a467db590f5d59a96cbf8 url: lru6-J7uQjo                         
-time out of bounds
+id: 2cb872f25df64e72af2f1ac4f0fc1a2c url: RNOTF-znQyw
+offset: 0.7, 1.1
 
-id: ca3f457e49d3446f8cd5d20456cfb012 url: LPn0KFlbqX8                         
-0.4
+id: c1fc50c90f514b6aa6ab7cbf57e179b9 url: v0CYB5V9e64
+offset: -0.47
 
-id: d0d077b498014bf4a215d2be298f1096 url: 4xoUHC9uRHM                         
-0.7
+id: 3aa8f2f5c6b047c898a918868665d7a2 url: GlZxZ2n2zpw
+offset: -0.4
 
-id: 1164cc93ea68404eaa324f9702902bcd url: jGJFINIELik                         
-1.1 > -1.2
+id: bb0a9b0ee78640fd8843d73cb236eb6e url: hRpsA-UvJDg
+corrupt
 
-id: 8f18ac08ab1048b7bb8428f2809996be url: Nb5ldEa45nY                         
+id: 7b65fd0fc57f44078d08a3790747ebd4 url: I5c2jBgCWxg
+corrupt
 
-id: ba21a360b8d74a66ae6e1e71fe850c0c url: KxLXWgnU3wc                         
+id: 24200f75586340dc98d333a3e8659644 url: MbtajuiuLMU
+offset: 0.46
 
-id: 56150394d3e64c97ab6834ac1949a616 url: FXBzp2_Tdts                         
+id: e021de36f8f74bee8d4a5cb3d835502e url: RZZSOJonEMI
+corrupt
 
-id: 57cc4a2106db40a583c3fb985f8d0b2c url: g8z-qP34-1Y                         
--0.5
+id: 2f44e0b34cb04497b742feac36e2e438 url: o-0lAhnoDlU
+offset: -0.4
 
-id: 693a5882b716482e8e7ca9f5c9bdf954 url: t7v-6rHDuKQ                         
-wrong lyrics (brentalfloss, tetris)
+id: e83330176ae047648dae45689bef2de3 url: DaBWlBknNgs
+offset: -0.47
 
-id: 1c6c81c072704172ac0ff63a3f504f43 url: -9P5NnsZgYU                         
-concat words
+id: 47895f2dad0f4075b79171a014b706b3 url: e0EaygJdxyc
+corrupt
 
-id: bf9ae3f4339645c78addefbda5171821 url: FkLTwX0duY4                         
-concat words
+id: 826233ce756a49ad802e0ebd11e14634 url: O1-4u9W-bns
+offset: 1.25
 
-id: 1e68dfeebaca4b0dab963b207733d35b url: YU4hhNKsPog                         
--0.5
+id: 10fee42189544e8cb7fbebd6eaa27ffc url: RgpWp-QKISo
+corrupt
 
-id: 1fd88949865b4ea4bb681de02575fd4f url: pcHI_lTmog4                         
-0.4
+id: 35a376573fa945f7b8939e240598b171 url: C-u5WLJ9Yk4
+offset: 0.47
 
-id: 024d7c1ac0104754ab0c7f09716c9fcb url: YUXqHbTq1yc                         
-time out of bounds
+id: b50a0c2a571f47c4a58eb9392d67efb3 url: 1HnOFwqpLRQ
+offset: 0.6
 
-id: 17db75649e2f49acae3cbc713cc9e020 url: jWWGESX100s                         
+id: 09e084032ab94b5f9bb502aaf30cde09 url: AB4Kh9VkSb4
+offset: -0.37
 
-id: c97216d8496845f6a6de8d71bf152cc2 url: yuTMWgOduFM                         
--0.4
+id: 698e336bb6224870b6c2eff616f7e8c9 url: wADRRYNHhOA
+offset: -0.3, -3.1
 
-id: 8d78fb4a056b40428150f0b46d99a92e url: XFkzRNyygfk                         
--0.3
+id: ead703f650a045bfa15233c4e9d34b56 url: ijAYN9zVnwg
+offset: -0.8, -1.1
 
-id: 6df5242d98444e98b731973844170e50 url: 8szE-xCrFNs                         
-time out of bounds
+id: 42c625f1ff2945318af82de3bda53fc9 url: EfK-WX2pa8c
+offset: -0.8, -1.5
 
-id: 769a39c1ae1c4cec84e6497dd5e36965 url: jwv-iRvyDZg                         
-0.4, vocalizations
+id: 2b334e10e348400888073833fec23971 url: 7Kxx-s4X3CA
+corrupt
 
-id: a4ab827c72a1436ea8273c90a0620365 url: ty2q1sClQCM                         
-0.4
+id: e316a7f6057b4465ab85731c124fe5eb url: 0DMrKkGnP6Y
+corrupt
 
-id: e7cca46c996f4163aaf52cf8a5d242fd url: beINamVRGy4                         
-1.1
+id: e228fea597004d308346d903104121bf url: 1wYNFfgrXTI
+offset: 0.48
 
-id: 56fc136f189b491294fe65b2f1cd740e url: SQaqoNZ_35o                         
--0.5 < 1.8
+id: 7f26e2cc942147569627847d6c4bf357 url: a-Lp2uC_1lg
+offset: -0.47
 
-id: 4df3e21fe7f9431a9e111fb5a81e315e url: zj05Pebbkbc                         
--0.4
+id: 7c217e727ae14ae3b25dffc786470fcd url: L6-uJLteKek
+offset: -1.1
 
-id: 79129dc1519c4138a7c34716f5379c78 url: SMJhQ1cPM_A                         
-time out of bounds
+id: ecc992711d8641e9b20bc7d5b432c427 url: bQRzrnH6_HY
+corrupt
 
-id: bbe451ebbf7b4ad0816e70c0cc969213 url: 2lvs2FzF64o                         
-2
+id: 98fb42246b19475ba8b4d21c81f65af0 url: bE3tErR06N4
+offset: 0.4
+wrong end from 223
 
-id: e813848a6c4446949e11d6b6659853cd url: kZZmhbZJwng                         
+id: d7d07317d1a546da8de8eb6a97520240 url: Lfph3043yZU
+offset: -0.75
 
-id: 7703343ed3e74b38ad5cd069e96b4867 url: 76ley2v2s9w                         
-wrong lyrics (brentalfloss, tetris)
+id: 2c16608fa4034d23af04c0a881d109b7 url: 2opaVONSaHQ
+corrupt
 
-id: 3122d1a7225f47139fa270a19c6caac6 url: rhjjhQYx_BM                         
-wrong lyrics (tetris)
+id: 51fb79b4c68e408c818be0298cf57854 url: E1i34e0sDt8
+offset: -1.4, -1.5
 
-id: bc1899f9ef2a462195d736312f3d06c2 url: TgLzBwxo4_A                         
-time out of bounds
+id: 1433c4d6e556458da2938249849c3c12 url: sdVLfcom5qM
+corrupt
 
-id: 1de81c27947a43929a02645d8e4ec444 url: O-zpOMYRi0w                         
--3.8
+id: b4ca87687af245a9a1012b1bc06f943d url: Zzyfcys1aLM
+offset: -0.8, -0.5
 
-id: 3559797f9a1647209578fcfbfa851e47 url: ijAYN9zVnwg                         
--0.8 > -1.1
+id: 1760d2553acc4a488e3ef241e7290d65 url: OAfxs0IDeMs
+offset: -0.4
 
-id: 4f2c196274bc43b99ae34bbc92a0cc33 url: lM5SPTmVlqE                         
-time out of bounds
+id: 6842ffaa54c54d9e98afdab77a2055e9 url: Co6OHe4KaEc
+corrupt
 
-id: 8e76e0a5ee89451b8fdcd7524502c7bc url: MrAtAxx4c8A                         
+id: 7d5d6a35eff049bfa1e158d956b06bfb url: 2-eclUz-RYI
+corrupt
 
-id: f806fff14236451dabe7351963237769 url: Y3qDzWO7H5M                         
-1.2 > -0.5
+id: bad9c59bca32429ca7c058447042452a url: WY_xwK87uO4
+corrupt
 
-id: 57e7fbba680847d2bca9f8750c90fd1c url: edHnmuaLLDM                         
-time out of bounds
+id: 3d860b23bdf44e0e9b8954677fefbdfd url: w3Eaw-86tpw
+offset: 0.37
 
-id: 5c8b80f3a6274c3f826d61650ca6a7d2 url: Rn7uaz0fayA                         
--0.5
+id: 3c1fac6f2f90429fbde9d084e9e51902 url: GGHnYD2y-44
+offset: 0.58
 
-id: 9cb91cc8ff2d4715ac20e35dc51bf9b6 url: 1vrEljMfXYo                         
-0.6 > 0.3
+id: 079d2b6002584742947822f02d88782b url: BPNmc71b7iE
+offset: 0.9, -0.9; 13.8 > 12.7
+split words
 
-id: df66133633144a0cb813f422a455836d url: GEuuj8EL3tE                         
-wrong lyrics (brentalfloss, tetris)
+id: 3b113d03fdbf471b904b83eec921a60c url: yG07WSu7Q9w
+offset: 2.44
 
-id: af79b98527cf422ba3e9b4107b7422c5 url: 8szE-xCrFNs                         
-wrong lyrics (brentalfloss, tetris)
+id: 851526c884fe45d0af1652e5ae85babb url: diYAc7gB-0A
+offset: 0.4
 
-id: 6d06e960817941a1ad4cde002c85254c url: 1ClCpfeIELw                         
--0.3
+id: 45baae4cd48c46af9fd8bcc99deaf001 url: a4FaSx5ZSwE
+offset: 1.7, -2.5
 
-id: 4f9e38a81602484696ebf4671058af90 url: BtiZ0j1nofE                         
-time out of bounds
+id: 3d5d3323f5a741eea997481fdf22eb01 url: mlfWy4bEjgo
+offset: -4.77
+wrong end from 118.5
+vocalizations
 
-id: 3b7e62531a6a45e98128d634e9a882d4 url: kZZmhbZJwng                         
+id: 4ad0d5887fe242bb800d946f11d8988b url: U9jINg6Upkw
+corrupt
 
-id: 13492490dd994eadb402787ea1798f47 url: Co6OHe4KaEc                         
-wrong lyrics (brentalfloss, tetris)
+id: 317c6dd57cb446fe9461cd84e1187f12 url: yxmstD3R-bM
+non-english
 
-id: a68fe748704942f7b63591a137dc81a7 url: 1vrEljMfXYo                         
-0.7 > 0.3
+id: 78af83cf3f4d4ee1952a1eb961255dee url: o67xW7wusq4
+corrupt
 
-id: 45a98dc68bc7426191a850f42fdcaf79 url: mPc2plEHrHA                         
-concat words
+id: 1db0e4e049d543588a176d8ce2750d30 url: XPpTgCho5ZA
+offset: 0.4
 
-id: 2aa2f1fc57f848dc878f461ddcfb041b url: roPQ_M3yJTA                         
--0.3 > -0.7
+id: 1667f7619d9d46fd934d3dc09bb08069 url: HO8J2cz7KHg
+corrupt
 
-id: 2ed813a485e54820838df7b88e0abaec url: qPdihUTYk90                         
-concat words
+id: 0e20f7ad493e45bf9c98477388413837 url: PIb6AZdTr-A
+offset: 0.5
 
-id: de321d2f9acb428eb986bc8dbb9958be url: koJlIGDImiU                         
--0.4
+id: 561fa47384ba467f84d6d9bf8af84c50 url: Oe4Ic7fHWf8
+offset: 0.67
+
+id: 5f173b85cdb14de0b21b68a5fe7b129b url: t5Sd5c4o9UM
+offset: -1
+
+id: 4da8e85c245c42d9a3803c1f22e12f26 url: JRfuAukYTKg
+non-english
+
+id: 2269611d7ea445849d604a7303ebdb08 url: kZZmhbZJwng
+non-english
+
+id: ab34e2cfe069444b83b6be02818e6e73 url: EkHTsc9PU2A
+offset: 0.78
+
+id: 343cf2e82c934d7093a71c0c1310eced url: agrXgrAgQ0U
+offset: 0.57
+
+id: 5c0a326a0a7940f8b88bb92767ba86cb url: ZJL4UGSbeFg
+offset: -0.58
+
+id: 55dcff00691042a98c0bb1893231009d url: sPYsMM1FvXs
+offset: -0.6 > -1.7
+
+id: 3a0af778dd0a47a997779effc6399ea1 url: QYHxGBH6o4M
+offset: 0.5
+
+id: 311e535619494803b1a2093b9722d0d1 url: MSGiM5e-LAw
+corrupt
+
+id: 95b5f00482534fae834198a21e228d35 url: WHxF38jvOMQ
+offset: 0.3, 0.5
+wrong end from 164
+
+id: 2c38100be2cb4b5f99a123d622157b4c url: pkcJEvMcnEg
+offset: -0.4
+
+id: 8d145c17711c4350b463fddb55f509fd url: opU1urLhw50
+offset: -0.48
+
+id: 6262646565cd4cd5a8698fa2f68cb1da url: MeW0Sl0tNS8
+offset: 0.74
+
+id: 8ada65cb2b1d4a3ab6426822626fd8c3 url: hSyYps8xJfs
+corrupt
+
+id: 2b15b78af6ea49428f97371ef760be06 url: ek2PDE1cAyY
+offset: -0.44
+
+id: e6a7cfeb336b4afc83471eab2caeef2b url: ybYgP48X2DY
+offset: 0.6
+
+id: 10b2677abd6d4e879ac70d0d698d7b54 url: G9BIX9akkh4
+corrupt
+
+id: bb590165c7f547708593566404072b93 url: Nters8yCsOg
+offset: 0.4
+
+id: 2626a6da6ab04aec8110a53c1d5f6065 url: nc0Mv4Iyxvc
+offset: -0.56
+
+id: 58ffc82aa952454290eac1be05bd8a5f url: CM3jcGsS0Po
+offset: -0.36
+
+id: b30f620655a8411ca6f476f9b45cbcce url: G6jyPcaY5To
+offset: 0.9, -0.7
+
+id: 73acb9b4bbcc4107a1a774890d128275 url: Gl9ikroWXSs
+corrupt
+
+id: f5087b01521b4a64a2253400cfc76af2 url: bBPtP4t2J1k
+offset: -0.45
+
+id: fb38c36793654dbaa6107b91b7f88e6e url: zsCD5XCu6CM
+offset: 0.6
+
+id: d9fd184aef554bfa8c4deadb28ad46b9 url: UrIiLvg58SY
+offset: -0.57
+wrong end from 251
+
+id: 00f12f0436854abea015463aa25b6df6 url: 3Xh5i2FxAN4
+corrupt
+
+id: 4c9777bcb0d44caaae43165624fac08a url: DXAidGQUuns
+offset: -0.66
+
+id: 65706aea19ae4a4e9bbd3707ada8ffc3 url: cJRP3LRcUFg
+offset: -2.75
+
+id: 1d317475b5234d87bf9e8a2816269eb0 url: BJk6gZuPKRE
+offset: 0.5
+
+id: 38b9506594a64cab87c786d6f83a4fa3 url: o2ltvJBy1cw
+corrupt
+
+id: 7e4b34caf56e4fa8b86a2a52fbb2d1ca url: XeWxFDlufNo
+corrupt
+
+id: 1bd1284e286a426eaa6266b423e093dd url: NgbBy9hmZjA
+corrupt
+
+id: e3b6e015b78d425a9f7beaff23bcb69f url: fHEgzRtKC5o
+corrupt
+
+id: 34baf0e6190147b8bc27cebc928ae663 url: KRzMtlZjXpU
+offset: 0.44
+
+id: ee862840143f4c11afa8656f83615f88 url: K1uNjmxJQUo
+offset: -0.53
+
+id: 3e9ce1a830a14fb38c73dc35fb079d7b url: DL7-CKirWZE
+offset: -0.55
+
+id: 22c4a290d25f49acab0e32353e83ab4b url: toYfeN0ACDw
+corrupt
+
+id: 82d588429206407b84147f1a3390de79 url: EDwb9jOVRtU
+offset: 0.9
+
+id: 08b2759fdeaf4913bdaab65b1242ed0d url: QfcLcDBII78
+offset: -0.6
+
+id: 8bca4d54247a467db590f5d59a96cbf8 url: lru6-J7uQjo
+corrupt
+
+id: ca3f457e49d3446f8cd5d20456cfb012 url: LPn0KFlbqX8
+offset: 0.4
+
+id: d0d077b498014bf4a215d2be298f1096 url: 4xoUHC9uRHM
+offset: 0.74
+
+id: 1164cc93ea68404eaa324f9702902bcd url: jGJFINIELik
+offset: 1.3, -1.2
+
+id: 8f18ac08ab1048b7bb8428f2809996be url: Nb5ldEa45nY
+corrupt
+
+id: ba21a360b8d74a66ae6e1e71fe850c0c url: KxLXWgnU3wc
+corrupt
+
+id: 56150394d3e64c97ab6834ac1949a616 url: FXBzp2_Tdts
+corrupt
+
+id: 57cc4a2106db40a583c3fb985f8d0b2c url: g8z-qP34-1Y
+offset: -0.47
+
+id: 693a5882b716482e8e7ca9f5c9bdf954 url: t7v-6rHDuKQ
+corrupt
+
+id: 1c6c81c072704172ac0ff63a3f504f43 url: -9P5NnsZgYU
+corrupt
+
+id: bf9ae3f4339645c78addefbda5171821 url: FkLTwX0duY4
+corrupt
+
+id: 1e68dfeebaca4b0dab963b207733d35b url: YU4hhNKsPog
+offset: -0.47
+
+id: 1fd88949865b4ea4bb681de02575fd4f url: pcHI_lTmog4
+offset: 0.4
+
+id: 024d7c1ac0104754ab0c7f09716c9fcb url: YUXqHbTq1yc
+corrupt
+
+id: 17db75649e2f49acae3cbc713cc9e020 url: jWWGESX100s
+corrupt
+
+id: c97216d8496845f6a6de8d71bf152cc2 url: yuTMWgOduFM
+offset: -0.4
+
+id: 8d78fb4a056b40428150f0b46d99a92e url: XFkzRNyygfk
+offset: -0.37
+
+id: 6df5242d98444e98b731973844170e50 url: 8szE-xCrFNs
+corrupt
+
+id: 769a39c1ae1c4cec84e6497dd5e36965 url: jwv-iRvyDZg
+offset: 0.46
+vocalizations
+
+id: a4ab827c72a1436ea8273c90a0620365 url: ty2q1sClQCM
+offset: 0.4
+
+id: e7cca46c996f4163aaf52cf8a5d242fd url: beINamVRGy4
+offset: 1.1
+wrong end from 143
+
+id: 56fc136f189b491294fe65b2f1cd740e url: SQaqoNZ_35o
+offset: -0.5, 1.8
+
+id: 4df3e21fe7f9431a9e111fb5a81e315e url: zj05Pebbkbc
+offset: -0.38
+
+id: 79129dc1519c4138a7c34716f5379c78 url: SMJhQ1cPM_A
+wrong end from 89
+
+id: bbe451ebbf7b4ad0816e70c0cc969213 url: 2lvs2FzF64o
+offset: 1.9, 2
+
+id: e813848a6c4446949e11d6b6659853cd url: kZZmhbZJwng
+corrupt
+
+id: 7703343ed3e74b38ad5cd069e96b4867 url: 76ley2v2s9w
+corrupt
+
+id: 3122d1a7225f47139fa270a19c6caac6 url: rhjjhQYx_BM
+corrupt
+
+id: bc1899f9ef2a462195d736312f3d06c2 url: TgLzBwxo4_A
+wrong end from 66
+
+id: 1de81c27947a43929a02645d8e4ec444 url: O-zpOMYRi0w
+offset: -3.84
+
+id: 3559797f9a1647209578fcfbfa851e47 url: ijAYN9zVnwg
+offset: -0.8, -1.1
+
+id: 4f2c196274bc43b99ae34bbc92a0cc33 url: lM5SPTmVlqE
+wrong end from 80
+
+id: 8e76e0a5ee89451b8fdcd7524502c7bc url: MrAtAxx4c8A
+corrupt
+
+id: f806fff14236451dabe7351963237769 url: Y3qDzWO7H5M
+offset: 1.2, -0.5
+
+id: 57e7fbba680847d2bca9f8750c90fd1c url: edHnmuaLLDM
+corrupt
+
+id: 5c8b80f3a6274c3f826d61650ca6a7d2 url: Rn7uaz0fayA
+offset: -0.5
+
+id: 9cb91cc8ff2d4715ac20e35dc51bf9b6 url: 1vrEljMfXYo
+offset: 0.7, 0.3
+
+id: df66133633144a0cb813f422a455836d url: GEuuj8EL3tE
+corrupt
+
+id: af79b98527cf422ba3e9b4107b7422c5 url: 8szE-xCrFNs
+corrupt
+
+id: 6d06e960817941a1ad4cde002c85254c url: 1ClCpfeIELw
+offset: -0.34
+
+id: 4f9e38a81602484696ebf4671058af90 url: BtiZ0j1nofE
+corrupt
+
+id: 3b7e62531a6a45e98128d634e9a882d4 url: kZZmhbZJwng
+corrupt
+
+id: 13492490dd994eadb402787ea1798f47 url: Co6OHe4KaEc
+corrupt
+
+id: a68fe748704942f7b63591a137dc81a7 url: 1vrEljMfXYo
+offset: 0.7, 0.35
+
+id: 45a98dc68bc7426191a850f42fdcaf79 url: mPc2plEHrHA
+corrupt
+
+id: 2aa2f1fc57f848dc878f461ddcfb041b url: roPQ_M3yJTA
+offset: -0.3, -0.7
+
+id: 2ed813a485e54820838df7b88e0abaec url: qPdihUTYk90
+corrupt
+
+id: de321d2f9acb428eb986bc8dbb9958be url: koJlIGDImiU
+offset: -0.5
