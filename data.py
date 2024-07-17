@@ -66,7 +66,7 @@ def get_dali(lang='english'):
     non_monotonic = 0
 
     audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
-    for file in audio_files:
+    for file in tqdm(audio_files):
         id = file[:-4]
         annot = dali_data[id].annotations['annot']
         metadata = dali_data[id].info['metadata']
