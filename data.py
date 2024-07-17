@@ -86,7 +86,7 @@ def get_dali(lang='english'):
                 continue
 
         words = [d['text'] for d in annot['words']]
-        words, times = normalize_dali(words, times, cutoff=remarks[id]['corrupt from'])
+        words, times = normalize_dali(words, times, cutoff=remarks[id]['corrupt from'] if id in remarks else 1e10)
         phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
 
         song = {'id': id,
