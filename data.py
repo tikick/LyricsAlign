@@ -73,14 +73,14 @@ def get_dali(lang='english'):
 
         if lang is not None and metadata['language'] != lang:
             continue
-        
-        if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'] not in '0+-' or remarks[id]['non-english']:
-            corrupt += 1
-            continue
-        
+
         times = [d['time'] for d in annot['words']]
         if not monotonically_increasing_times(times):
             non_monotonic += 1
+            continue
+        
+        if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'] not in '0+-' or remarks[id]['non-english']:
+            corrupt += 1
             continue
 
         words = [d['text'] for d in annot['words']]
