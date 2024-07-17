@@ -79,7 +79,9 @@ def get_dali(lang='english'):
             non_monotonic += 1
             continue
         
-        if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'] not in '0+-' or remarks[id]['non-english']:
+
+        if id in remarks and \
+            remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'] not in '0+-' or remarks[id]['non-english']:
             corrupt += 1
             continue
 
