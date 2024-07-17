@@ -10,6 +10,7 @@ pickle_dir = os.path.join(base_path, 'pickles')
 dali_base = os.path.join(base_path, 'DALI_v2.0')
 dali_annotations = os.path.join(dali_base, 'annot')
 dali_audio = os.path.join(dali_base, 'wav')
+dali_remarks = os.path.join(dali_base, 'dali_remarks.csv')
 
 jamendo_base = os.path.join(base_path, 'jamendolyrics')
 jamendo_metadata = os.path.join(jamendo_base, 'JamendoLyrics.csv')

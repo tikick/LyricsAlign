@@ -15,7 +15,8 @@ from sklearn.model_selection import train_test_split
 
 import config
 from utils import encode_words, encode_phowords, words2phowords, lines2pholines, \
-    load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo, dali_song_is_corrupt, georg_song_is_corrupt
+    load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo, \
+        monotonically_increasing_times, get_dali_remarks
 
 
 def _get_dali(keep, lang='english'):
@@ -57,36 +58,45 @@ def get_dali(lang='english'):
     # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
     # above stat did not consider words completely removed, not up to date
 
-    dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[],
-        keep=[])
-        #keep=['0a3cd469757e470389178d44808273ab', '0a81772ae3a7404f9ef09ecd1f94db07', '0dea06fa7ca04eb88b17e8d83993adc3', '1ae34dc139ea43669501fb9cef85cbd0', '1afbb77f88dc44e9bedc07b54341be9c', '1b9c139f491c41f5b0776eefd21c122d'])
+    dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[], keep=[])
+    remarks = get_dali_remarks()
 
     songs = []
+    corrupt = 0
+    non_monotonic = 0
 
     audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
     for file in audio_files:
-        annot = dali_data[file[:-4]].annotations['annot']
-        metadata = dali_data[file[:-4]].info['metadata']
+        id = file[:-4]
+        annot = dali_data[id].annotations['annot']
+        metadata = dali_data[id].info['metadata']
 
         if lang is not None and metadata['language'] != lang:
             continue
         
-        words = [d['text'] for d in annot['words']]
+        if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'] not in '0+-' or remarks[id]['non-english']:
+            corrupt += 1
+            continue
+        
         times = [d['time'] for d in annot['words']]
-        words, times = normalize_dali(words, times)
+        if not monotonically_increasing_times(times):
+            non_monotonic += 1
+            continue
+
+        words = [d['text'] for d in annot['words']]
+        words, times = normalize_dali(words, times, cutoff=remarks[id]['corrupt from'])
         phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
 
-        song = {'id': file[:-4],
+        song = {'id': id,
                 'audio_path': os.path.join(config.dali_audio, file),
                 'words': words,
                 'phowords': phowords,
                 'times': times,
-                'url': dali_data[file[:-4]].info['audio']['url']}
-        
-        if dali_song_is_corrupt(song):
-            continue
+                'url': dali_data[id].info['audio']['url']}
 
         songs.append(song)
+
+    print(f'corrupt: {corrupt}, non_monotonic: {non_monotonic}')
 
     return songs
 
@@ -239,7 +249,7 @@ def collate(data):
 class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
         super(LA_Dataset, self).__init__()
-        dataset_name = 'dali' if config.use_dali else 'georg'
+        dataset_name = 'clean_dali' if config.use_dali else 'georg'
         file_name = f'{dataset_name}_{partition}_with_time'
         #file_name = f'{dataset_name}_{partition}_100'
         pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')
@@ -392,11 +402,11 @@ class NegativeSampler:
 if __name__ == '__main__':
     print('Running data.py')
     
-    georg = get_georg()
-    print('Size of Georg:', len(georg))
-    #dali = get_dali()
-    #print('Size of DALI:', len(dali))
-    train, val = train_test_split(georg, test_size=config.val_size, random_state=97)
+    #georg = get_georg()
+    #print('Size of Georg:', len(georg))
+    dali = get_dali()
+    print('Size of DALI:', len(dali))
+    train, val = train_test_split(dali, test_size=config.val_size, random_state=97)
 
     train_data = LA_Dataset(train, 'train')
     val_data = LA_Dataset(val, 'val')

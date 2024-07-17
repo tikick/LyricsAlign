@@ -147,7 +147,7 @@ id: a88d98fe4dc04c01a0fcc4d1bbc9344f url: 3PE9QKxG1GY
 wrong end from 69.45
 
 id: cd3f0ec35b2f40df99c4f3f763af4055 url: UGpcYfng27M
-offset: 4.8 from 130
+wrong end from 130
 
 id: e44e2a159d9a491b93ba26e64aef33fe url: YDDyE8pGN1k
 vocalizations
@@ -678,7 +678,7 @@ id: ee588c0cd164412d9dbe18fda38e4824 url: ZYVbgl4mLB0
 corrupt
 
 id: c297a6875df745b9970d6f4869eb5b5c url: 7Ix4nX9dmCE
-offset: -0.5 < 0.7
+offset: -0.5, 0.7
 
 id: 1484e27f743c467f8d68e2be51b68b00 url: cDLwdmNgaOg
 +
@@ -815,7 +815,7 @@ id: 1e5812a251184f7b98ce3f71bdb13014 url: HV3O93ZQF30
 wrong end from 148
 
 id: aec55fc6b89f41938f19a39bc5166809 url: CBJ2TRkj_ms
-offset: -0.7 < 1.1
+offset: -0.7, 1.1
 
 id: 422d9cbc50d64dfbad798f622abeb09a url: PZvOnhNOEjo
 repeated lines
@@ -1716,3 +1716,4 @@ repeated lines
 
 id: 0e1cbc02a1814ffdb490d0b531f3a4e3 url: LOcKckBLouM
 +
+

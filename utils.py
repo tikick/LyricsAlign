@@ -76,13 +76,29 @@ def lines2pholines(lines):
     return pholines
 
 
-def dali_song_is_corrupt(song):
-    corrupted_dali_songs = ['1b9c139f491c41f5b0776eefd21c122d']
-    if song['id'] in corrupted_dali_songs:
-        return True
-    
-    flat_times = [t for time in song['times'] for t in time]
-    if not all(flat_times[i] <= flat_times[i + 1] for i in range(len(flat_times) - 1)):
+def get_dali_remarks():
+    remarks = dict()
+    with open(config.dali_remarks, 'r') as f:
+        reader = csv.DictReader(f, delimiter=';')
+        for row in reader:
+            remark = {'PCO': float(row['PCO']),
+                      'AAE': float(row['AAE']),
+                      'corrupt from': float(row['corrupt from']),
+                      'noisy': row['noisy'] == 'True',
+                      'offset': str(row['offset']),
+                      'non-english': row['non-english'] == 'True',
+                      'vocalizations': row['vocalizations'] == 'True',
+                      'repeated words/lines': row['repeated words/lines'] == 'True',
+                      'multiple singers': row['multiple singers'] == 'True',
+                      'split words': row['split words'] == 'True',
+                      'missing words': row['missing words'] == 'True'}
+            remarks[row['id']] = remark
+    return remarks
+
+
+def monotonically_increasing_times(times):    
+    flat_times = [t for time in times for t in time]
+    if all(flat_times[i] <= flat_times[i + 1] for i in range(len(flat_times) - 1)):
         return True
 
     return False
@@ -95,20 +111,26 @@ def georg_song_is_corrupt(song):
     return False
 
 
-def normalize_dali(raw_words, raw_times, cut=False):
+def normalize_dali(raw_words, raw_times, cutoff):
+    cut_word = False
     # if cut=True removes the whole word (first stripping punctuation and only then cutting might be better),
     # else strips the unknown chars from the word
+    
     words = []
     times = []
     for raw_word, raw_time in zip(raw_words, raw_times):
+        if raw_time[0] >= cutoff:
+            break
+
         word = raw_word.lower()
         word = ''.join([c for c in word if c in char_dict[1:]])
         word = word.strip("'")  # e.g. filter('89) = ', not a word
         if len(word) == 0 or \
-           len(word) < len(raw_word) and (cut or len(word) >= 16):  # len(word) >= 16: raw_word is likely multiple words separated by special char, e.g. -
+           len(word) < len(raw_word) and (cut_word or len(word) >= 16):  # len(word) >= 16: raw_word is likely multiple words separated by special char, e.g. -
             continue
         words.append(word)
         times.append(raw_time)
+
     return words, times
 
 def normalize_georg(raw_words, raw_times, cut=False):

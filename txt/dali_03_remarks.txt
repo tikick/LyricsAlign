@@ -225,7 +225,7 @@ id: c1ac350e2fcf4ae0ba0b4cbae9905e2c url: SeEq2tlD6WY
 offset: -0.4
 
 id: 777f663b3ef649e3bf7925935f08b77c url: 6EEW-9NDM5k
-offset: -0.5 (chorus 0,7)
+noisy
 
 id: aa68bd15ffff43ea9b81d9423ffd3066 url: 0C3zgYW_FAM
 offset: 0.48
@@ -266,7 +266,7 @@ id: 24ac72b695b1454bb0412157132fb1ba url: X2LTL8KgKv8
 offset: -0.4
 
 id: b921ccaf04014e388ce64e8145e069c9 url: RNOTF-znQyw
-offset: 0.7 < 1.1
+offset: 0.7, 1.1
 
 id: e3f6ea62412142db88501f06d5d22bfa url: 7p5PK3dmVQE
 offset: 0.5, 0.9
@@ -476,7 +476,7 @@ id: 3c1fac6f2f90429fbde9d084e9e51902 url: GGHnYD2y-44
 offset: 0.58
 
 id: 079d2b6002584742947822f02d88782b url: BPNmc71b7iE
-offset: 0.9, -0.9; 13.8 > 12.7
+noisy
 split words
 
 id: 3b113d03fdbf471b904b83eec921a60c url: yG07WSu7Q9w
@@ -533,7 +533,7 @@ id: 5c0a326a0a7940f8b88bb92767ba86cb url: ZJL4UGSbeFg
 offset: -0.58
 
 id: 55dcff00691042a98c0bb1893231009d url: sPYsMM1FvXs
-offset: -0.6 > -1.7
+offset: -0.6, -1.7
 
 id: 3a0af778dd0a47a997779effc6399ea1 url: QYHxGBH6o4M
 offset: 0.5
@@ -778,3 +778,4 @@ corrupt
 
 id: de321d2f9acb428eb986bc8dbb9958be url: koJlIGDImiU
 offset: -0.5
+
