@@ -124,7 +124,7 @@ def main():
     os.environ["WANDB__SERVICE_WAIT"] = "300"
     wandb.init(project='New-Align', config=cfg)
 
-    run_start_time = datetime.now().strftime('%m-%d,%H:%M')
+    run_start_time = datetime.now().strftime('%m-%d,%H:%M:%S')
     run_checkpoint_dir = os.path.join(config.checkpoint_dir, run_start_time)
     os.makedirs(run_checkpoint_dir)
 

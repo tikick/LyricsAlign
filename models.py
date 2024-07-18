@@ -152,7 +152,7 @@ def _contrastive_loss(PA, NA, times):
     return 2 * (config.alpha * torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
                 (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension
 
-def contrastive_loss(PA, NA, times):
+def contrastive_loss(PA, NA, times):  # box_loss
     assert len(times) == PA.shape[0]
     duration = config.segment_length / config.sr
     fps = PA.shape[1] / duration
