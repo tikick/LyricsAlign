@@ -43,7 +43,7 @@ def evaluate(model, device, eval_dataset):
 
             _, word_alignment = get_alignment(S, song, time_measure='seconds')
         
-            PCO_score, words = percentage_of_correct_onsets(song['words'], word_alignment, song['times'])
+            PCO_score, all_words = percentage_of_correct_onsets(song['words'], word_alignment, song['times'])
             AAE_score = average_absolute_error(word_alignment, song['times'])
 
             #if PCO_score < 0.3:
@@ -69,7 +69,7 @@ def evaluate(model, device, eval_dataset):
             non_monotonic_dali_words.append([f'PCO: {PCO_score:.4f}', f'AAE: {AAE_score:.4f}', ''])
             non_monotonic_dali_words.append(['', '', ''])
             non_monotonic_dali_words.append(['gt_time', 'time_dif', 'word'])
-            non_monotonic_dali_words += words
+            non_monotonic_dali_words += all_words
             non_monotonic_dali_words.append(['\n', '\n', '\n'])
                 
             print(f'non_monotonic_dali_id: {song['id']}, PCO: {PCO_score:.4f}, AAE: {AAE_score:.4f}')
@@ -105,7 +105,7 @@ def average_absolute_error(alignment, gt_alignment):
 
 
 def percentage_of_correct_onsets(words, alignment, gt_alignment, tol=0.3):
-    words = []
+    all_words = []
     assert len(alignment) == len(gt_alignment) and len(words) == len(alignment)
     correct_onsets = 0
     for idx, (word, time, gt_time) in enumerate(zip(words, alignment, gt_alignment)):
@@ -113,9 +113,9 @@ def percentage_of_correct_onsets(words, alignment, gt_alignment, tol=0.3):
             correct_onsets += 1
     
         dif = time[0] - gt_time[0]
-        words.append([f'{gt_time[0]:.2f}', f'{dif:.2f}', f'{word}'])
+        all_words.append([f'{gt_time[0]:.2f}', f'{dif:.2f}', f'{word}'])
 
-    return correct_onsets / len(alignment), words
+    return correct_onsets / len(alignment), all_words
 
 
 if __name__ == '__main__':
