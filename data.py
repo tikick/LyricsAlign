@@ -54,6 +54,42 @@ def _get_dali(keep, lang='english'):
 
     return songs
 
+def get_non_monotonic_dali(lang='english'):
+    # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
+    # above stat did not consider words completely removed, not up to date
+
+    dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[], keep=[])
+
+    songs = []
+
+    audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
+    for file in tqdm(audio_files):
+        id = file[:-4]
+        annot = dali_data[id].annotations['annot']
+        metadata = dali_data[id].info['metadata']
+
+        if lang is not None and metadata['language'] != lang:
+            continue
+
+        times = [d['time'] for d in annot['words']]
+        if monotonically_increasing_times(times):
+            continue
+   
+        words = [d['text'] for d in annot['words']]
+        words, times = normalize_dali(words, times, cutoff=1e10)
+        phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
+
+        song = {'id': id,
+                'audio_path': os.path.join(config.dali_audio, file),
+                'words': words,
+                'phowords': phowords,
+                'times': times,
+                'url': dali_data[id].info['audio']['url']}
+
+        songs.append(song)
+
+    return songs
+
 def get_dali(lang='english'):
     # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
     # above stat did not consider words completely removed, not up to date

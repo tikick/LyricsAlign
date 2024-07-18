@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
 import config
-from data import get_jamendo, get_jamendoshorts, jamendo_collate, get_dali
+from data import get_jamendo, get_jamendoshorts, jamendo_collate, get_dali, get_non_monotonic_dali
 from models import SimilarityModel
 from utils import fix_seeds
 from decode import get_alignment
@@ -23,7 +23,8 @@ def evaluate(model, device, eval_dataset):
     #dali_03_alignments = []  # PCO < 0.3
     #dali_03_ids = []
     #dali_03_wrong_words = []
-    jamendo_wrong_words = []
+    #jamendo_wrong_words = []
+    non_monotonic_dali_words = []
 
     #file_path = os.path.join(config.base_path, file_name)
     #with open(file_path, 'r') as f:
@@ -42,7 +43,7 @@ def evaluate(model, device, eval_dataset):
 
             _, word_alignment = get_alignment(S, song, time_measure='seconds')
         
-            PCO_score, wrong_words = percentage_of_correct_onsets(song['words'], word_alignment, song['times'])
+            PCO_score, words = percentage_of_correct_onsets(song['words'], word_alignment, song['times'])
             AAE_score = average_absolute_error(word_alignment, song['times'])
 
             #if PCO_score < 0.3:
@@ -64,14 +65,14 @@ def evaluate(model, device, eval_dataset):
             #    dali_08_wrong_words += wrong_words
             #    dali_08_wrong_words.append(['\n', '\n', '\n'])
 
-            jamendo_wrong_words.append([f'id: {song['id']}', '', ''])
-            jamendo_wrong_words.append([f'PCO: {PCO_score:.4f}', f'AAE: {AAE_score:.4f}', ''])
-            jamendo_wrong_words.append(['', '', ''])
-            jamendo_wrong_words.append(['gt_time', 'time_dif', 'word'])
-            jamendo_wrong_words += wrong_words
-            jamendo_wrong_words.append(['\n', '\n', '\n'])
+            non_monotonic_dali_words.append([f'id: {song['id']}', f'url: {song['url']}', ''])
+            non_monotonic_dali_words.append([f'PCO: {PCO_score:.4f}', f'AAE: {AAE_score:.4f}', ''])
+            non_monotonic_dali_words.append(['', '', ''])
+            non_monotonic_dali_words.append(['gt_time', 'time_dif', 'word'])
+            non_monotonic_dali_words += words
+            non_monotonic_dali_words.append(['\n', '\n', '\n'])
                 
-            print(f'jamendo_id: {song['id']}, PCO: {PCO_score:.4f}, AAE: {AAE_score:.4f}')
+            print(f'non_monotonic_dali_id: {song['id']}, PCO: {PCO_score:.4f}, AAE: {AAE_score:.4f}')
 
             PCO_score_sum += PCO_score
             AAE_score_sum += AAE_score
@@ -87,9 +88,9 @@ def evaluate(model, device, eval_dataset):
     #    for id in dali_03_ids:
     #        f.write(id + '\n')
 
-    file_path = os.path.join(config.base_path, 'jamendo_wrong_words.txt')
+    file_path = os.path.join(config.base_path, 'non_monotonic_dali_words.txt')
     with open(file_path, 'w') as f:
-        for s in jamendo_wrong_words:
+        for s in non_monotonic_dali_words:
             f.write('{: <20} {: <20} {: <20}\n'.format(*s))
 
     return PCO_score_sum / len(eval_dataset), AAE_score_sum / len(eval_dataset)
@@ -104,17 +105,17 @@ def average_absolute_error(alignment, gt_alignment):
 
 
 def percentage_of_correct_onsets(words, alignment, gt_alignment, tol=0.3):
-    wrong_words = []
+    words = []
     assert len(alignment) == len(gt_alignment) and len(words) == len(alignment)
     correct_onsets = 0
     for idx, (word, time, gt_time) in enumerate(zip(words, alignment, gt_alignment)):
         if abs(time[0] - gt_time[0]) <= tol:
             correct_onsets += 1
-        else:
-            dif = time[0] - gt_time[0]
-            wrong_words.append([f'{gt_time[0]:.2f}', f'{dif:.2f}', f'{word}'])
+    
+        dif = time[0] - gt_time[0]
+        words.append([f'{gt_time[0]:.2f}', f'{dif:.2f}', f'{word}'])
 
-    return correct_onsets / len(alignment), wrong_words
+    return correct_onsets / len(alignment), words
 
 
 if __name__ == '__main__':
@@ -144,7 +145,7 @@ if __name__ == '__main__':
 
     device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SimilarityModel().to(device)
-    jamendo = get_jamendo()
+    #jamendo = get_jamendo()
     #jamendoshorts = get_jamendoshorts()
 
     model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(3))))
@@ -156,7 +157,7 @@ if __name__ == '__main__':
     #                         '43a3ee52120b448abdea76d8f277eb3b', '3559797f9a1647209578fcfbfa851e47', '8d319219cdc94e10ae5aaf8ecfdbfd2a',
     #                         '8dc5d778a80c4c759ac433679e5a00be', 'eb3c0842190b42e29b1df91a55a3c7c8', '2fe0fcc9713947f195821d778d7a9f12',
     #                         '4688353ef25e43dbb256490a0272bfeb', '79fe3f63bbd044878309c10c520344d6'])
-    #dali = get_dali()
+    non_monotonic_dali = get_non_monotonic_dali()
     #dali = dali[:20]
     #print('Size of DALI:', len(dali))
     #train_split, val_split = train_test_split(dataset, test_size=config.val_size, random_state=97)
@@ -178,8 +179,8 @@ if __name__ == '__main__':
     #PCO_val_20, AAE_val_20 = evaluate(None, None, val_20, "dali_val_20_alignments.txt")
     #print(f'PCO_val_20: {PCO_val_20}, AAE_val_20: {AAE_val_20}')
 
-    #PCO_dali, AAE_dali = evaluate(model, device, dali)
-    #print(f'PCO_dali: {PCO_dali}, AAE_dali: {AAE_dali}')
+    PCO_non_monotonic_dali, AAE_non_monotonic_dali = evaluate(model, device, non_monotonic_dali)
+    print(f'PCO_non_monotonic_dali: {PCO_non_monotonic_dali}, AAE_non_monotonic_dali: {AAE_non_monotonic_dali}')
 
-    PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
-    print(f'PCO_jamendo: {PCO_jamendo}, AAE_jamendo: {AAE_jamendo}')
+    #PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
+    #print(f'PCO_jamendo: {PCO_jamendo}, AAE_jamendo: {AAE_jamendo}')
