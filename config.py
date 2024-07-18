@@ -52,8 +52,8 @@ num_negative_samples = 1_000
 
 # loss
 alpha = 0.5
-box_slack = 0.5
-loss = 'contrastive_loss'#'box-loss'
+box_slack = 1
+loss = 'box-loss'
 
 
 # alignment
