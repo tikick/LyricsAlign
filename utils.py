@@ -228,28 +228,27 @@ def wav2spec(waveform: np.ndarray) -> np.ndarray:
 
 
 def gen_jamendo_segment():
-    from utils import load, read_gt_alignment
     import config
     import soundfile as sf
     import os
     import csv
 
     sr = 44100
-    audio_file = 'Color_Out_-_Falling_Star.mp3'
+    audio_file = 'Ridgway_-_Fire_Inside.mp3'
 
-    start = 59
-    end = 82
+    start = 169
+    end = 177
 
     audio = load(os.path.join(config.jamendo_audio, audio_file), sr=sr)
     audio_segment = audio[start * sr:end * sr]
     audio_segment_file = str(start) + '-' + str(end) + '_' + audio_file
-    sf.write(os.path.join(config.jamendo_segments_audio, audio_segment_file), audio_segment, sr)
+    sf.write(os.path.join(config.jamendoshorts_audio, audio_segment_file), audio_segment, sr)
 
     with open(os.path.join(config.jamendo_lyrics, audio_file[:-4] + '.txt'), 'r') as f:
         lines = f.read().splitlines()
     lines = [l for l in lines if len(l) > 0]  # remove empty lines between paragraphs
     words = ' '.join(lines).split()
-    times = read_gt_alignment(os.path.join(config.jamendo_annotations, audio_file[:-4] + '.csv'))
+    times = read_jamendo_times(os.path.join(config.jamendo_annotations, audio_file[:-4] + '.csv'))
     segment_words = []
     segment_times = []
     for word, time in zip(words, times):
@@ -257,16 +256,16 @@ def gen_jamendo_segment():
             segment_words.append(word)
             segment_times.append((time[0] - start, time[1] - start))
 
-    with open(os.path.join(config.jamendo_segments_lyrics, audio_segment_file[:-4] + '.txt'), 'w') as f:
+    with open(os.path.join(config.jamendoshorts_lyrics, audio_segment_file[:-4] + '.txt'), 'w') as f:
         f.write(' '.join(segment_words))
 
     header = ['word_start', 'word_end']
-    with open(os.path.join(config.jamendo_segments_annotations, audio_segment_file[:-4] + '.csv'), 'w') as f:
+    with open(os.path.join(config.jamendoshorts_annotations, audio_segment_file[:-4] + '.csv'), 'w') as f:
         writer = csv.writer(f)
         writer.writerow(header)
         writer.writerows(segment_times)
 
-    with open(config.jamendo_segments_metadata, 'a') as f:
+    with open(config.jamendoshorts_metadata, 'a') as f:
         f.write(f'\n_,{audio_segment_file},_,_,_,_,English,_,_,_')
 
 
