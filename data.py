@@ -63,6 +63,14 @@ def get_non_monotonic_dali(lang='english'):
     non_monotonic_dali_songs = []
     old_non_monotonic_dali_songs = []
 
+    def unique(l):
+        last = object()
+        for item in l:
+            if item == last:
+                continue
+            yield item
+            last = item
+
     audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
     for file in tqdm(audio_files):
         id = file[:-4]
@@ -85,6 +93,12 @@ def get_non_monotonic_dali(lang='english'):
                 'url': dali_data[id].info['audio']['url']}
 
         if not monotonically_increasing_times(times):
+            ### sort and remove duplicates
+            times, words, phowords = (list(t) for t in zip(*unique(sorted((zip(times, words, phowords))))))
+            song['times'] = times
+            song['words'] = words
+            song['phowords'] = phowords
+            ###
             non_monotonic_dali_songs.append(song)
         elif not old_monotonically_increasing_times(times):
             old_non_monotonic_dali_songs.append(song)

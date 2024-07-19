@@ -157,7 +157,7 @@ if __name__ == '__main__':
     #                         '43a3ee52120b448abdea76d8f277eb3b', '3559797f9a1647209578fcfbfa851e47', '8d319219cdc94e10ae5aaf8ecfdbfd2a',
     #                         '8dc5d778a80c4c759ac433679e5a00be', 'eb3c0842190b42e29b1df91a55a3c7c8', '2fe0fcc9713947f195821d778d7a9f12',
     #                         '4688353ef25e43dbb256490a0272bfeb', '79fe3f63bbd044878309c10c520344d6'])
-    non_monotonic_dali, old_non_monotonic_dali = get_non_monotonic_dali()
+    sorted_non_monotonic_dali, old_non_monotonic_dali = get_non_monotonic_dali()
     #dali = dali[:20]
     #print('Size of DALI:', len(dali))
     #train_split, val_split = train_test_split(dataset, test_size=config.val_size, random_state=97)
@@ -179,11 +179,11 @@ if __name__ == '__main__':
     #PCO_val_20, AAE_val_20 = evaluate(None, None, val_20, "dali_val_20_alignments.txt")
     #print(f'PCO_val_20: {PCO_val_20}, AAE_val_20: {AAE_val_20}')
 
-    PCO_non_monotonic_dali, AAE_non_monotonic_dali = evaluate(model, device, non_monotonic_dali, 'non_monotonic_dali_words.txt')
-    print(f'PCO_non_monotonic_dali: {PCO_non_monotonic_dali}, AAE_non_monotonic_dali: {AAE_non_monotonic_dali}')
+    PCO_sorted_non_monotonic_dali, AAE_sorted_non_monotonic_dali = evaluate(model, device, sorted_non_monotonic_dali, 'sorted_non_monotonic_dali_words.txt')
+    print(f'PCO_sorted_non_monotonic_dali: {PCO_sorted_non_monotonic_dali}, AAE_sorted_non_monotonic_dali: {AAE_sorted_non_monotonic_dali}')
 
-    PCO_old_non_monotonic_dali, AAE_old_non_monotonic_dali = evaluate(model, device, old_non_monotonic_dali, 'old_non_monotonic_dali_words.txt')
-    print(f'PCO_old_non_monotonic_dali: {PCO_old_non_monotonic_dali}, AAE_old_non_monotonic_dali: {AAE_old_non_monotonic_dali}')
+    #PCO_old_non_monotonic_dali, AAE_old_non_monotonic_dali = evaluate(model, device, old_non_monotonic_dali, 'old_non_monotonic_dali_words.txt')
+    #print(f'PCO_old_non_monotonic_dali: {PCO_old_non_monotonic_dali}, AAE_old_non_monotonic_dali: {AAE_old_non_monotonic_dali}')
 
     #PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo)
     #print(f'PCO_jamendo: {PCO_jamendo}, AAE_jamendo: {AAE_jamendo}')
