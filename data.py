@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 import config
 from utils import encode_words, encode_phowords, words2phowords, lines2pholines, \
     load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo, \
-        monotonically_increasing_times, get_dali_remarks
+        monotonically_increasing_times, old_monotonically_increasing_times, get_dali_remarks
 
 
 def _get_dali(keep, lang='english'):
@@ -60,7 +60,8 @@ def get_non_monotonic_dali(lang='english'):
 
     dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[], keep=[])
 
-    songs = []
+    non_monotonic_dali_songs = []
+    old_non_monotonic_dali_songs = []
 
     audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
     for file in tqdm(audio_files):
@@ -72,9 +73,6 @@ def get_non_monotonic_dali(lang='english'):
             continue
 
         times = [d['time'] for d in annot['words']]
-        if monotonically_increasing_times(times):
-            continue
-   
         words = [d['text'] for d in annot['words']]
         words, times = normalize_dali(words, times, cutoff=1e10)
         phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
@@ -86,9 +84,12 @@ def get_non_monotonic_dali(lang='english'):
                 'times': times,
                 'url': dali_data[id].info['audio']['url']}
 
-        songs.append(song)
+        if not monotonically_increasing_times(times):
+            non_monotonic_dali_songs.append(song)
+        elif not old_monotonically_increasing_times(times):
+            old_non_monotonic_dali_songs.append(song)
 
-    return songs
+    return non_monotonic_dali_songs, old_non_monotonic_dali_songs
 
 def get_dali(lang='english'):
     # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
@@ -110,19 +111,19 @@ def get_dali(lang='english'):
         if lang is not None and metadata['language'] != lang:
             continue
 
-        times = [d['time'] for d in annot['words']]
-        if not monotonically_increasing_times(times):
-            non_monotonic += 1
-            continue
-        
-
         if id in remarks:
             if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'] not in '0+-' or remarks[id]['non-english']:
                 corrupt += 1
                 continue
 
+        times = [d['time'] for d in annot['words']]
         words = [d['text'] for d in annot['words']]
         words, times = normalize_dali(words, times, cutoff=remarks[id]['corrupt from'] if id in remarks else 1e10)
+
+        if not monotonically_increasing_times(times):
+            non_monotonic += 1
+            continue
+
         phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
 
         song = {'id': id,

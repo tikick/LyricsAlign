@@ -96,11 +96,16 @@ def get_dali_remarks():
     return remarks
 
 
-def monotonically_increasing_times(times):    
+def old_monotonically_increasing_times(times):    
     flat_times = [t for time in times for t in time]
     if all(flat_times[i] <= flat_times[i + 1] for i in range(len(flat_times) - 1)):
         return True
+    return False
 
+def monotonically_increasing_times(times):    
+    flat_times = [time[0] for time in times]
+    if all(flat_times[i] <= flat_times[i + 1] for i in range(len(flat_times) - 1)):
+        return True
     return False
 
 def georg_song_is_corrupt(song):
