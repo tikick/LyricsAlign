@@ -61,5 +61,5 @@ with open('DALI_v2.0/dali_remarks.csv', 'w', newline='') as file:
                 elif line.startswith('missing words'):
                     row[12] = True
                 else:
-                    print(line)
+                    raise Exception()
 

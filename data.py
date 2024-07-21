@@ -122,7 +122,14 @@ def get_dali(lang='english'):
 
     songs = []
     corrupt = 0
-    non_monotonic = 0
+    
+    def unique(l):
+        last = object()
+        for item in l:
+            if item == last:
+                continue
+            yield item
+            last = item
 
     audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
     for file in tqdm(audio_files):
@@ -134,20 +141,19 @@ def get_dali(lang='english'):
             continue
 
         if id in remarks:
-            if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'] not in '0+-' or remarks[id]['non-english']:
-                corrupt += 1
+            if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'].__contains__(',') or remarks[id]['non-english']:
                 continue
 
         times = [d['time'] for d in annot['words']]
         words = [d['text'] for d in annot['words']]
-        words, times = normalize_dali(words, times, cutoff=remarks[id]['corrupt from'] if id in remarks else 1e10)
-
-        break
-        if not monotonically_increasing_times(times):
-            non_monotonic += 1
-            continue
-
+        words, times = normalize_dali(words, times, 
+                                      cutoff=remarks[id]['corrupt from'] if id in remarks else 1e10, 
+                                      offset=0 if remarks[id]['offset'] in '+-' else float(remarks[id]['offset']))
         phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
+
+        if not monotonically_increasing_starts(times):
+            # sort and remove duplicates
+            times, words, phowords = (list(t) for t in zip(*unique(sorted((zip(times, words, phowords))))))
 
         song = {'id': id,
                 'audio_path': os.path.join(config.dali_audio, file),
@@ -157,8 +163,6 @@ def get_dali(lang='english'):
                 'url': dali_data[id].info['audio']['url']}
 
         songs.append(song)
-
-    print(f'corrupt: {corrupt}, non_monotonic: {non_monotonic}')
 
     return songs
 
@@ -334,9 +338,11 @@ class LA_Dataset(Dataset):
                     sample_end = sample_start + config.segment_length
                     assert sample_end <= len(waveform)
 
-                    # find the lyrics within (start, end) (+- slack)
+                    # find the lyrics within (start, end)
                     idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
-                    idx_past_last_word = bisect.bisect_left(end_times, sample_end / config.sr)
+                    idx_past_last_word = idx_first_word  #bisect.bisect_left(end_times, sample_end / config.sr)
+                    while end_times[idx_past_last_word] < sample_end / config.sr:
+                        idx_past_last_word += 1
 
                     if idx_first_word >= idx_past_last_word:  # no words (fully contained) in this sample, skip
                         continue

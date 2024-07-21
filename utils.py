@@ -122,7 +122,7 @@ def georg_song_is_corrupt(song):
     return False
 
 
-def normalize_dali(raw_words, raw_times, cutoff):
+def normalize_dali(raw_words, raw_times, cutoff, offset):
     words = []
     times = []
     for raw_word, raw_time in zip(raw_words, raw_times):
@@ -132,10 +132,12 @@ def normalize_dali(raw_words, raw_times, cutoff):
         word = raw_word.lower()
         word = ''.join([c for c in word if c in char_dict[1:]])
         word = word.strip("'")  # e.g. filter('89) = ', not a word
-        if len(word) == 0 or len(word) >= 16:  # len(word) >= 16: raw_word is likely multiple words separated by special char, e.g. -
+        if len(word) == 0 or len(word) >= 16:
             continue
         words.append(word)
         times.append(raw_time)
+
+    times = [(start + offset, end + offset) for (start, end) in times]
 
     return words, times
 
