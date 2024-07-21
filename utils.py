@@ -102,8 +102,14 @@ def old_monotonically_increasing_times(times):
         return True
     return False
 
-def monotonically_increasing_times(times):    
+def monotonically_increasing_starts(times):    
     flat_times = [time[0] for time in times]
+    if all(flat_times[i] <= flat_times[i + 1] for i in range(len(flat_times) - 1)):
+        return True
+    return False
+
+def monotonically_increasing_ends(times):    
+    flat_times = [time[1] for time in times]
     if all(flat_times[i] <= flat_times[i + 1] for i in range(len(flat_times) - 1)):
         return True
     return False
@@ -117,10 +123,6 @@ def georg_song_is_corrupt(song):
 
 
 def normalize_dali(raw_words, raw_times, cutoff):
-    cut_word = False
-    # if cut=True removes the whole word (first stripping punctuation and only then cutting might be better),
-    # else strips the unknown chars from the word
-    
     words = []
     times = []
     for raw_word, raw_time in zip(raw_words, raw_times):
@@ -130,8 +132,7 @@ def normalize_dali(raw_words, raw_times, cutoff):
         word = raw_word.lower()
         word = ''.join([c for c in word if c in char_dict[1:]])
         word = word.strip("'")  # e.g. filter('89) = ', not a word
-        if len(word) == 0 or \
-           len(word) < len(raw_word) and (cut_word or len(word) >= 16):  # len(word) >= 16: raw_word is likely multiple words separated by special char, e.g. -
+        if len(word) == 0 or len(word) >= 16:  # len(word) >= 16: raw_word is likely multiple words separated by special char, e.g. -
             continue
         words.append(word)
         times.append(raw_time)

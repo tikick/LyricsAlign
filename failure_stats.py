@@ -143,12 +143,12 @@ if __name__ == '__main__':
     #os.environ["WANDB__SERVICE_WAIT"] = "300"
     #wandb.init(project='New-Align', config=cfg)
 
-    device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = SimilarityModel().to(device)
+    #device = torch.device('cuda')  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    #model = SimilarityModel().to(device)
     #jamendo = get_jamendo()
     #jamendoshorts = get_jamendoshorts()
 
-    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(3))))
+    #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(3))))
 
     #train_20 = get_dali(keep=['68b6083c1f5e4d6ea296a89c0a774da2', 'e171945c761749f0a157694c57213271', '9c7747023dbc4b94bebceb3365a69be5',
     #                         '892876b7ef924a9baac482caa00c674e', 'e0ed5513279d4e759c960a0ae098335e', 'b252929f8f284a08afc91ba06d643deb',
@@ -179,8 +179,8 @@ if __name__ == '__main__':
     #PCO_val_20, AAE_val_20 = evaluate(None, None, val_20, "dali_val_20_alignments.txt")
     #print(f'PCO_val_20: {PCO_val_20}, AAE_val_20: {AAE_val_20}')
 
-    PCO_sorted_non_monotonic_dali, AAE_sorted_non_monotonic_dali = evaluate(model, device, sorted_non_monotonic_dali, 'sorted_non_monotonic_dali_words.txt')
-    print(f'PCO_sorted_non_monotonic_dali: {PCO_sorted_non_monotonic_dali}, AAE_sorted_non_monotonic_dali: {AAE_sorted_non_monotonic_dali}')
+    #PCO_sorted_non_monotonic_dali, AAE_sorted_non_monotonic_dali = evaluate(model, device, sorted_non_monotonic_dali, 'sorted_non_monotonic_dali_words.txt')
+    #print(f'PCO_sorted_non_monotonic_dali: {PCO_sorted_non_monotonic_dali}, AAE_sorted_non_monotonic_dali: {AAE_sorted_non_monotonic_dali}')
 
     #PCO_old_non_monotonic_dali, AAE_old_non_monotonic_dali = evaluate(model, device, old_non_monotonic_dali, 'old_non_monotonic_dali_words.txt')
     #print(f'PCO_old_non_monotonic_dali: {PCO_old_non_monotonic_dali}, AAE_old_non_monotonic_dali: {AAE_old_non_monotonic_dali}')

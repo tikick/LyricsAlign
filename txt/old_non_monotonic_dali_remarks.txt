@@ -1,0 +1,395 @@
+id: ffbfd5b3ebe542858c9e2cf45dd26e10 url: aP0tf_cvOXY                         
+
+id: 8c8543a3d86d4728a4c1f6b1c2d672a1 url: qdoSy4ROZpg                         
+
+id: 8475941fc4aa468bb4d72c3a30914d49 url: tLJPsHhcEOo                         
+corrupt
+
+id: 7b3d22d817844194afb8a6b8e5ea8e0b url: zc8hbSM1zVo                         
+offset: 0.44
+
+id: 392c7464f29c48568e61616423174b13 url: ZNr2XyEawig                         
++
+
+id: d7c714d30ec54bfeb3a9e7517e5fe12a url: mipc-JxrhRk                         
++
+
+id: 4e07638e58be454f8aecc7492caed3a5 url: 6_oKtZLs2go                         
+
+id: a04f23737bca4306ba9663b487e2e79c url: D977uOHVxYA                         
+
+id: 95b3c02f55534711b30844f9e4bf564a url: ye-MwxuXfeo                         
+offset: 0.4, -0.3
+
+id: 86e6f24f88484864ae7a9b4cfc70f903 url: owNv81KIvAQ                         
++
+
+id: fe06bc28d41144e39afaea2807fbc659 url: dfioiKIz_7M                         
+noisy
+
+id: 6049d60cc6e6474e84fe570db201a282 url: VTPXvE6o3LY                         
+vocalizations
+
+id: 742bb550611f4ec087b8c9e5f01e0b7e url: yiEJHOo19CY                         
+non-english
+
+id: 4ccaa94977384cf5b3d0eb1d961c143d url: KA9IeEs66_k                         
+non-english
+
+id: ddbbf1fcacdd465bba1adddd1176242a url: ZNr2XyEawig                         
++
+
+id: 3e039af7dc31408e90eea304f8016aef url: H3S_7389sRk                         
+corrupt
+
+id: 4d49687b23ca46b1a79ee07da6b4b551 url: wD0Mm6WIcYs                         
+noisy
+
+id: 7f78b39f6b2b4b26a4fdf7aa63055e51 url: cGUAL_lxrDk                         
++
+
+id: 4152a541da8b4f90a345c46e3cb6a603 url: Yi52HjJbwVQ                         
+noisy
+
+id: 92c03c9468874ed093310980820dd666 url: dUQfmIHQqSg                         
+offset: 1, -0.6
+
+id: 407539fdba2349f2b14e64dd65c0c2d4 url: Ks1hBDYG2oM                         
+
+id: 244390d438694e8fa9d7e791f1bfce5b url: 8bM89wh1Oys                         
+
+id: 82159b0624824483b1f2ce225236f098 url: HGoarkk3CY0                         
+noisy
+
+id: c6b0ccb3e66b4f6692b645ec7a13720a url: fHe7ODJP3pQ                         
+noisy
+
+id: 07914179fc9b455da04187aea9149a49 url: _VnE5igzeIc                         
++
+
+id: f692d5d7b28547daa17bbbf9b6aa4fce url: 6rL_UT2WXwQ                         
+
+id: 6b10937e1a5242609375c3b5e354c5d0 url: tjm3NyQ6DYw                         
+vocalizations
+
+id: 7b826d5b43c24de3b412f66231463a5e url: nqDfzO42epE                         
+noisy
+
+id: 7d4a30019c3540d9968b8277248adf9a url: B1vfK-PrW60                         
+wrong end from 237
+
+id: ae666f0371bd4a12950c483c8603b50b url: NkDbk-egHH4                         
+
+id: 8c64b045cc6d46ae90155715ab552fd1 url: z1A2Ow7sGo0                         
+vocalizations
+
+id: d0efa9769537424a8aa7990b139845fb url: 5aKa_ek0YP0                         
+corrupt
+
+id: dd54abf9c1754e079041bac41e19f4dd url: Mmbgg1xWfOY                         
+offset: -0.7, 0.7
+
+id: 540cc702c26543b58ea7e7f044e5115f url: 8I648UZcRJw                         
++
+
+id: 9b6c19670b6341da8aa6b9fdfadc4cce url: 7vlXbkPaSAo                         
++
+
+id: ca7457d6d77542efa7b038a74a004625 url: LVUcz6wPrCs                         
++
+
+id: a48025bd81a8471b8878515c99b7618e url: sYYAv-QW38Q                         
+offset: 0.7
+repeated words
+
+id: 4a73069a4ac746f69e9ac8de20651123 url: JWA5hJl4Dv0                         
+offset: -0.6
+
+id: c223049fb0ac492b8bb26ce2f948d8f8 url: 5W4nJRP5n3U                         
++
+
+id: 77c8091f20b149ebb8e5a35bea6df2b5 url: z5vA9CwZKNY                         
+offset: -0.57
+
+id: 38876fd72a9e46119b55f622711e56c6 url: ZXkk65PdKyM                         
++
+
+id: 65db7426bfc947e0ae9b39c7a78066a8 url: o3IWTfcks4k                         
++
+
+id: d5ba7b99b0504baeab289201ba959261 url: 2h7XPx1XJQo
+missing words
+
+id: 3ee30e515c07405db114659f1d275f0e url: 8aV_SSPWlrg                         
+
+id: 66b0393826ce41228af0cb1dfa0a76b3 url: x3-okrcuJs0                         
++
+
+id: cd7bb62e68cb4b7ba03f338baac0cb4d url: pvzliBdl6KE                         
+repeated words
+
+id: b7d248150fe940379f91a4477f824809 url: QsqNCWOycNw                         
+
+id: f6f72ab9e0b44a89817953e965198433 url: nZbN_b6P8Ks                         
+
+id: 8d79620f74504a419ebff38fb873de5b url: MtIibcNDQ6o                         
+offset: 0.5
+
+id: beade2c5a766468fa966f1958a6f7942 url: UDHkkmp5Cb0                         
+repeated words
+
+id: a3c852e4cc8e4341bc5f4fe762454f63 url: uPudE8nDog0                         
+offset: -0.4
+
+id: 59a20f024d3d48109eb91d90ceb00250 url: WGU_4-5RaxU                         
+-
+vocalizations
+
+id: 1ba938a437c24766b522e87fffd6b022 url: XlgQxK-HBGk                         
+offset: -0.7, 2.9
+
+id: 51a603b7289b40d0985700c419c1182b url: dz1K3KEM204                         
+
+id: d6d989f411b144699e4ccfe86e039253 url: ojC0mg2hJCc                         
+offset: 0.44
+
+id: f335f2aba8294e8fb9d3da55a0e49277 url: fPO76Jlnz6c                         
+offset: -0.6, 0.6
+
+id: 6bec76a840bc46f99562b63a3cad398e url: xuPU1Bn8-d8                         
++
+
+id: 33edfc2211724a05991b33332c30739e url: LiAK3AD_HsU                         
+corrupt
+
+id: 79285c4660c74446ae994b8eb4d56570 url: kjAWtouyAlM                         
+
+id: 9c92771ee50940d28dee43c821829e8e url: YWMywV0fTa8                         
+
+id: 4f49d6aa05314327982b44bdc5a205fd url: 7cRdgIZgobs                         
+-, +
+
+id: eed0056f766545fdac75ef27ab3e10ec url: ZrKHZms4GJ4                         
+
+id: 074d4d5f4caa46a6855dc72f5f3fa0ad url: 4_XhnHbdqWA                         
+wrong end from 205
+
+id: fd3157ddd8b542b391238923a67f5a0f url: 2t11CwlG444                         
++
+
+id: b615533ceecc4b6e9aaf5e8dcedaa5d0 url: tov22NtCMC4                         
+offset: 1.1
+
+id: 3b5f6e3e346e4c5ba275ee50e93b8f2d url: S8TfefkAmNA                         
+corrupt
+
+id: 77f749dd8ef148f5b6a8184e4ddd459a url: TBLpMnufspI                         
+noisy
+
+id: b1d831d790924d42ba0c4ac01a790a7c url: 6Z3yFUhasqs                         
+wrong end from 235
+
+id: 5f13aaa56ef245349368da3339893666 url: D4Y87uOnDCA                         
+vocalizations
+
+id: 4eb24fd4a99b495aaccec14ae6df6c01 url: ZNr2XyEawig                         
++
+
+id: 29ca2b883d7a4a168d9bf5c9de71ddfe url: i8yA3NGqumc                         
+offset: 0.4
+wrong end from 132
+
+id: f5912ed9fc844ed6b9b83afe5000a526 url: y5yw3yMfP5E                         
+
+id: e54d6187fa8d42dfb2ba54e778bec4d7 url:                           
+offset: -9.6, -9
+wrong end from 231
+
+id: a1c4076a31fa4e49aac9ea0ab99bc609 url: I8DsVPqbprQ                         
+repeated lines
+
+id: 2caa42223edf4f2188e993d39943153f url: lWA2Lt4Se40                         
++
+
+id: fd28463dbadf405cb69d56aceb3ffb8a url: hKnXGefZPZA                         
++
+
+id: 81444bb6c8b04549968940ed75a2b49b url: GmZg7tvGN9o                         
+vocalizations
+
+id: 16102fdaaa374ea99d666359980d9630 url: mGrufrND1m0                         
+wrong end from 126
+
+id: d144944a8235437181b88f5ed855f13d url: nWuZMBtrc1E                         
+offset: -0.45
+
+id: ddf67f6eb3ae45e5a432ab037d956b40 url: bAsA00-5KoI                         
+offset: 0.38
+
+id: f04b448bee2844468883d439a5eaf11b url: y5YV9imo9dg                         
+vocalizations
+
+id: aaf93257c6f4412a91fd4e82c17bfd8f url: RdyL23sSlpU                         
+wrong end from 199
+
+id: 7f03609713ba4150982ae3ab8c07a341 url: tjm3NyQ6DYw                         
+
+id: eaaaf40cec584f14a702a88d142bba1c url: YOUaFbYu78E                         
+non-english
+
+id: edd4352e37b8463694c288dc646ad036 url: pDnlRTcjS7Y                         
++, -
+
+id: 371b303fd8a34a0d8e388421b4a1a2e1 url: -r679Hhs9Zs                         
+offset: 0.5, ?
+
+id: 7b971dbd30fc4a32aa0f3f0a2cedb02d url: YWMywV0fTa8                         
+
+id: 73e15b36f7ca4e939b0b39a1d70662ae url: n_6Kr5e2dYc                         
+offset: 0, 1.4
+
+id: 31e27825a90f4f34b597b17dbd7b4799 url: 0e_HtjZS8SQ                         
+noisy
+
+id: 2b71de75e5fc4252819c0a9e671bc566 url: WbJNkH-pDd8                         
+offset: 0.48
+
+id: 866982cc048d47f1a66d4821303a1e41 url: jpDJ-pvOpEw                         
+
+id: f9f8cfed30b141b1a29ab366a6c6d210 url: dq9q5PsVvv0                         
+non-english
+
+id: 1fefe6ff7fdd4d748a99a6913f403f91 url: DoFcaHoPMFA                         
+
+id: aba621b3e8b64a87bfd31be9de62844b url: _Z0eling--A                         
++
+
+id: 5970864d4a334d4db417141e9059b4e1 url: RtczIm5XrNo                         
+offset: -0.38
+
+id: c10a9834b7d94aa6b3b0f1956d0aa495 url: JI7kqYXoC04                         
+
+id: afcb2de7310a49e8b724cbab959423b1 url: dEJwW32TeOg                         
++
+
+id: 304bc8e9d5b649848d316bc03c80333f url: 2BxTwJtpGYA                         
++
+
+id: e22b7e045dd14dfa9f611221e4387d2c url: -ppPMAEqrl4                         
+
+id: d2a20f1dbd074d9eba622332fc41467d url: hGRqnNEOpe0                         
+offset: 0.53
+
+id: e590c829550c4f99ab064c587e97843b url: TSpiwK5fig0                         
+
+id: 56d891ba875843979f1b9b9d09b6f335 url: 9rYWSF8TEw4                         
+wrong end from 190
+
+id: 414a2bd9203d4a87b9fddbda2bb81b37 url: rj__jhmPMgI                         
+offset: 1.1, ?
+
+id: c7a0a57bc6294dbd8c4368a9ffbe5712 url: e6Hgdic5jls                         
+wrong end from 126
+
+id: afffe1f08ace4c839a295a698d7b0a0d url: GjwXhT07yhw                         
++
+
+id: 845d6dd69d294d60b4625fe4cf3b2444 url: tk8ZRq7uzrk                         
+
+id: 24d83e68e7d74b7db7922019ff8733ba url: -LZnjW7uBpk                         
+offset: 0.3
+wrong end from 315
+
+id: a3263734562b41e9be2429ba929cf2ce url: 86URGgqONvA                         
++
+
+id: a5272d4bb13e46bda1bbf177c0b7a822 url: FfYAWFgbPXo                         
+noisy
+
+id: af9b51bd8b294f74ac6d5ce24dd8aa90 url: ViWiOs9XySg                         
+noisy
+
+id: e66fede2e66f495884e7b3f4d21f27f1 url: LdsNFDdR3Zc                         
++
+
+id: 61b419318dfe4124b4678cd30ebfe126 url: SGiig82KlF4                         
+offset: 16.4, -5.6
+
+id: 73ceaad417ad4289b4454c069288b497 url: C0yo9XHAsZw                         
+corrupt
+
+id: 9789544e0da042988026632285ddb503 url: VMqWbRGEM7w                         
+wrong end from 172
++
+
+id: 5109405ce70740329760a43052af708a url: 6fVE8kSM43I                         
+offset: 0.78
+
+id: 87a01143bea942bc8185c22e7f921bec url: oOpwA6rGUR4                         
+
+id: 2acf16ed36474f079081aa5b6de3e9fe url: 2VLgA1-OAKs                         
+
+id: a9852ae5a1ec41158fff129370343f67 url: 3THmhmq_7iY                         
+wrong end from 226
++
+
+id: 878f161aad65484d9b0e700c9bcacd41 url: c92S1Pnm8EY                         
++
+
+id: 6fbcdb095c1e4f04b74a831f3c27cc0e url: hOBiBau8xsI                         
+repeated words
+
+id: 40cd490b42144354a9b38a536d867067 url: LVUcz6wPrCs                         
++
+repeated words
+
+id: ac435b8004874c8fb05d6166777bd645 url: GGNRf1Ntoqs                         
+noisy
+
+id: ab39d6fe0ef74fa39f6b5bbe0159665c url: LznFsNMCXTQ                         
+wrong end from 182
+
+id: a6dd12e00bf544e686a0abe26a90c0b7 url: HnVhQfoOpf0                         
+non-english
+
+id: f361160e065647368fbcfda46d9a6dc8 url: _z4rKhBprrM                         
+offset: 0.5, -0.2
+
+id: 137eb84f331e4ba898ddfc01c4a9c941 url: naoknj1ebqI                         
++
+
+id: 8e19845456ee489888244a080a3fe164 url: Buz0nERhZsI                         
+noisy
+
+id: da6eba5502e34c028ccba541ea8dbdf0 url: RgKAFK5djSk                         
+
+id: 08dffbbd31a44d04853beee7cb520cb9 url: n2LfN2kFFV8                         
+vocalizations
+
+id: c57c4921121f42a2a75096d618215e64 url: 5w142CaROC0                         
+offset: 0.4
+
+id: 564e726e1c65441583e33630016fe745 url: gAzcHe8K8G4                         
++
+
+id: 9aa0018416b141769ff06063c7f4db0d url: ogoIxkPjRts                         
+wrong end from 278
+
+id: c40fdfac4c5846a7bf1f7d5beb47b58c url: gJPcABsojlU                         
+noisy
+
+id: 774e45bcc67a4bf1b6a995c50833ae3f url: ugMACy0roCw                         
+vocalizations
+
+id: 7188d6c2435d4b2eae46f950c680d457 url: KIYiGA_rIls                         
+offset: -0.5
+
+id: b25d78bbd01c4354b086c41bdb6bbd9f url: QMAULOwDY1Q                         
+wrong end from 185
+
+id: e01e209cfd4e4aea8a0d915bc886f20e url: Lu_yByUxYn0                         
+
+id: dbc8cd814bfc4d98b537d67066da7bf3 url: 3We6t-Y16Xs                         
+
+id: 550490e440ab4b1d85c051b5c27e3a19 url: 5xjVIc_5jPM                         
+

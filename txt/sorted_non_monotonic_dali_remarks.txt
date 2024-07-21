@@ -1,0 +1,50 @@
+id: 30c1489764bf40efa927c8de7699cf29 url: yqFz7T5v3iU                         
+offset: -0.4, 0.6
+
+id: 9621888e9467453885343a68078a3eef url: jOFZ2Y4_1Jg                         
+offset: 0.68
+
+id: 56aa3c631e7440a398f6d1f21e8544f2 url: v81dELMfuUM                         
+vocalizations
+
+id: 27834fa602c348ea83ffa4bad70626a6 url: VU1gN-m_KBE                         
+
+id: 75193be434844198ba123af3bf7d44df url: 6eIbha7xVP4                         
+
+id: 55dac72f731d4b29bc1a71754cf64135 url: ve9pXWN367M                         
+noisy
+
+id: 529c120a555f449cae4e1fe37b77fc56 url: dYpysTX3HBk                         
+noisy
+
+id: 24f0af35ca3a44a48ba8259b6e96cd79 url: uOnYY9Mw2Fg                         
+repeated words
+
+id: 02b296bbee3c4d5e84be5d2ab5658450 url: ZyT8mVwf_40                         
+
+id: 3070a73f7e38469a8b06526c060192ad url: Lgo2Wc6Vj00                         
+non-english
+
+id: 99b4786c8fd344f9a0285de572e0b4b2 url: 6JUbFj0BIc4                         
+-
+vocalizations
+
+id: d169ac59d76d4d66bd1224f8c2647fcd url: v81dELMfuUM                         
+vocalizations
+
+id: e75a78974d664009a6037225994fc573 url: snsTmi9N9Gs                         
+offset: -0.57
+
+id: abdf6f64d74044cfbce8d10d91bf69b4 url: aI9lo5BRJmg                         
++
+missing words
+
+id: f9e422a80f4d4997a80412b781a6677d url: 7SIoBTwSBA0                         
+offset: -0.9, 3.8
+
+id: b009381d2ed94ea79530c7f1d5e39d05 url: OrbuDWit1Co                         
+noisy
+
+id: d87151e2d2994448b9662b22a5730adb url: RNE93dieQF4                         
+non-english
+

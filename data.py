@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 import config
 from utils import encode_words, encode_phowords, words2phowords, lines2pholines, \
     load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo, \
-        monotonically_increasing_times, old_monotonically_increasing_times, get_dali_remarks
+        monotonically_increasing_starts, monotonically_increasing_ends, old_monotonically_increasing_times, get_dali_remarks
 
 
 def _get_dali(keep, lang='english'):
@@ -47,6 +47,7 @@ def _get_dali(keep, lang='english'):
                 'phowords': phowords,
                 'times': times}
         
+        break
         if dali_song_is_corrupt(song):
             continue
 
@@ -71,6 +72,8 @@ def get_non_monotonic_dali(lang='english'):
             yield item
             last = item
 
+    num_non_monotonic_ends = 0
+
     audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
     for file in tqdm(audio_files):
         id = file[:-4]
@@ -92,7 +95,7 @@ def get_non_monotonic_dali(lang='english'):
                 'times': times,
                 'url': dali_data[id].info['audio']['url']}
 
-        if not monotonically_increasing_times(times):
+        if not monotonically_increasing_starts(times):
             ### sort and remove duplicates
             times, words, phowords = (list(t) for t in zip(*unique(sorted((zip(times, words, phowords))))))
             song['times'] = times
@@ -102,6 +105,11 @@ def get_non_monotonic_dali(lang='english'):
             non_monotonic_dali_songs.append(song)
         elif not old_monotonically_increasing_times(times):
             old_non_monotonic_dali_songs.append(song)
+
+        if not monotonically_increasing_ends(times):
+            num_non_monotonic_ends += 1
+
+    print(f'num_non_monotonic_ends = {num_non_monotonic_ends}')
 
     return non_monotonic_dali_songs, old_non_monotonic_dali_songs
 
@@ -134,6 +142,7 @@ def get_dali(lang='english'):
         words = [d['text'] for d in annot['words']]
         words, times = normalize_dali(words, times, cutoff=remarks[id]['corrupt from'] if id in remarks else 1e10)
 
+        break
         if not monotonically_increasing_times(times):
             non_monotonic += 1
             continue
@@ -302,7 +311,7 @@ def collate(data):
 class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
         super(LA_Dataset, self).__init__()
-        dataset_name = 'clean_dali' if config.use_dali else 'georg'
+        dataset_name = 'clean_monotonic_dali' if config.use_dali else 'georg'
         file_name = f'{dataset_name}_{partition}_with_time'
         #file_name = f'{dataset_name}_{partition}_100'
         pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')

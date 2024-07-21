@@ -11,25 +11,28 @@ with open('DALI_v2.0/dali_remarks.csv', 'w', newline='') as file:
     writer.writerow(['1b9c139f491c41f5b0776eefd21c122d', 'o61rTPowBq0', -1, -1, 0, False, 0, False, False, False, False, False, False])
     # was removing this song when working on txt folder (get_dali() removed all non-monotonic and this one)
 
-    for i in range(3, 9, 5):  # i = 3, 8
+    for prefix in ['dali_03', 'dali_08', 'old_non_monotonic_dali', 'sorted_non_monotonic_dali']:
         
         metadata = []
-        with open(f'txt/dali_0{i}_wrong_words.txt', 'r') as wrong_words:
+        infix = '_wrong' if prefix.startswith('dali_0') else ''
+        with open(f'txt/{prefix}{infix}_words.txt', 'r') as wrong_words:
             lines = wrong_words.readlines()
             for j in range(len(lines) - 1):
                 if lines[j].startswith('id: '):
                     id_line = lines[j].strip('\n').strip(' ')
                     PCO_line = lines[j + 1].strip('\n').strip(' ')
+                    if float(PCO_line[5:11]) >= 0.8:
+                        continue
                     metadata.append([id_line[4:36], id_line[42:], PCO_line[5:11], PCO_line[26:]])
 
-        with open(f'txt/dali_0{i}_remarks.txt', 'r') as remarks:
+        with open(f'txt/{prefix}_remarks.txt', 'r') as remarks:
             lines = remarks.readlines()
             j = 0
             row = []
             for line in lines:
                 
                 if line.startswith('id'):
-                    assert metadata[j][0] == line[4:36], f'{metadata[j][0]}, {line[4:36]}'
+                    assert metadata[j][0] == line[4:36], f'{prefix}, {metadata[j][0]}, {line[4:36]}'
                     row = metadata[j] + [1e10, False, 0, False, False, False, False, False, False]
                     continue
                 elif line.startswith('\n'):
