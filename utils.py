@@ -129,6 +129,9 @@ def normalize_dali(raw_words, raw_times, cutoff, offset):
         if raw_time[0] >= cutoff:
             break
 
+        if raw_time[0] >= raw_time[1]:
+            continue
+
         word = raw_word.lower()
         word = ''.join([c for c in word if c in char_dict[1:]])
         word = word.strip("'")  # e.g. filter('89) = ', not a word
