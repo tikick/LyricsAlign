@@ -139,16 +139,18 @@ def get_dali(lang='english'):
 
         if lang is not None and metadata['language'] != lang:
             continue
-
+        
+        offset = 0
+        cutoff = 1e10
         if id in remarks:
             if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'].__contains__(',') or remarks[id]['non-english']:
                 continue
+            offset = 0 if remarks[id]['offset'] in '+-' else float(remarks[id]['offset'])
+            cutoff = remarks[id]['corrupt from']
 
         times = [d['time'] for d in annot['words']]
         words = [d['text'] for d in annot['words']]
-        words, times = normalize_dali(words, times, 
-                                      cutoff=remarks[id]['corrupt from'] if id in remarks else 1e10, 
-                                      offset=0 if remarks[id]['offset'] in '+-' else float(remarks[id]['offset']))
+        words, times = normalize_dali(words, times, cutoff, offset)
         phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
 
         if not monotonically_increasing_starts(times):
