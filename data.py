@@ -131,6 +131,7 @@ def get_dali(lang='english'):
             yield item
             last = item
 
+    corrupt = 0
     audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
     for file in tqdm(audio_files):
         id = file[:-4]
@@ -144,6 +145,7 @@ def get_dali(lang='english'):
         cutoff = 1e10
         if id in remarks:
             if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'].__contains__(',') or remarks[id]['non-english']:
+                corrupt += 1
                 continue
             offset = 0 if remarks[id]['offset'] in '+-' else float(remarks[id]['offset'])
             cutoff = remarks[id]['corrupt from']
@@ -166,6 +168,7 @@ def get_dali(lang='english'):
 
         songs.append(song)
 
+    print(f'corrupt = {corrupt}')
     return songs
 
 
