@@ -346,7 +346,7 @@ class LA_Dataset(Dataset):
                     # find the lyrics within (start, end)
                     idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
                     idx_past_last_word = idx_first_word  #bisect.bisect_left(end_times, sample_end / config.sr)
-                    while end_times[idx_past_last_word] < sample_end / config.sr:
+                    while idx_past_last_word < len(end_times) and end_times[idx_past_last_word] < sample_end / config.sr:
                         idx_past_last_word += 1
 
                     if idx_first_word >= idx_past_last_word:  # no words (fully contained) in this sample, skip
