@@ -12,6 +12,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
+from audiomentations import TimeStretch, PitchShift, BandPassFilter, LowPassFilter, HighPassFilter
 
 import config
 from utils import encode_words, encode_phowords, words2phowords, lines2pholines, \
@@ -342,6 +343,7 @@ class LA_Dataset(Dataset):
                     sample_start = i * config.hop_size
                     sample_end = sample_start + config.segment_length
                     assert sample_end <= len(waveform)
+                    waveform_slice = waveform[sample_start:sample_end]
 
                     # find the lyrics within (start, end)
                     idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
@@ -353,7 +355,7 @@ class LA_Dataset(Dataset):
                         continue
                     
                     # sample spectrogram, words, phowords and relative times withing sample
-                    spec = wav2spec(waveform[sample_start:sample_end])
+                    spec = wav2spec(waveform_slice)
                     words = song['words'][idx_first_word:idx_past_last_word]
                     phowords = song['phowords'][idx_first_word:idx_past_last_word]
                     times = song['times'][idx_first_word:idx_past_last_word]
@@ -365,6 +367,25 @@ class LA_Dataset(Dataset):
                         assert 0 <= start < end < 5, f'id={song["id"]}, i={i}, sample_start={sample_start}, offset={offset} start={start}, end={end}'
                     sample = (spec, words, phowords, times)
                     samples.append(sample)
+
+                    # augment
+                    choice = np.random.choice(['pitch', 'time', 'freq_filter'])
+                    if choice == 'pitch':
+                        transform = PitchShift(p=1)
+                    elif choice == 'time':
+                        rate = np.random.choice([0.8, 1.25])
+                        transform = TimeStretch(min_rate=rate, max_rate=rate, p=1)
+                        times = [(start/rate, end/rate) for (start, end) in times if end/rate < config.segment_length / config.sr]
+                        words = words[:len(times)]
+                        phowords = phowords[:len(times)]
+                    else:  # choice = 'freq_filter'
+                        transform = np.random.choice([BandPassFilter(p=1), LowPassFilter(p=1), HighPassFilter(p=1)])
+                        
+                    transformed_waveform_slice = transform(waveform_slice, sample_rate=config.sr)
+                    transformed_spec = wav2spec(waveform_slice)
+                    sample = (transformed_spec, words, phowords, times)
+                    samples.append(sample)
+
 
             with open(pickle_file, 'wb') as f:
                 print(f'Writing {file_name} samples')
