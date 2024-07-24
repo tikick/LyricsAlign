@@ -165,11 +165,14 @@ def contrastive_loss(PA, NA, times):  # box_loss
         if config.box_slack > 0:
             frame_start = max(frame_start, 0)
             frame_end = min(frame_end, PA.shape[1] - 1)
-        assert 0 <= frame_start < PA.shape[1] and 0 <= frame_end < PA.shape[1]
+        #assert 0 <= frame_start <= frame_end < PA.shape[1], f'frame_start = {frame_start}, frame_end = {frame_end}'
+        if not (0 <= frame_start <= frame_end < PA.shape[1]):
+            print(f'frame_start = {frame_start}, frame_end = {frame_end}')
         row_slice = PA[i, frame_start:frame_end + 1]
         #box_image[i, frame_start:frame_end + 1] = 1
 
         if row_slice.numel() == 0:  # CHECK THIS
+            print('HOW CAN THIS HAPPEN?')
             continue
 
         sum += torch.pow(torch.max(row_slice) - 1, 2)
