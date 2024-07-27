@@ -380,9 +380,12 @@ class LA_Dataset(Dataset):
                         phowords = phowords[:len(times)]
                     else:  # choice = 'freq_filter'
                         transform = np.random.choice([BandPassFilter(p=1), LowPassFilter(p=1), HighPassFilter(p=1)])
-                        
+                    
+                    # IF times IS EMPTY (choice == time) SKIP SAMPLE
+                    if len(times) == 0:
+                        continue
                     transformed_waveform_slice = transform(waveform_slice, sample_rate=config.sr)
-                    transformed_spec = wav2spec(waveform_slice)
+                    transformed_spec = wav2spec(transformed_waveform_slice)
                     sample = (transformed_spec, words, phowords, times)
                     samples.append(sample)
 
