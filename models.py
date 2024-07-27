@@ -153,20 +153,25 @@ def contrastive_loss(PA, times, is_duplicate):
     duration = config.segment_length / config.sr
     fps = PA.shape[1] / duration
     pos_sum = 0.
+    pos_summands = 0
     neg_sum = 0.
     neg_summands = 0
     for i, (start, end) in enumerate(times):
 
         frame_start = int((start - config.box_slack) * fps)
         frame_end = int((end + config.box_slack) * fps)
-        assert frame_start <= frame_end
+        #assert frame_start <= frame_end
         if config.box_slack > 0:
             frame_start = max(frame_start, 0)
             frame_end = min(frame_end, PA.shape[1] - 1)
-        assert 0 <= frame_start <= frame_end < PA.shape[1]
+        #assert 0 <= frame_start <= frame_end < PA.shape[1], f'frame_start = {frame_start}, frame_end = {frame_end}'
+        if not (0 <= frame_start <= frame_end < PA.shape[1]):
+            print(f'frame_start = {frame_start}, frame_end = {frame_end}')
+            continue
 
         pos_row_slice = PA[i, frame_start:frame_end + 1]
         pos_sum += torch.pow(torch.max(pos_row_slice) - 1, 2)
+        pos_summands += 1
 
         neg_row_slice = torch.cat((PA[i, :frame_start], PA[i, frame_end + 1:]))
         if neg_row_slice.numel() == 0 or is_duplicate[i]:
