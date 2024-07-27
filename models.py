@@ -179,7 +179,7 @@ def contrastive_loss(PA, times, is_duplicate):
         neg_sum += torch.pow(torch.max(neg_row_slice), 2)
         neg_summands += 1
 
-    mean_positives = pos_sum / len(times)
+    mean_positives = pos_sum / pos_summands #len(times)
     if neg_summands > 0:
         mean_negatives = neg_sum / neg_summands
     else:
