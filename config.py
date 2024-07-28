@@ -53,15 +53,16 @@ num_negative_samples = 1_000
 # loss
 alpha = 0.5
 box_slack = 0.5
-loss = 'box-loss'
+loss = 'box-loss'  # [box-loss, contrastive-loss]
+
+
+# dataset
+augment_data = False
+use_dali = True  # if false uses georg
 
 
 # alignment
 masked = False
-
-
-# dataset
-use_dali = True  # if false uses georg
 
 
 # WARNING: if you change the following parameters remember to delete the sample files or the new samples will not be computed

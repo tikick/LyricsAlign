@@ -14,7 +14,7 @@ from datetime import datetime
 
 import config
 from data import get_dali, get_georg, get_jamendo, get_jamendoshorts, LA_Dataset, NegativeSampler, collate
-from models import SimilarityModel, contrastive_loss
+from models import SimilarityModel, contrastive_loss, box_loss
 from utils import fix_seeds, display_module_parameters, int2char, int2phoneme
 from eval import evaluate
 from media import show_plot
@@ -163,7 +163,12 @@ def main():
     optimizer = optim.Adam(model.parameters(), config.lr)
     scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=1, threshold=1e-3, threshold_mode='abs')
 
-    criterion = contrastive_loss
+    if config.loss == 'contrastive-loss':
+        criterion = contrastive_loss
+    elif config.loss == 'box-loss':
+        criterion = box_loss
+    else:
+        raise NotImplemented()
 
     epoch = -1
     #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(epoch))))
