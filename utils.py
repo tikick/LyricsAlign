@@ -245,10 +245,10 @@ def gen_jamendo_segment():
     import csv
 
     sr = 44100
-    audio_file = 'Ridgway_-_Fire_Inside.mp3'
+    audio_file = 'Pure_Mids_-_The_Leader.mp3'
 
-    start = 169
-    end = 177
+    start = 108
+    end = 149
 
     audio = load(os.path.join(config.jamendo_audio, audio_file), sr=sr)
     audio_segment = audio[start * sr:end * sr]
