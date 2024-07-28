@@ -148,11 +148,11 @@ class SimilarityModel(nn.Module):
             return 0.5 * (S + 1)
     
 
-def contrastive_loss(PA, NA, times):
+def contrastive_loss(PA, NA, times, is_duplicate):
     return 2 * (config.alpha * torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
                 (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension
 
-def box_loss(PA, NA, times):
+def box_loss(PA, NA, times, is_duplicate):
     assert len(times) == PA.shape[0]
     duration = config.segment_length / config.sr
     fps = PA.shape[1] / duration
@@ -191,3 +191,45 @@ def box_loss(PA, NA, times):
     fig.tight_layout()
     wandb.log({'media/box_image': plt})
     plt.close()
+
+def neg_box_loss(PA, NA, times, is_duplicate):
+    assert len(times) == PA.shape[0] and len(times) == len(is_duplicate)
+    duration = config.segment_length / config.sr
+    fps = PA.shape[1] / duration
+    pos_sum = 0.
+    pos_summands = 0
+    neg_sum = 0.
+    neg_summands = 0
+    for i, (start, end) in enumerate(times):
+
+        frame_start = int((start - config.box_slack) * fps)
+        frame_end = int((end + config.box_slack) * fps)
+        #assert frame_start <= frame_end
+        if config.box_slack > 0:
+            frame_start = max(frame_start, 0)
+            frame_end = min(frame_end, PA.shape[1] - 1)
+        #assert 0 <= frame_start <= frame_end < PA.shape[1], f'frame_start = {frame_start}, frame_end = {frame_end}'
+        if not (0 <= frame_start <= frame_end < PA.shape[1]):
+            print(f'frame_start = {frame_start}, frame_end = {frame_end}')
+            continue
+
+        pos_row_slice = PA[i, frame_start:frame_end + 1]
+        pos_sum += torch.pow(torch.max(pos_row_slice) - 1, 2)
+        pos_summands += 1
+
+        neg_row_slice = torch.cat((PA[i, :frame_start], PA[i, frame_end + 1:]))
+        if neg_row_slice.numel() == 0 or is_duplicate[i]:
+            continue
+        neg_sum += torch.pow(torch.max(neg_row_slice), 2)
+        neg_summands += 1
+
+    mean_positives = pos_sum / pos_summands #len(times)
+    if neg_summands > 0:
+        mean_negatives = neg_sum / neg_summands
+    else:
+        mean_negatives = 0
+
+    #mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
+    #mean_negatives = torch.mean(torch.pow(NA, 2))
+
+    return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)

@@ -289,7 +289,7 @@ def jamendo_collate(song):
     waveform = load(song['audio_path'], sr=config.sr)
     song['duration'] = len(waveform) / config.sr
     spec = wav2spec(waveform)
-    spectrogram, all_tokens, _, _ = collate(data=[(spec, song['words'], song['phowords'], song['times'])])
+    spectrogram, all_tokens, _, _, _ = collate(data=[(spec, song['words'], song['phowords'], song['times'])])
     return spectrogram, all_tokens
 
 
@@ -297,31 +297,35 @@ def collate(data):
     spectrograms = []
     all_tokens = []
     all_times = []
+    all_is_duplicate = []
     tokens_per_spectrogram = []
 
     for spec, words, phowords, times in data:
         spectrograms.append(spec)
 
         if config.use_chars:
-            tokens, token_times = encode_words(words, times)
+            tokens, token_times, is_duplicate = encode_words(words, times)
         else:
-            tokens, token_times = encode_phowords(phowords, times)
+            tokens, token_times, is_duplicate = encode_phowords(phowords, times)
+        assert len(is_duplicate) == len(tokens) and len(tokens) == len(token_times)
 
         tokens_per_spectrogram.append(len(tokens))
         all_tokens += tokens
         all_times += token_times
+        all_is_duplicate += is_duplicate
 
     # Creating a tensor from a list of numpy.ndarrays is extremely slow. Convert the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
     spectrograms = torch.Tensor(np.array(spectrograms))
     all_tokens = torch.IntTensor(all_tokens)
 
-    return spectrograms, all_tokens, all_times, tokens_per_spectrogram
+    return spectrograms, all_tokens, all_times, all_is_duplicate, tokens_per_spectrogram
 
 
 class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
         super(LA_Dataset, self).__init__()
-        dataset_name = 'augm' if config.augment_data else ''
+        dataset_name = 'IPA' if config.use_IPA else ''
+        dataset_name += 'augm' if config.augment_data else ''
         dataset_name += 'clean_monotonic_dali' if config.use_dali else 'georg'
         file_name = f'{dataset_name}_{partition}_with_time'
         #file_name = f'{dataset_name}_{partition}_100'

@@ -57,6 +57,7 @@ loss = 'box-loss'  # [box-loss, contrastive-loss]
 
 
 # dataset
+use_IPA = False
 augment_data = False
 use_dali = True  # if false uses georg
 

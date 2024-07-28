@@ -27,7 +27,7 @@ def train(model, device, train_loader, negative_sampler, criterion, optimizer):
     batch_loss = 0.
 
     for idx, batch in enumerate(tqdm(train_loader)):
-        spectrograms, positives, times, positives_per_spectrogram = batch
+        spectrograms, positives, times, is_duplicate, positives_per_spectrogram = batch
         negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
         negatives = torch.IntTensor(negatives)
         spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
@@ -36,7 +36,7 @@ def train(model, device, train_loader, negative_sampler, criterion, optimizer):
 
         PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
 
-        loss = criterion(PA, NA, times)
+        loss = criterion(PA, NA, times, is_duplicate)
         loss.backward()
 
         optimizer.step()
@@ -59,44 +59,15 @@ def validate(model, device, val_loader, negative_sampler, criterion, epoch):
 
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(val_loader)):
-            spectrograms, positives, times, positives_per_spectrogram = batch
+            spectrograms, positives, times, is_duplicate, positives_per_spectrogram = batch
             negatives = negative_sampler.sample(config.num_negative_samples, positives, positives_per_spectrogram)
             negatives = torch.IntTensor(negatives)
             spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
 
             PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
 
-            loss = criterion(PA, NA, times)
+            loss = criterion(PA, NA, times, is_duplicate)
             val_loss += loss.item()
-
-            # log first batch
-            if idx == 0:
-                PA = PA.cpu().numpy()
-                NA = NA.cpu().numpy()
-                #PA = 0.5 * (PA + 1)
-                #NA = 0.5 * (NA + 1)
-                positives = positives.cpu().tolist()
-                negatives = negatives.cpu().tolist()
-
-                f = int2char if config.use_chars else int2phoneme
-                positives = [[f[pos[i]] for i in range(len(pos))] for pos in positives]
-                negatives = [[f[neg[i]] for i in range(len(neg))] for neg in negatives]
-
-                cumsum = np.cumsum([0] + positives_per_spectrogram)
-                for i in range(min(8, config.batch_size)):
-                    heights = [positives_per_spectrogram[i], 50]
-                    fig, axs = plt.subplots(2, 1, height_ratios=heights, figsize=(15, min((sum(heights) + 20 * len(heights)) // 12, 100)))
-
-                    j, k = cumsum[i], cumsum[i + 1]
-                    show_plot(PA[j:k], axs[0], 'positive scores', positives[j:k])  # PA[i]
-                    j = i * config.num_negative_samples
-                    k = j + 50  # don't show all 1000 negative tokens
-                    show_plot(NA[j:k], axs[1], 'negative scores', negatives[j:k])  # NA[i]
-
-                    fig.tight_layout()
-
-                    wandb.log({'media/val_sample_' + str(i): plt, 'media/epoch': epoch})
-                    plt.close()
 
     return val_loss / num_batches
 
