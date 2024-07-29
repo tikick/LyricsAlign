@@ -84,12 +84,17 @@ def main():
            'lr': config.lr,
            'batch_size': config.batch_size,
            'num_negative_samples': config.num_negative_samples,
-           'alpha': config.alpha,
-           'box_slack': config.box_slack,
            'loss': config.loss,
-           'masked': config.masked,
+           'box_slack': config.box_slack,
            'use_dali': config.use_dali,
-           'val_size': config.val_size}
+           'use_dali_remarks': config.use_dali_remarks,
+           'dali_multilingual': config.dali_multilingual,
+           'use_IPA': config.use_IPA,
+           'augment_data': config.augment_data,
+           'val_size': config.val_size,
+           'masked': config.masked,
+           'load_epoch': config.load_epoch,
+           'load_dir': config.load_dir}
     
     print(cfg)
     os.environ["WANDB__SERVICE_WAIT"] = "300"
@@ -128,11 +133,9 @@ def main():
 
     jamendo = get_jamendo()
     jamendoshorts = get_jamendoshorts()
-    train_20 = train_split[:20]
-    val_20 = val_split[:20]
 
     optimizer = optim.Adam(model.parameters(), config.lr)
-    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=1, threshold=1e-3, threshold_mode='abs')
+    #scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=1, threshold=1e-3, threshold_mode='abs')
 
     if config.loss == 'contrastive-loss':
         criterion = contrastive_loss
@@ -142,8 +145,11 @@ def main():
         raise NotImplemented()
 
     epoch = -1
-    #model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(epoch))))
+    if config.load_dir is not None:
+        epoch = config.load_epoch
+        model.load_state_dict(torch.load(config.load_dir))
     epoch += 1
+    
     while epoch < config.num_epochs:
         print('Epoch:', epoch)
 
@@ -153,26 +159,25 @@ def main():
         # save checkpoint
         torch.save(model.state_dict(), os.path.join(run_checkpoint_dir, str(epoch)))
 
-        evaluate(model, device, jamendoshorts, log=True, epoch=epoch)
-        PCO_jamendo, AAE_jamendo = evaluate(model, device, jamendo, log=False)
-        wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
+        evaluate(model, device, jamendoshorts, log=True)
+        AAE_jamendo, MedAE_jamendo, PCO_jamendo = evaluate(model, device, jamendo, log=False)
         wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
+        wandb.log({'metric/MedAE_jamendo': MedAE_jamendo, 'metric/epoch': epoch})
+        wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
+
         if not config.masked:
-            PCO_val_20, AAE_val_20 = evaluate(model, device, val_20, log=False)
-            PCO_train_20, AAE_train_20 = evaluate(model, device, train_20, log=False)
-            wandb.log({'metric/PCO_val_20': PCO_val_20, 'metric/epoch': epoch})
-            wandb.log({'metric/AAE_val_20': AAE_val_20, 'metric/epoch': epoch})
-            wandb.log({'metric/PCO_train_20': PCO_train_20, 'metric/epoch': epoch})
-            wandb.log({'metric/AAE_train_20': AAE_train_20, 'metric/epoch': epoch})
+            AAE_val, MedAE_val, PCO_val = evaluate(model, device, val_split, log=False)
+            wandb.log({'metric/AAE_val': AAE_val, 'metric/epoch': epoch})
+            wandb.log({'metric/MedAE_val': MedAE_val, 'metric/epoch': epoch})
+            wandb.log({'metric/PCO_val': PCO_val, 'metric/epoch': epoch})
 
         val_loss = validate(model, device, val_loader, negative_sampler, criterion, epoch)
         wandb.log({'val/val_loss': val_loss, 'val/epoch': epoch})
         
-        old_lr = optimizer.param_groups[0]["lr"]
-        #scheduler.step(PCO_val_20)  # error if masked = True
-        scheduler.step(PCO_jamendo)
-        new_lr = optimizer.param_groups[0]["lr"]
-        print(f'lr: {old_lr} -> {new_lr}')
+        #old_lr = optimizer.param_groups[0]["lr"]
+        #scheduler.step(PCO_val)  # error if masked = True
+        #new_lr = optimizer.param_groups[0]["lr"]
+        #print(f'lr: {old_lr} -> {new_lr}')
 
         print(f'Train Loss: {train_loss:.3f}, Val Loss: {val_loss:3f}, PCO: {PCO_jamendo}, AAE: {AAE_jamendo}')
 

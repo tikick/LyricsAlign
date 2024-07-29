@@ -9,7 +9,7 @@ def download_dali_audio():
     dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[], keep=[])
 
     base_url = 'https://www.youtube.com/watch?v='
-    lang = 'english'
+    lang = None if config.dali_multilingual else 'english'
 
     if not os.path.isdir(config.dali_audio):
         os.makedirs(config.dali_audio)

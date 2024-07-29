@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 import config
 
-def log_plots(S, song, token_alignment, word_alignment, epoch):
+def log_plots(S, song, token_alignment, word_alignment):
 
     num_tokens, num_frames = S.shape
 
@@ -38,8 +38,7 @@ def log_plots(S, song, token_alignment, word_alignment, epoch):
 
     fig.tight_layout()
 
-    wandb.log({'media/' + song['id']: plt, 'media/epoch': epoch})
-    #plt.show()
+    wandb.log({'media/' + song['id']: plt})
     plt.close()
 
 

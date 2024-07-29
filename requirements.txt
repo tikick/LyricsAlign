@@ -8,6 +8,7 @@ numpy
 scikit-learn
 torch
 torchaudio
+audiomentation
 wandb
 dali-dataset
 pytube

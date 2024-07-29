@@ -1,5 +1,3 @@
-# Some of the code comes from https://github.com/jhuang448/LyricsAlignment-MTL
-
 import DALI as dali_code
 import bisect
 import os
@@ -15,114 +13,20 @@ from sklearn.model_selection import train_test_split
 from audiomentations import TimeStretch, PitchShift, BandPassFilter, LowPassFilter, HighPassFilter
 
 import config
-from utils import encode_words, encode_phowords, words2phowords, lines2pholines, \
-    load, wav2spec, read_jamendo_times, normalize_dali, normalize_georg, normalize_jamendo, \
-        monotonically_increasing_starts, monotonically_increasing_ends, old_monotonically_increasing_times, get_dali_remarks
+from utils import *
 
 
-def _get_dali(keep, lang='english'):
+def get_dali():
     # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
     # above stat did not consider words completely removed, not up to date
 
-    dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[],
-        keep=keep)
-        #keep=['0a3cd469757e470389178d44808273ab', '0a81772ae3a7404f9ef09ecd1f94db07', '0dea06fa7ca04eb88b17e8d83993adc3', '1ae34dc139ea43669501fb9cef85cbd0', '1afbb77f88dc44e9bedc07b54341be9c', '1b9c139f491c41f5b0776eefd21c122d'])
-
-    songs = []
-
-    for id in keep:
-        annot = dali_data[id].annotations['annot']
-        metadata = dali_data[id].info['metadata']
-
-        if lang is not None and metadata['language'] != lang:
-            continue
-        
-        words = [d['text'] for d in annot['words']]
-        times = [d['time'] for d in annot['words']]
-        words, times = normalize_dali(words, times)
-        phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
-
-        song = {'id': id,
-                'audio_path': os.path.join(config.dali_audio, id + '.wav'),
-                'words': words,
-                'phowords': phowords,
-                'times': times}
-        
-        break
-        if dali_song_is_corrupt(song):
-            continue
-
-        songs.append(song)
-
-    return songs
-
-def get_non_monotonic_dali(lang='english'):
-    # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
-    # above stat did not consider words completely removed, not up to date
+    lang = None if config.dali_multilingual else 'english'
 
     dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[], keep=[])
-
-    non_monotonic_dali_songs = []
-    old_non_monotonic_dali_songs = []
-
-    def unique(l):
-        last = object()
-        for item in l:
-            if item == last:
-                continue
-            yield item
-            last = item
-
-    num_non_monotonic_ends = 0
-
-    audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
-    for file in tqdm(audio_files):
-        id = file[:-4]
-        annot = dali_data[id].annotations['annot']
-        metadata = dali_data[id].info['metadata']
-
-        if lang is not None and metadata['language'] != lang:
-            continue
-
-        times = [d['time'] for d in annot['words']]
-        words = [d['text'] for d in annot['words']]
-        words, times = normalize_dali(words, times, cutoff=1e10)
-        phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
-
-        song = {'id': id,
-                'audio_path': os.path.join(config.dali_audio, file),
-                'words': words,
-                'phowords': phowords,
-                'times': times,
-                'url': dali_data[id].info['audio']['url']}
-
-        if not monotonically_increasing_starts(times):
-            ### sort and remove duplicates
-            times, words, phowords = (list(t) for t in zip(*unique(sorted((zip(times, words, phowords))))))
-            song['times'] = times
-            song['words'] = words
-            song['phowords'] = phowords
-            ###
-            non_monotonic_dali_songs.append(song)
-        elif not old_monotonically_increasing_times(times):
-            old_non_monotonic_dali_songs.append(song)
-
-        if not monotonically_increasing_ends(times):
-            num_non_monotonic_ends += 1
-
-    print(f'num_non_monotonic_ends = {num_non_monotonic_ends}')
-
-    return non_monotonic_dali_songs, old_non_monotonic_dali_songs
-
-def get_dali(lang='english'):
-    # 96569 of 5069058 chars in DALI are not in utils.char_dict and thus removed in normalize_dali (2% noise)
-    # above stat did not consider words completely removed, not up to date
-
-    dali_data = dali_code.get_the_DALI_dataset(config.dali_annotations, skip=[], keep=[])
-    remarks = get_dali_remarks()
+    if config.use_dali_remarks:
+        remarks = get_dali_remarks()
 
     songs = []
-    corrupt = 0
     
     def unique(l):
         last = object()
@@ -132,7 +36,6 @@ def get_dali(lang='english'):
             yield item
             last = item
 
-    corrupt = 0
     audio_files = os.listdir(config.dali_audio)  # only get songs for which we have audio files
     for file in tqdm(audio_files):
         id = file[:-4]
@@ -144,9 +47,8 @@ def get_dali(lang='english'):
         
         offset = 0
         cutoff = 1e10
-        if id in remarks:
+        if config.use_dali_remarks and id in remarks:
             if remarks[id]['corrupt from'] == 0 or remarks[id]['noisy'] or remarks[id]['offset'].__contains__(',') or remarks[id]['non-english']:
-                corrupt += 1
                 continue
             offset = 0 if remarks[id]['offset'] in '+-' else float(remarks[id]['offset'])
             cutoff = remarks[id]['corrupt from']
@@ -161,15 +63,14 @@ def get_dali(lang='english'):
             times, words, phowords = (list(t) for t in zip(*unique(sorted((zip(times, words, phowords))))))
 
         song = {'id': id,
+                'url': dali_data[id].info['audio']['url'],
                 'audio_path': os.path.join(config.dali_audio, file),
                 'words': words,
                 'phowords': phowords,
-                'times': times,
-                'url': dali_data[id].info['audio']['url']}
+                'times': times}
 
         songs.append(song)
 
-    print(f'corrupt = {corrupt}')
     return songs
 
 
@@ -228,8 +129,7 @@ def get_jamendoshorts(lang='English'):
                     'phowords': phowords,
                     'lines': lines,
                     'pholines': pholines,
-                    'times': times
-                    }
+                    'times': times}
             
             songs.append(song)
     
@@ -285,7 +185,7 @@ def get_georg():
     return songs
 
 
-def jamendo_collate(song):
+def eval_collate(song):
     waveform = load(song['audio_path'], sr=config.sr)
     song['duration'] = len(waveform) / config.sr
     spec = wav2spec(waveform)
@@ -324,11 +224,16 @@ def collate(data):
 class LA_Dataset(Dataset):
     def __init__(self, dataset, partition):
         super(LA_Dataset, self).__init__()
-        dataset_name = 'IPA' if config.use_IPA else ''
-        dataset_name += 'augm' if config.augment_data else ''
-        dataset_name += 'clean_monotonic_dali' if config.use_dali else 'georg'
-        file_name = f'{dataset_name}_{partition}_with_time'
-        #file_name = f'{dataset_name}_{partition}_100'
+
+        dataset_name = 'dali' if config.use_dali else 'georg'
+        if config.use_dali and config.use_dali_remarks:
+            dataset_name += 'clean'
+        if config.augment_data:
+            dataset_name += 'augm'
+        if config.use_IPA:
+            dataset_name += 'IPA' 
+
+        file_name = f'{dataset_name}_{partition}'
         pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')
 
         if not os.path.exists(pickle_file):
@@ -340,20 +245,20 @@ class LA_Dataset(Dataset):
             for song in tqdm(dataset):
                 waveform = load(song['audio_path'], sr=config.sr)
 
-                start_times = [start_time for (start_time, _) in song['times']]
-                end_times = [end_time for (_, end_time) in song['times']]
+                word_starts = [start for (start, _) in song['times']]
+                word_ends = [end for (_, end) in song['times']]
 
-                max_num_samples = floor(((len(waveform) - config.segment_length) / config.hop_size) + 1)
+                max_num_samples = floor(((len(waveform) / config.sr - config.segment_length) / config.hop_size) + 1)
                 for i in range(max_num_samples):
                     sample_start = i * config.hop_size
                     sample_end = sample_start + config.segment_length
-                    assert sample_end <= len(waveform)
-                    waveform_slice = waveform[sample_start:sample_end]
+                    assert sample_end <= len(waveform) / config.sr
+                    waveform_slice = waveform[int(sample_start * config.sr):int(sample_end * config.sr)]
 
-                    # find the lyrics within (start, end)
-                    idx_first_word = bisect.bisect_left(start_times, sample_start / config.sr)
-                    idx_past_last_word = idx_first_word  #bisect.bisect_left(end_times, sample_end / config.sr)
-                    while idx_past_last_word < len(end_times) and end_times[idx_past_last_word] < sample_end / config.sr:
+                    # find the lyrics within (sample_start, sample_end)
+                    idx_first_word = bisect.bisect_left(word_starts, sample_start)
+                    idx_past_last_word = idx_first_word  #bisect.bisect_left(word_ends, sample_end)
+                    while idx_past_last_word < len(word_ends) and word_ends[idx_past_last_word] < sample_end:
                         idx_past_last_word += 1
 
                     if idx_first_word >= idx_past_last_word:  # no words (fully contained) in this sample, skip
@@ -364,37 +269,35 @@ class LA_Dataset(Dataset):
                     words = song['words'][idx_first_word:idx_past_last_word]
                     phowords = song['phowords'][idx_first_word:idx_past_last_word]
                     times = song['times'][idx_first_word:idx_past_last_word]
-                    offset = sample_start / config.sr
+                    offset = sample_start
                     times = [(start - offset, end - offset) for (start, end) in times]
                     for (start, end) in times:
-                        # +0.03 due to georg's failed monotonicity
-                        #assert 0 <= start < 5.03 and 0 <= end < 5.03, f'id={song["id"]}, i={i}, sample_start={sample_start}, offset={offset} start={start}, end={end}'
-                        assert 0 <= start < end < 5, f'id={song["id"]}, i={i}, sample_start={sample_start}, offset={offset} start={start}, end={end}'
+                        assert 0 <= start < end < config.segment_length, f'id={song["id"]}, i={i}, sample_start={sample_start}, offset={offset} start={start}, end={end}'
                     sample = (spec, words, phowords, times)
                     samples.append(sample)
 
                     if config.augment_data:
-                        # augment
-                        choice = np.random.choice(['pitch', 'time', 'freq_filter'])
-                        if choice == 'pitch':
+                        transforms = ['pitch_shift', 'freq_filter', 'time_stretch']
+                        choice = np.random.choice(transforms)
+                        if choice == 'pitch_shift':
                             transform = PitchShift(p=1)
-                        elif choice == 'time':
+                        elif choice == 'freq_filter':
+                            transform = np.random.choice([BandPassFilter(p=1), LowPassFilter(p=1), HighPassFilter(p=1)])
+                        elif choice == 'time_stretch':
                             rate = np.random.choice([0.8, 1.25])
                             transform = TimeStretch(min_rate=rate, max_rate=rate, p=1)
-                            times = [(start/rate, end/rate) for (start, end) in times if end/rate < config.segment_length / config.sr]
+                            times = [(start/rate, end/rate) for (start, end) in times if end/rate < config.segment_length]
+                            if len(times) == 0:
+                                continue
                             words = words[:len(times)]
                             phowords = phowords[:len(times)]
-                        else:  # choice = 'freq_filter'
-                            transform = np.random.choice([BandPassFilter(p=1), LowPassFilter(p=1), HighPassFilter(p=1)])
+                        else:
+                            raise NotImplemented()
                         
-                        # IF times IS EMPTY (choice == time) SKIP SAMPLE
-                        if len(times) == 0:
-                            continue
                         transformed_waveform_slice = transform(waveform_slice, sample_rate=config.sr)
                         transformed_spec = wav2spec(transformed_waveform_slice)
                         sample = (transformed_spec, words, phowords, times)
                         samples.append(sample)
-
 
 
             with open(pickle_file, 'wb') as f:
@@ -418,7 +321,7 @@ class NegativeSampler:
 
         print('Computing negative sampling probabilities')
 
-        assert config.context <= 1
+        assert config.context <= 1  # very memory intensive to store the distribution otherwise
         self.frequencies = np.zeros((pow(config.vocab_size, 1 + 2 * config.context),), dtype=int)
 
         for song in tqdm(dataset):
@@ -506,6 +409,29 @@ class NegativeSampler:
 
 if __name__ == '__main__':
     print('Running data.py')
+
+    cfg = {'num_RCBs': config.num_RCBs,
+           'channels': config.channels,
+           'context': config.context,
+           'use_chars': config.use_chars,
+           'embedding_dim': config.embedding_dim,
+           'num_epochs': config.num_epochs,
+           'lr': config.lr,
+           'batch_size': config.batch_size,
+           'num_negative_samples': config.num_negative_samples,
+           'loss': config.loss,
+           'box_slack': config.box_slack,
+           'use_dali': config.use_dali,
+           'use_dali_remarks': config.use_dali_remarks,
+           'dali_multilingual': config.dali_multilingual,
+           'use_IPA': config.use_IPA,
+           'augment_data': config.augment_data,
+           'val_size': config.val_size,
+           'masked': config.masked,
+           'load_epoch': config.load_epoch,
+           'load_dir': config.load_dir}
+    
+    print(cfg)
     
     #georg = get_georg()
     #print('Size of Georg:', len(georg))

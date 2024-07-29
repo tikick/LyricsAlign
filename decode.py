@@ -4,7 +4,7 @@ import config
 
 
 def diagonal_align(S, song):
-    # finds monotonic path maximizing the cumulative similarity score, without horizontal score accumulation
+    # finds monotonic path maximizing the cumulative log similarity score, without horizontal score accumulation
 
     assert np.all((S >= 0) & (S <= 1))
 
@@ -66,9 +66,7 @@ def get_alignment(S, song, time_measure='seconds'):
         return token_alignment, word_alignment
     
 
-def compute_line_mask(S, song, token_alignment):
-    # all spaces get 0 !!!
-    
+def compute_line_mask(S, song, token_alignment):    
     token_duration = 9 if config.use_chars else 17  # duration in frames (0.2 * fps and 0.4 * fps)
     tol_window_length = 108  # 2.5 * fps
 

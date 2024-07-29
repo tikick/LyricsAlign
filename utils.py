@@ -14,14 +14,19 @@ import random
 import config
 
 
-# why dict?
-phoneme_dict = [' ', 'AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH']
-phoneme2int = {phoneme_dict[i]: i for i in range(len(phoneme_dict))}
-int2phoneme = {i: phoneme_dict[i] for i in range(len(phoneme_dict))}
-
 char_dict = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', "'"]
 char2int = {char_dict[i]: i for i in range(len(char_dict))}
 int2char = {i: char_dict[i] for i in range(len(char_dict))}
+
+if config.use_IPA:
+    phoneme_dict = ['ə', 'eɪ', 'ɑ', 'æ', 'ə', 'ɔ', 'ʌ', 'aʊ', 'aɪ', 'ʧ', 'ð', 'ɛ', 'ər', 'h', 'ɪ', 'ʤ', 'ŋ', 'oʊ', 'ɔɪ', 'ʃ', 'θ', 'ʊ', 'u', 'ʒ', 'i', 'j']
+    phoneme_dict += char_dict
+else:
+    phoneme_dict = [' ', 'AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH']
+phoneme2int = {phoneme_dict[i]: i for i in range(len(phoneme_dict))}
+int2phoneme = {i: phoneme_dict[i] for i in range(len(phoneme_dict))}
+
+
 
 g2p = G2p()
 
@@ -49,33 +54,24 @@ def display_module_parameters(model):
 
 
 def words2phowords(words):
-
-    if config.use_IPA:  # TODO
-        phowords = ipa.convert(words)
-        phowords = [phoword[:-1] if phoword[-1] == '*' else phoword for phoword in phowords]
-
-        for phoword in phowords:
-            for p in phoword:
-                if p not in phoneme_dict[1:]:
-                    raise NotImplemented(f'Unknown phoneme "{p}" in word "{raw_word}"')
-
-        return phowords
-    
-    else:
-        phowords = []
-        for word in words:
-            raw_word = word
+    phowords = []
+    for word in words:
+        raw_word = word
+        if config.use_IPA:
+            phoword = list(ipa.convert(word, stress_marks='none'))
+            phoword = phoword[:-1] if phoword[-1] == '*' else phoword
+        else:
             word = word.strip("'")  # g2p does not remove leading and trailing '
             phoword = g2p(word)
             phoword = [p[:-1] if p[-1] in string.digits else p for p in phoword]
-            assert len(phoword) > 0
-            phowords.append(phoword)
+        assert len(phoword) > 0
+        phowords.append(phoword)
 
-            for p in phoword:
-                if p not in phoneme_dict[1:]:
-                    raise NotImplemented(f'Unknown phoneme "{p}" in word "{raw_word}"')
+        for p in phoword:
+            if p not in phoneme_dict[1:]:
+                raise NotImplemented(f'Unknown phoneme "{p}" in word "{raw_word}"')
 
-        return phowords
+    return phowords       
 
 def lines2pholines(lines):
     pholines = []
@@ -110,7 +106,8 @@ def get_dali_remarks():
     return remarks
 
 
-def old_monotonically_increasing_times(times):    
+def monotonically_increasing_times(times):
+    raise NotImplemented('do not use')
     flat_times = [t for time in times for t in time]
     if all(flat_times[i] <= flat_times[i + 1] for i in range(len(flat_times) - 1)):
         return True
@@ -128,13 +125,6 @@ def monotonically_increasing_ends(times):
         return True
     return False
 
-def georg_song_is_corrupt(song):
-    flat_times = [t for time in song['times'] for t in time]
-    if not all(flat_times[i] <= flat_times[i + 1] + 0.03 for i in range(len(flat_times) - 1)):
-        return True
-
-    return False
-
 
 def normalize_dali(raw_words, raw_times, cutoff, offset):
     words = []
@@ -149,7 +139,7 @@ def normalize_dali(raw_words, raw_times, cutoff, offset):
         word = raw_word.lower()
         word = ''.join([c for c in word if c in char_dict[1:]])
         word = word.strip("'")  # e.g. filter('89) = ', not a word
-        if len(word) == 0 or len(word) >= 16:
+        if len(word) == 0 or len(word) >= 12:  # if len(word) >= 12, then word is likely the concat of multiple words
             continue
         words.append(word)
         times.append(raw_time)
@@ -158,8 +148,8 @@ def normalize_dali(raw_words, raw_times, cutoff, offset):
 
     return words, times
 
-def normalize_georg(raw_words, raw_times, cut=False):
-    return normalize_dali(raw_words, raw_times, cut=cut)
+def normalize_georg(raw_words, raw_times):
+    return normalize_dali(raw_words, raw_times, cutoff=1e10, offset=0)
 
 def normalize_jamendo(raw_lines):
     lines = [l for l in raw_lines if len(l) > 0]  # remove empty lines between paragraphs
@@ -203,19 +193,21 @@ def encode_phowords(phowords, times):
         #phoneme_times += [time] * len(phoword) + [(start, next_end)]
     phonemes += phowords[-1]
     phoneme_times += [times[-1]] * len(phowords[-1])
+    
     phoneme_freq = [0] * len(phoneme_dict)
     for p in phonemes:
         phoneme_freq[phoneme2int[p]] += 1
+    phoneme_freq[phoneme2int[' ']] = 2  # it's better to always consider space as duplicate (there's probably space/silence at the start and end of the segment)
 
     phonemes = [' '] * config.context + phonemes + [' '] * config.context
 
     enc_phonemes = []
-    is_duplicate = [False] * len(phonemes)
+    is_duplicate = [False] * len(phonemes)  # is_duplicate does not consider context
     for i, p in enumerate(phonemes):
         idx = phoneme2int[p]
         enc_phonemes.append(idx)
         is_duplicate[i] = phoneme_freq[idx] > 1
-        assert phoneme_freq[idx] >= 1 or idx == 0  # idx = 0, i.e., space
+        assert phoneme_freq[idx] >= 1
 
     tokens = [enc_phonemes[i:i + (1 + 2 * config.context)] for i in range(len(enc_phonemes) - 2 * config.context)]  # token: enc_phoneme and context
     assert len(tokens) > 0

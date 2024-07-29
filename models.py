@@ -1,5 +1,3 @@
-# Some of the code comes from https://github.com/jhuang448/LyricsAlignment-MTL
-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -48,7 +46,6 @@ class AudioEncoder(nn.Module):
         self.conv1d = nn.Conv1d(in_channels=config.channels, out_channels=config.embedding_dim, kernel_size=config.freq_bins)
 
     def forward(self, x):
-        #print("\tIn AudioEncoder: input size", x.shape)
         # x.shape: (batch, feature, time)
 
         assert x.shape[1] == config.freq_bins
@@ -70,7 +67,7 @@ class AudioEncoder(nn.Module):
         x = F.normalize(x, p=2, dim=1)
 
         assert x.shape[1] == config.embedding_dim
-        #print("\tIn AudioEncoder: output size", x.shape)
+
         return x
 
 
@@ -88,7 +85,6 @@ class TextEncoder(nn.Module):
         )
 
     def forward(self, x):
-        #print("\tIn TextEncoder: input size", x.shape)
         # x.shape: (batch, context)
 
         assert x.shape[1] == 1 + 2 * config.context
@@ -106,7 +102,7 @@ class TextEncoder(nn.Module):
         x = F.normalize(x, p=2, dim=1)
 
         assert x.shape[1] == config.embedding_dim
-        #print("\tIn TextEncoder: output size", x.shape)
+
         return x
 
 
@@ -149,87 +145,62 @@ class SimilarityModel(nn.Module):
     
 
 def contrastive_loss(PA, NA, times, is_duplicate):
-    return 2 * (config.alpha * torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
-                (1 - config.alpha) * torch.mean(torch.pow(torch.max(NA, dim=1).values, 2)))  # max along time dimension
+    return torch.mean(torch.pow(torch.max(PA, dim=1).values - 1, 2)) + \
+           torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))
+
 
 def box_loss(PA, NA, times, is_duplicate):
+
     assert len(times) == PA.shape[0]
-    duration = config.segment_length / config.sr
-    fps = PA.shape[1] / duration
+    fps = PA.shape[1] / config.segment_length
     sum = 0.
-    num_summands = 0
-    #box_image = np.zeros(PA.shape)
+
     for i, (start, end) in enumerate(times):
-        frame_start = int((start - config.box_slack) * fps)
-        frame_end = int((end + config.box_slack) * fps)
-        if config.box_slack > 0:
-            frame_start = max(frame_start, 0)
-            frame_end = min(frame_end, PA.shape[1] - 1)
-        #assert 0 <= frame_start <= frame_end < PA.shape[1], f'frame_start = {frame_start}, frame_end = {frame_end}'
-        if not (0 <= frame_start <= frame_end < PA.shape[1]):
-            print(f'frame_start = {frame_start}, frame_end = {frame_end}')
-        row_slice = PA[i, frame_start:frame_end + 1]
-        #box_image[i, frame_start:frame_end + 1] = 1
+        start_frame = int((start - config.box_slack) * fps)
+        end_frame = int((end + config.box_slack) * fps) + 1  # +1 to make non-inclusive
+        start_frame = max(start_frame, 0)
+        end_frame = min(end_frame, PA.shape[1])
+        assert 0 <= start_frame < end_frame <= PA.shape[1], f'start_frame = {start_frame}, end_frame = {end_frame}'
 
-        if row_slice.numel() == 0:  # CHECK THIS
-            print('HOW CAN THIS HAPPEN?')
-            continue
-
+        row_slice = PA[i, start_frame:end_frame]
         sum += torch.pow(torch.max(row_slice) - 1, 2)
-        num_summands += 1
 
-    mean_positives = sum / num_summands  # DivZeroError
+    mean_positives = sum / len(times)
+    mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))
+    #return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)
+    return mean_positives + mean_negatives
 
-    mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
-    #mean_negatives = torch.mean(torch.pow(NA, 2))
-
-    return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)
-
-    fig, ax = plt.subplots(figsize=(min(PA.shape[1] // 14, 100), min((len(times) + 20 * config.batch_size) // 12, 100)))
-    alignment_cmap = 'Blues'
-    show_plot(box_image, ax, 'box image', times, alignment_cmap)
-    fig.tight_layout()
-    wandb.log({'media/box_image': plt})
-    plt.close()
 
 def neg_box_loss(PA, NA, times, is_duplicate):
+
     assert len(times) == PA.shape[0] and len(times) == len(is_duplicate)
-    duration = config.segment_length / config.sr
-    fps = PA.shape[1] / duration
+    fps = PA.shape[1] / config.segment_length
     pos_sum = 0.
-    pos_summands = 0
     neg_sum = 0.
     neg_summands = 0
+
     for i, (start, end) in enumerate(times):
 
-        frame_start = int((start - config.box_slack) * fps)
-        frame_end = int((end + config.box_slack) * fps)
-        #assert frame_start <= frame_end
-        if config.box_slack > 0:
-            frame_start = max(frame_start, 0)
-            frame_end = min(frame_end, PA.shape[1] - 1)
-        #assert 0 <= frame_start <= frame_end < PA.shape[1], f'frame_start = {frame_start}, frame_end = {frame_end}'
-        if not (0 <= frame_start <= frame_end < PA.shape[1]):
-            print(f'frame_start = {frame_start}, frame_end = {frame_end}')
-            continue
+        start_frame = int((start - config.box_slack) * fps)
+        end_frame = int((end + config.box_slack) * fps) + 1  # +1 to make non-inclusive
+        start_frame = max(start_frame, 0)
+        end_frame = min(end_frame, PA.shape[1])
+        assert 0 <= start_frame < end_frame <= PA.shape[1], f'start_frame = {start_frame}, end_frame = {end_frame}'
 
-        pos_row_slice = PA[i, frame_start:frame_end + 1]
+        pos_row_slice = PA[i, start_frame:end_frame]
         pos_sum += torch.pow(torch.max(pos_row_slice) - 1, 2)
-        pos_summands += 1
 
-        neg_row_slice = torch.cat((PA[i, :frame_start], PA[i, frame_end + 1:]))
+        neg_row_slice = torch.cat((PA[i, :start_frame], PA[i, end_frame:]))
         if neg_row_slice.numel() == 0 or is_duplicate[i]:
             continue
         neg_sum += torch.pow(torch.max(neg_row_slice), 2)
         neg_summands += 1
 
-    mean_positives = pos_sum / pos_summands #len(times)
+    mean_positives = pos_sum / len(times)
     if neg_summands > 0:
         mean_negatives = neg_sum / neg_summands
     else:
         mean_negatives = 0
 
-    #mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))  # max along time dimension
-    #mean_negatives = torch.mean(torch.pow(NA, 2))
-
-    return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)
+    #return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)
+    return mean_positives + mean_negatives
