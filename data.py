@@ -227,9 +227,11 @@ class LA_Dataset(Dataset):
 
         dataset_name = 'dali' if config.use_dali else 'georg'
         if config.use_dali and config.use_dali_remarks:
-            dataset_name += 'clean'
+            dataset_name += 'Clean'
+        if config.use_dali and config.dali_multilingual:
+            dataset_name += 'Multilingual'
         if config.augment_data:
-            dataset_name += 'augm'
+            dataset_name += 'Augm'
         if config.use_IPA:
             dataset_name += 'IPA' 
 
