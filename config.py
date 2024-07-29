@@ -56,7 +56,7 @@ use_dali = True  # if false uses georg
 use_dali_remarks = True
 dali_multilingual = False  # eng_to_ipa does not support multilingual
 use_IPA = False  # if false uses english phonemes from g2p
-augment_data = True
+augment_data = False
 
 # alignment
 masked = False
