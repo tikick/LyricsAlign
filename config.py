@@ -42,14 +42,14 @@ vocab_size = 28 if use_chars else 40  # len(char_dict) if use_chars else len(pho
 embedding_dim = 64
 
 # others
-num_epochs = 18
+num_epochs = 16
 lr = 0.0001
 batch_size = 8
 num_negative_samples = 1_000
 
 # loss
 loss = 'box_loss'  # [box_loss, neg_box_loss, contrastive_loss]
-box_slack = 0.5  # seconds
+box_slack = 1  # seconds
 
 # dataset
 use_dali = True  # if false uses georg
