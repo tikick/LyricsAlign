@@ -14,7 +14,7 @@ from datetime import datetime
 
 import config
 from data import get_dali, get_georg, get_jamendo, get_jamendoshorts, LA_Dataset, NegativeSampler, collate
-from models import SimilarityModel, contrastive_loss, box_loss
+from models import SimilarityModel, contrastive_loss, box_loss, neg_box_loss
 from utils import fix_seeds, display_module_parameters, int2char, int2phoneme
 from eval import evaluate
 from media import show_plot
@@ -137,10 +137,12 @@ def main():
     optimizer = optim.Adam(model.parameters(), config.lr)
     #scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=1, threshold=1e-3, threshold_mode='abs')
 
-    if config.loss == 'contrastive-loss':
+    if config.loss == 'contrastive_loss':
         criterion = contrastive_loss
-    elif config.loss == 'box-loss':
+    elif config.loss == 'box_loss':
         criterion = box_loss
+    elif config.loss == 'neg_box_loss':
+        criterion = neg_box_loss
     else:
         raise NotImplemented()
 
