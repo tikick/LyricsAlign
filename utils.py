@@ -29,7 +29,7 @@ int2phoneme = {i: phoneme_dict[i] for i in range(len(phoneme_dict))}
 
 
 g2p = G2p()
-espeak_backend = EspeakBackend('en-us')  # BACKEND SET TO ENGLISH; CHANGE IF TRAIN OR EVAL WITH OTHER LANGUAGES
+#espeak_backend = EspeakBackend('en-us')  # BACKEND SET TO ENGLISH; CHANGE IF TRAIN OR EVAL WITH OTHER LANGUAGES
 
 
 def fix_seeds(seed=97):
