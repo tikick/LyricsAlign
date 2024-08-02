@@ -8,6 +8,8 @@ from torch import nn
 import string
 from g2p_en import G2p
 import eng_to_ipa as ipa
+from phonemizer.backend import EspeakBackend
+import re
 import csv
 import random
 
@@ -18,17 +20,16 @@ char_dict = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm
 char2int = {char_dict[i]: i for i in range(len(char_dict))}
 int2char = {i: char_dict[i] for i in range(len(char_dict))}
 
-if config.use_IPA:
-    phoneme_dict = ['ə', 'eɪ', 'ɑ', 'æ', 'ə', 'ɔ', 'ʌ', 'aʊ', 'aɪ', 'ʧ', 'ð', 'ɛ', 'ər', 'h', 'ɪ', 'ʤ', 'ŋ', 'oʊ', 'ɔɪ', 'ʃ', 'θ', 'ʊ', 'u', 'ʒ', 'i', 'j']
-    phoneme_dict += char_dict
-else:
-    phoneme_dict = [' ', 'AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH']
+phonemizer_phoneme_dict = [' ', 'a', 'b', 'd', 'e', 'f', 'h', 'i', 'iː', 'j', 'k', 'l', 'm', 'n', 'o', 'oː', 'p', 'r', 's', 't', 'uː', 'v', 'w', 'x', 'z', 'æ', 'æː', 'ð', 'ŋ', 'ɐ', 'ɐː', 'ɑ', 'ɑː', 'ɔ', 'ɔː', 'ə', 'ɚ', 'ɛ', 'ɜː', 'ɡ', 'ɪ', 'ɫ', 'ɬ', 'ɹ', 'ɾ', 'ʃ', 'ʊ', 'ʌ', 'ʒ', 'ʔ', '̃', 'θ', 'ᵻ']
+g2p_phoneme_dict = [' ', 'AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G', 'HH', 'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH']
+phoneme_dict = phonemizer_phoneme_dict if config.use_IPA else g2p_phoneme_dict
 phoneme2int = {phoneme_dict[i]: i for i in range(len(phoneme_dict))}
 int2phoneme = {i: phoneme_dict[i] for i in range(len(phoneme_dict))}
 
 
 
 g2p = G2p()
+espeak_backend = EspeakBackend('en-us')  # BACKEND SET TO ENGLISH; CHANGE IF TRAIN OR EVAL WITH OTHER LANGUAGES
 
 
 def fix_seeds(seed=97):
@@ -53,25 +54,45 @@ def display_module_parameters(model):
     print(f'Total Trainable Params: {total_num_params}')
 
 
-def words2phowords(words):
+def split_IPA_string(s):
+    # splits the string into its chars, concats the Long symbol 'ː' with its root
+    pattern = re.compile(r'.ː?')
+    return pattern.findall(s)
+
+def words2phowords(words, times):
+
+    ret_words = []
     phowords = []
-    for word in words:
-        raw_word = word
+    ret_times = []
+    for word, time in zip(words, times):
+
         if config.use_IPA:
-            phoword = list(ipa.convert(word, stress_marks='none'))
-            phoword = phoword[:-1] if phoword[-1] == '*' else phoword
+            phoword = espeak_backend.phonemize([word], strip=True)[0]
+
+            if phoword.__contains__('('):  # non-english word, e.g., phonemize('dieu') = '(fr)djø(enus)'
+                continue
+            if phoword.startswith('ɹoʊmən '):  # ii and others interpreted as roman numbers
+                continue
+            
+            phoword = split_IPA_string(phoword)
+            phoword = [c for c in phoword if c not in ['̩', 'ː']]  # remove Syllabic and remaining Long symbols
+       
         else:
             word = word.strip("'")  # g2p does not remove leading and trailing '
             phoword = g2p(word)
             phoword = [p[:-1] if p[-1] in string.digits else p for p in phoword]
+        
         assert len(phoword) > 0
+        ret_words.append(word)
         phowords.append(phoword)
+        ret_times.append(time)
 
+    for word, phoword in zip(words, phowords):
         for p in phoword:
             if p not in phoneme_dict[1:]:
-                raise NotImplemented(f'Unknown phoneme "{p}" in word "{raw_word}"')
+                raise NotImplemented(f'Unknown phoneme "{p}" in word "{word}"')
 
-    return phowords       
+    return ret_words, phowords, ret_times     
 
 def lines2pholines(lines):
     pholines = []
@@ -126,14 +147,14 @@ def monotonically_increasing_ends(times):
     return False
 
 
-def normalize_dali(raw_words, raw_times, cutoff, offset):
-    words = []
-    times = []
-    for raw_word, raw_time in zip(raw_words, raw_times):
-        if raw_time[0] >= cutoff:
+def normalize_dali(words, times, cutoff, offset):
+    ret_words = []
+    ret_times = []
+    for raw_word, time in zip(words, times):
+        if time[0] >= cutoff:
             break
 
-        if raw_time[0] >= raw_time[1]:
+        if time[0] >= time[1]:
             continue
 
         word = raw_word.lower()
@@ -141,12 +162,12 @@ def normalize_dali(raw_words, raw_times, cutoff, offset):
         word = word.strip("'")  # e.g. filter('89) = ', not a word
         if len(word) == 0 or len(word) >= 12:  # if len(word) >= 12, then word is likely the concat of multiple words
             continue
-        words.append(word)
-        times.append(raw_time)
+        ret_words.append(word)
+        ret_times.append(time)
 
-    times = [(start + offset, end + offset) for (start, end) in times]
+    ret_times = [(start + offset, end + offset) for (start, end) in ret_times]
 
-    return words, times
+    return ret_words, ret_times
 
 def normalize_georg(raw_words, raw_times):
     return normalize_dali(raw_words, raw_times, cutoff=1e10, offset=0)

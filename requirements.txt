@@ -12,6 +12,6 @@ audiomentation
 wandb
 dali-dataset
 pytube
-h5py
 g2p_en
+phonemizer
 prettytable
