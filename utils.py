@@ -8,7 +8,7 @@ from torch import nn
 import string
 from g2p_en import G2p
 import eng_to_ipa as ipa
-from phonemizer.backend import EspeakBackend
+#from phonemizer.backend import EspeakBackend
 import re
 import csv
 import random
