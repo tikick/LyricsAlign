@@ -97,7 +97,7 @@ def main():
            'load_dir': config.load_dir}
     
     print(cfg)
-    os.environ["WANDB__SERVICE_WAIT"] = "300"
+    os.environ["WANDB__SERVICE_WAIT"] = '600'
     wandb.init(project='New-Align', config=cfg)
 
     run_start_time = datetime.now().strftime('%m-%d,%H:%M:%S')
