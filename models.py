@@ -154,18 +154,23 @@ def box_loss(PA, NA, times, is_duplicate):
     assert len(times) == PA.shape[0]
     fps = PA.shape[1] / config.segment_length
     sum = 0.
+    summands = 0
 
     for i, (start, end) in enumerate(times):
         start_frame = int((start - config.box_slack) * fps)
         end_frame = int((end + config.box_slack) * fps) + 1  # +1 to make non-inclusive
         start_frame = max(start_frame, 0)
         end_frame = min(end_frame, PA.shape[1])
-        assert 0 <= start_frame < end_frame <= PA.shape[1], f'start_frame = {start_frame}, end_frame = {end_frame}'
+        # spaces between overlapping words do not satisfy the following assert
+        #assert 0 <= start_frame < end_frame <= PA.shape[1], f'start_frame = {start_frame}, end_frame = {end_frame}'
+        if end_frame <= start_frame:
+            continue
 
         row_slice = PA[i, start_frame:end_frame]
         sum += torch.pow(torch.max(row_slice) - 1, 2)
+        summands += 1
 
-    mean_positives = sum / len(times)
+    mean_positives = sum / summands
     mean_negatives = torch.mean(torch.pow(torch.max(NA, dim=1).values, 2))
     #return 2 * (config.alpha * mean_positives + (1 - config.alpha) * mean_negatives)
     return mean_positives + mean_negatives
@@ -176,6 +181,7 @@ def neg_box_loss(PA, NA, times, is_duplicate):
     assert len(times) == PA.shape[0] and len(times) == len(is_duplicate)
     fps = PA.shape[1] / config.segment_length
     pos_sum = 0.
+    pos_summands = 0
     neg_sum = 0.
     neg_summands = 0
 
@@ -185,18 +191,23 @@ def neg_box_loss(PA, NA, times, is_duplicate):
         end_frame = int((end + config.box_slack) * fps) + 1  # +1 to make non-inclusive
         start_frame = max(start_frame, 0)
         end_frame = min(end_frame, PA.shape[1])
-        assert 0 <= start_frame < end_frame <= PA.shape[1], f'start_frame = {start_frame}, end_frame = {end_frame}'
+        # spaces between overlapping words do not satisfy the following assert
+        # assert 0 <= start_frame < end_frame <= PA.shape[1], f'start_frame = {start_frame}, end_frame = {end_frame}'
+        if end_frame <= start_frame:
+            continue
 
         pos_row_slice = PA[i, start_frame:end_frame]
         pos_sum += torch.pow(torch.max(pos_row_slice) - 1, 2)
+        pos_summands += 1
 
         neg_row_slice = torch.cat((PA[i, :start_frame], PA[i, end_frame:]))
         if neg_row_slice.numel() == 0 or is_duplicate[i]:
             continue
+
         neg_sum += torch.pow(torch.max(neg_row_slice), 2)
         neg_summands += 1
 
-    mean_positives = pos_sum / len(times)
+    mean_positives = pos_sum / pos_summands
     if neg_summands > 0:
         mean_negatives = neg_sum / neg_summands
     else:
