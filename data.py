@@ -235,7 +235,9 @@ class LA_Dataset(Dataset):
         if config.augment_data:
             dataset_name += 'Augm'
         if config.use_IPA:
-            dataset_name += 'IPA' 
+            dataset_name += 'IPA'
+
+        dataset_name = 'small_dali'  # REMOVE THIS LINE
 
         file_name = f'{dataset_name}_{partition}'
         pickle_file = os.path.join(config.pickle_dir, file_name + '.pkl')
