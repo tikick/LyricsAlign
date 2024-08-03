@@ -56,7 +56,7 @@ def get_dali():
         times = [d['time'] for d in annot['words']]
         words = [d['text'] for d in annot['words']]
         words, times = normalize_dali(words, times, cutoff, offset)
-        phowords = words2phowords(words)  #[d['text'] for d in annot['phonemes']]
+        words, phowords, times = words2phowords(words, times)  #[d['text'] for d in annot['phonemes']]
 
         if not monotonically_increasing_starts(times):
             # sort and remove duplicates
@@ -88,9 +88,10 @@ def get_jamendo(lang='English'):
                 lines = f.read().splitlines()
             lines = normalize_jamendo(lines)
             words = ' '.join(lines).split()
-            phowords = words2phowords(words)
-            pholines = lines2pholines(lines)
             times = read_jamendo_times(os.path.join(config.jamendo_annotations, audio_file[:-4] + '.csv'))
+            _, phowords, _ = words2phowords(words, times)
+            assert len(phowords) == len(words)
+            pholines = lines2pholines(lines)
             
             song = {'id': audio_file[:-4],
                     'audio_path': os.path.join(config.jamendo_audio, audio_file),
@@ -119,9 +120,10 @@ def get_jamendoshorts(lang='English'):
                 lines = f.read().splitlines()
             lines = normalize_jamendo(lines)
             words = ' '.join(lines).split()
-            phowords = words2phowords(words)
-            pholines = lines2pholines(lines)
             times = read_jamendo_times(os.path.join(config.jamendoshorts_annotations, audio_file[:-4] + '.csv'))
+            _, phowords, _ = words2phowords(words, times)
+            assert len(phowords) == len(words)
+            pholines = lines2pholines(lines)
             
             song = {'id': audio_file[:-4],
                     'audio_path': os.path.join(config.jamendoshorts_audio, audio_file),
@@ -169,7 +171,7 @@ def get_georg():
             times = list(zip(word_starts, word_ends))
             words = row['alignment']['words']
             words, times = normalize_georg(words, times)
-            phowords = words2phowords(words)
+            words, phowords, times = words2phowords(words, times)
             
             song = {'id': row['ytid'],
                     'audio_path': audio_path,
