@@ -98,7 +98,8 @@ def lines2pholines(lines):
     pholines = []
     for line in lines:
         words = line.split()
-        phowords = words2phowords(words)
+        _, phowords, _ = words2phowords(words, times=[(0, 0)] * len(words))  # dummy times
+        assert len(phowords) == len(words)
         pholine = []
         for phoword in phowords:
             pholine += phoword + [' ']
