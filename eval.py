@@ -25,7 +25,7 @@ def evaluate(model, device, eval_dataset, threshold, log=False):
 
             S = model(spectrogram, positives)
             S = S.cpu().numpy()
-            S = np.where(S >= threshold, 1, 0)
+            S = np.where(S >= threshold, 1, 1e-10)
 
             _, word_alignment = get_alignment(S, song, time_measure='seconds')
             AAE_song, MedAE_song, PCO_song = compute_metrics(word_alignment, song['times'])
