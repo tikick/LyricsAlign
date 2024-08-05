@@ -2,7 +2,6 @@ import os
 import torch
 import wandb
 from statistics import median
-import numpy as np
 
 import config
 from data import get_jamendo, get_jamendoshorts, eval_collate
@@ -12,7 +11,7 @@ from decode import get_alignment
 from media import log_plots
 
 
-def evaluate(model, device, eval_dataset, threshold, log=False):
+def evaluate(model, device, eval_dataset, log=False):
     model.eval()
     AAE = 0.
     MedAE = 0.
@@ -25,7 +24,6 @@ def evaluate(model, device, eval_dataset, threshold, log=False):
 
             S = model(spectrogram, positives)
             S = S.cpu().numpy()
-            S = np.where(S >= threshold, 1, 0)
 
             _, word_alignment = get_alignment(S, song, time_measure='seconds')
             AAE_song, MedAE_song, PCO_song = compute_metrics(word_alignment, song['times'])
@@ -85,12 +83,11 @@ if __name__ == '__main__':
     jamendo = get_jamendo()
     jamendoshorts = get_jamendoshorts()
 
-    epoch = 3
-    model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(epoch))))
-    for t in range(1, 10):
-        threshold = t / 10
-        evaluate(model, device, jamendoshorts, threshold, log=True)
-        AAE_jamendo, MedAE_jamendo, PCO_jamendo = evaluate(model, device, jamendo, threshold, log=False)
-        wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/threshold': threshold})
-        wandb.log({'metric/MedAE_jamendo': MedAE_jamendo, 'metric/threshold': threshold})
-        wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/threshold': threshold})
+    for epoch in range(3, 4):
+        model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(epoch))))
+
+        evaluate(model, device, jamendoshorts, log=True)
+        AAE_jamendo, MedAE_jamendo, PCO_jamendo = evaluate(model, device, jamendo, log=False)
+        wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
+        wandb.log({'metric/MedAE_jamendo': MedAE_jamendo, 'metric/epoch': epoch})
+        wandb.log({'metric/PCO_jamendo': PCO_jamendo, 'metric/epoch': epoch})
