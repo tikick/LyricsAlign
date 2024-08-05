@@ -37,11 +37,9 @@ def diagonal_align(S, song):
     words = song['words'] if config.use_chars else song['phowords']
     word_alignment = []
     first_word_token = last_word_token = 0
-    print(f'len(token_alignment) = {len(token_alignment)}')
     for word in words:
         num_word_tokens = len(word)
         last_word_token = first_word_token + num_word_tokens - 1
-        print(f'first_word_token = {first_word_token}')
         word_start = token_alignment[first_word_token][0]
         word_end = token_alignment[last_word_token][1]
         word_alignment.append((word_start, word_end))
