@@ -63,7 +63,9 @@ def get_dali():
             times, words, phowords = (list(t) for t in zip(*unique(sorted((zip(times, words, phowords))))))
 
         assert len(words) == len(phowords) and len(phowords) == len(times), id
-        assert len(words) > 0, id
+        #assert len(words) > 0, id
+        if len(words) == 0:
+            continue
 
         song = {'id': id,
                 'url': dali_data[id].info['audio']['url'],
