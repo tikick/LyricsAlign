@@ -53,10 +53,10 @@ box_slack = 1  # seconds
 
 # dataset
 use_dali = True  # if false uses georg
-use_dali_remarks = True
+use_dali_remarks = False
 dali_multilingual = False  # eng_to_ipa does not support multilingual
 use_IPA = False  # if false uses english phonemes from g2p  # NEED TO CREATE PHONEME_DICT FIRST
-augment_data = True
+augment_data = False
 
 # alignment
 masked = False
