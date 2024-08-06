@@ -12,6 +12,7 @@ import eng_to_ipa as ipa
 import re
 import csv
 import random
+import pickle
 
 import config
 
@@ -30,6 +31,8 @@ int2phoneme = {i: phoneme_dict[i] for i in range(len(phoneme_dict))}
 
 g2p = G2p()
 #espeak_backend = EspeakBackend('en-us')  # BACKEND SET TO ENGLISH; CHANGE IF TRAIN OR EVAL WITH OTHER LANGUAGES
+with open('phonemizer_dict.pkl', 'rb') as f:
+    phonemizer_dict = pickle.load(f)
 
 
 def fix_seeds(seed=97):
@@ -67,7 +70,8 @@ def words2phowords(words, times):
     for word, time in zip(words, times):
 
         if config.use_IPA:
-            phoword = espeak_backend.phonemize([word], strip=True)[0]
+            #phoword = espeak_backend.phonemize([word], strip=True)[0]
+            phoword = phonemizer_dict[word]
 
             if phoword.__contains__('('):  # non-english word, e.g., phonemize('dieu') = '(fr)djø(enus)'
                 continue
