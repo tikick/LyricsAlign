@@ -110,9 +110,6 @@ def main():
     model = SimilarityModel().to(device)
     # display_module_parameters(model)
 
-    # if train and val files already exist:
-        # dali = dali_train = dali_val = []  # no need to load dali, files already exist
-    # else:
     if config.use_dali:
         dataset = get_dali()
         print('Size of DALI:', len(dataset))
@@ -121,6 +118,7 @@ def main():
         print('Size of Georg:', len(dataset))
     train_split, val_split = train_test_split(dataset, test_size=config.val_size, random_state=97)
 
+    negative_sampler = NegativeSampler(dataset)
     train_data = LA_Dataset(train_split, 'train')
     val_data = LA_Dataset(val_split, 'val')
     print('Num training samples:', len(train_data))
@@ -128,8 +126,6 @@ def main():
 
     train_loader = DataLoader(dataset=train_data, batch_size=config.batch_size, shuffle=True, collate_fn=collate)
     val_loader = DataLoader(dataset=val_data, batch_size=config.batch_size, shuffle=False, collate_fn=collate)
-    
-    negative_sampler = NegativeSampler(dataset)
 
     jamendo = get_jamendo()
     jamendoshorts = get_jamendoshorts()

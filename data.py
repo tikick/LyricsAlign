@@ -62,6 +62,9 @@ def get_dali():
             # sort and remove duplicates
             times, words, phowords = (list(t) for t in zip(*unique(sorted((zip(times, words, phowords))))))
 
+        assert len(words) == len(phowords) and len(phowords) == len(times), id
+        assert len(words) > 0, id
+
         song = {'id': id,
                 'url': dali_data[id].info['audio']['url'],
                 'audio_path': os.path.join(config.dali_audio, file),
