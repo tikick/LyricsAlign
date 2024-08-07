@@ -32,13 +32,11 @@ def train(model, device, train_loader, negative_sampler, criterion, optimizer):
         negatives = torch.IntTensor(negatives)
         spectrograms, positives, negatives = spectrograms.to(device), positives.to(device), negatives.to(device)
 
-        optimizer.zero_grad()
-
         PA, NA = model(spectrograms, positives, positives_per_spectrogram, negatives)
-
         loss = criterion(PA, NA, times, is_duplicate)
-        loss.backward()
 
+        optimizer.zero_grad()
+        loss.backward()
         optimizer.step()
 
         train_loss += loss.item()
