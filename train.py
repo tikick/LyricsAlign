@@ -155,7 +155,7 @@ def main():
         # save checkpoint
         torch.save(model.state_dict(), os.path.join(run_checkpoint_dir, str(epoch)))
 
-        evaluate(model, device, jamendoshorts, log=True)
+        #evaluate(model, device, jamendoshorts, log=True)
         AAE_jamendo, MedAE_jamendo, PCO_jamendo = evaluate(model, device, jamendo, log=False)
         wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
         wandb.log({'metric/MedAE_jamendo': MedAE_jamendo, 'metric/epoch': epoch})

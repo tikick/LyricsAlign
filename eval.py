@@ -86,7 +86,7 @@ if __name__ == '__main__':
     for epoch in range(3, 4):
         model.load_state_dict(torch.load(os.path.join(config.checkpoint_dir, '07-05,10:48', str(epoch))))
 
-        evaluate(model, device, jamendoshorts, log=True)
+        #evaluate(model, device, jamendoshorts, log=True)
         AAE_jamendo, MedAE_jamendo, PCO_jamendo = evaluate(model, device, jamendo, log=False)
         wandb.log({'metric/AAE_jamendo': AAE_jamendo, 'metric/epoch': epoch})
         wandb.log({'metric/MedAE_jamendo': MedAE_jamendo, 'metric/epoch': epoch})
