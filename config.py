@@ -29,6 +29,13 @@ georg_annotations = os.path.join(georg_base, 'ttv')
 georg_audio = os.path.join(georg_base, 'data/audio')
 
 
+# dataset
+use_dali = True  # if false uses georg
+use_dali_remarks = True
+dali_multilingual = False  # eng_to_ipa does not support multilingual
+use_IPA = True  # if false uses english phonemes from g2p  # NEED TO CREATE PHONEME_DICT FIRST
+augment_data = False
+
 # audio encoder
 num_RCBs = 10
 channels = 64
@@ -36,7 +43,7 @@ channels = 64
 # text encoder
 context = 1  # when context = 0, for some audio segments the set of negatives might be empty -> NegativeSampler.sample() fails
 use_chars = False  # if false uses phonemes
-vocab_size = 28 if use_chars else 40  # len(char_dict) if use_chars else len(phoneme_dict)
+vocab_size = 28 if use_chars else (53 if use_IPA else 40)  # len(char_dict) if use_chars else len(phoneme_dict)
 
 # audio and text encoder
 embedding_dim = 64
@@ -50,13 +57,6 @@ num_negative_samples = 1_000
 # loss
 loss = 'box_loss'  # [box_loss, neg_box_loss, contrastive_loss]
 box_slack = 1  # seconds
-
-# dataset
-use_dali = True  # if false uses georg
-use_dali_remarks = True
-dali_multilingual = False  # eng_to_ipa does not support multilingual
-use_IPA = True  # if false uses english phonemes from g2p  # NEED TO CREATE PHONEME_DICT FIRST
-augment_data = False
 
 # alignment
 masked = False
