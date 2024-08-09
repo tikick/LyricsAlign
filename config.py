@@ -31,7 +31,7 @@ georg_audio = os.path.join(georg_base, 'data/audio')
 
 # dataset
 use_dali = True  # if false uses georg
-use_dali_remarks = True
+use_dali_remarks = False
 dali_multilingual = False  # eng_to_ipa does not support multilingual
 use_IPA = True  # if false uses english phonemes from g2p  # NEED TO CREATE PHONEME_DICT FIRST
 augment_data = False
